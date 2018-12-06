@@ -3,6 +3,7 @@
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       np2,ncsvn,nlsvn,                                           &
      &       rniss,rnisse,nlev,pirt,rrrt2)                                                
+!  THIS IS A TEST!!
 !                                                                       
 !     this routine calculates rates affecting ion balance               
 !     author: T. Kallman                                                
