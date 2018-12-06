@@ -3,7 +3,46 @@
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       np2,ncsvn,nlsvn,                                           &
      &       rniss,rnisse,nlev,pirt,rrrt2)                                                
-!  THIS IS A TEST!!
+!     Name: func1.f90  
+!     Description:  
+!           Calculates rates affecting ionization balance for 
+!           one ion.  These rates are photoionization rate and 
+!           recombination rate
+!
+!     List of Parameters:
+!           Input:
+!           jkk: index of ion in xstar scheme 1=H0, 432=Zn29+
+!           kl:  index of ion relative element: 1=neutral, n=hydrogenic
+!           nnz: atomic number of element
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           t: temperature in 10^4K
+!           trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           xh1:  H+ number density (cm^-3)
+!           xh0:  neutral H number density (cm^-3)
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           also uses variables from globaldata
+!           Output:
+!           pirt(nni):  photoionization rate coefficients (s^-1).  
+!                  Only the element  corresponding to the current ion is filled.
+!           rrrt(nni):  recombination rate coefficients (s^-1).  
+!                  Only the element  corresponding to the current ion is filled.
+!           
+!        Dependencies:  Calls ucalc,drd
+!                  
 !                                                                       
 !     this routine calculates rates affecting ion balance               
 !     author: T. Kallman                                                
