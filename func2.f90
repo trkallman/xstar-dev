@@ -6,6 +6,58 @@
      &       rniss,rnisse,nmat,nlev,                                    &
      &       ajisb,cjisb,indb,rrrtot,ipmat,nindb)
 !                                                                       
+!     Name: func2.f90  
+!     Description:  
+!           Calculates all rates affecting level populations for 
+!           one ion.  Puts results into array used in abundance calculation
+!           Note that even though this is done ion by ion, this routine 
+!           can reach into other ions' index space.
+!
+!     List of Parameters:
+!           Input:
+!           jkk: index of ion in xstar scheme 1=H0, 432=Zn29+
+!           kl:  index of ion relative element: 1=neutral, n=hydrogenic
+!           ilimh:  maximum value of kl, i.e. z.
+!           lpriz: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           t: temperature in 10^4K
+!           trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           xh1:  H+ number density (cm^-3)
+!           xh0:  neutral H number density (cm^-3)
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(nnnl):  line optical depths
+!           tauc(nnml):  rrc optical depths
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           rniss:  lte level populations
+!           rnisse:  lte level populations with exponential removed
+!           nmat: index into rates array corresponding to first level
+!           nlev:  number of levels for the ion
+!           also uses variables from globaldata
+!           Output:
+!           ajisb(2,ndb) Matrix of rates (s^-1) 
+!             ajisb(1,n)=forward rate,ajisb(2,n)=reverse rate
+!           cjisb(2,ndb): Matrix of cooling rates (erg s^-1)
+!           indb(2,ndb): Index array for ajisb, cjisb
+!           rrrtot: total recombination rate (s^-1)
+!           ipmat: base index into ajisb of current ion
+!           nindb current length of ajisb
+!           
+!        Dependencies:  Calls ucalc,drd
+!                  
 !     this routine calculates rates affecting level populations         
 !     author: T. Kallman                                                
 !                                                                       
