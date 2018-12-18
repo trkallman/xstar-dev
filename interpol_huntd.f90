@@ -1,5 +1,32 @@
 !_______________________________________________________________        
       real(8) function interpol_huntd(n,x,y,z,jl,ju,lpri,lun11) 
+
+!     Name: interpol_huntd.f90  
+!     Description:  
+!           does interpolation
+!           function needed by calc_maxwell_rates
+!
+!     List of Parameters:
+!           Input: 
+!           n:  number of values
+!           x(n):  array of x values
+!           y(n):  array of y values
+!           z:  independent variable value
+!           lpri: print switch
+!           lun11: logical unit number to print to
+!           Output
+!           jl: index of lower bound x value
+!           jl: index of upper bound x value
+!           value:  interpolated value
+!
+!     Dependencies:
+!
+!     Called by:
+!            calc_maxwell_rates
+!
+!     author:
+!           apec
+!
       integer n 
       real(8) x(n) 
       real(8) y(n) 

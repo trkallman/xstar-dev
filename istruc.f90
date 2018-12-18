@@ -1,5 +1,27 @@
       subroutine istruc(zeff,alpha,xitp,nnz,lpri,lun11) 
 !                                                                       
+!     Name: istruc.f90  
+!     Description:  
+!          computes ionization equilibrium                      
+!          solves a system of ionization equations, attempting               
+!          to avoid overflow problems.                                       
+!     author:  T. Kallman                                               
+!
+!     List of Parameters
+!         Input:
+!         zeff(31): ionization rates
+!         alpha(31): recombination rates
+!         xitp(31): ion fractions
+!         nnz: length of rate vectors
+!         lpri:  print switch
+!         lun11:  logical unit number for printing
+!
+!         Dependencies:
+!         ioneqm.f90
+!
+!         Called by:
+!         func.f90
+!
       implicit none 
 !                                                                       
       integer nnz,lpri,lun11 

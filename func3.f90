@@ -8,6 +8,72 @@
      &       rcem,oplin,rccemis,opakc,opakcont,                         &
      &       cemab,cabab,opakab,fline,flinel)                  
 !                                                                       
+!     Name: func3.f90  
+!     Description:  
+!           Calculates rates affecting heating, cooling, emissivities
+!           and opacities  for one ion.  
+!           Puts results into emissivity and opacity arrays
+!
+!     List of Parameters:
+!           Input:
+!           jkk: index of ion in xstar scheme 1=H0, 432=Zn29+
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           t: temperature in 10^4K
+!           trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           xh1:  H+ number density (cm^-3)
+!           xh0:  neutral H number density (cm^-3)
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(nnnl):  line optical depths
+!           tauc(nnml):  rrc optical depths
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           rniss:  lte level populations
+!           rnisse:  lte level populations with exponential removed
+!           nlev:  number of levels for the ion
+!           xeltp:  abundance of current element relative to H=1
+!           rrcor:  fudge factor for correcting recombination rates (not used)
+!           also uses variables from globaldata
+!           Output:
+!           jkkl: index into line emissivity array of last line
+!           htt:  total heating rate (erg cm^-3 s^-1)
+!           cll:  total cooling rate (erg cm^-3 s^-1)
+!           cllines:  cooling rate due to lines(erg cm^-3 s^-1)
+!           clcont:  cooling rate due to rrcs (erg cm^-3 s^-1)
+!           rrrt:  recombination rate coefficient (s^-1)
+!           xilev:  level populations relative to element 
+!           ipmat:  index of current ion into xilev
+!           ipmatsv:  maximum index of current ion into xilev
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!           cabab(nnml):  total energy absorbed by rrc (erg cm^-3 s^-1) 
+!           opakab(nnml):  rrc opacities (cm^-1)
+!           fline(2,nnnl):  line emissivity (net radiative)
+!              (erg cm^-3 s^-1) 
+!           flinel(ncn):  line emissivity binned into continuum bins 
+!              (erg cm^-3 s^-1 erg^-1)
+!           
+!        Dependencies:  Calls ucalc,drd
 !     this routine calculates rates affecting emission and              
 !        absorption                                                     
 !     author: T. Kallman                                                

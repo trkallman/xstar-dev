@@ -5,7 +5,64 @@
      &   cemab,cabab,opakab,elumab,elumabo,elum,elumo,                  &
      &   zrems,zremso,fline,flinel)                                     
 !                                                                       
-!     this routine initializes everything                               
+!     Name: init.f90  
+!     Description:  
+!           initializes all physical variables
+!
+!     List of Parameters:
+!           Input: 
+!           lunlog: logical unit number for printing
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(2,nnnl):  line optical depths
+!           dpthc(2,ncn):  continuum optical depths in continuum bins
+!           dpthcont(2,ncn):  continuum optical depths in continuum bins 
+!                          without lines
+!           tauc(2,nnml):  rrc optical depths
+!           xii(nni):  ion fractions, xiin(1)=H, xiin(2)=He0, xiin(3)=He+ etc
+!           rrrt(nni): total recombination rates for each ion (s^-1)
+!           pirt(nni): total photoionization rates for each ion(s^-1)
+!           htt(nni): total heating rate for each ion (approximate) 
+!                       (erg s^-1 cm^-3)
+!           cll(nni): total cooling rate for each ion (approximate) 
+!           httot: total heating rate (erg s^-1 cm^-3) 
+!           cltot: total cooling rate (erg s^-1 cm^-3) 
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           clcont:  total cooling rate due to continuum (erg s^-1 cm^-3) 
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           htcomp:  compton heating rate (erg s^-1 cm^-3) 
+!           clcomp:  compton cooling rate (erg s^-1 cm^-3) 
+!           clbrems:  bremsstrahlung cooling rate (erg s^-1 cm^-3) 
+!           xilev(nnml):  level populations (relative to parent element)
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!           cabab(nnml):  total energy absorbed by rrc (erg cm^-3 s^-1) 
+!           opakab(nnml):  rrc opacities (cm^-1)
+!           fline(2,nnnl):  line emissivity (net radiative)
+!              (erg cm^-3 s^-1) 
+!           flinel(ncn):  line emissivity binned into continuum bins 
+!              (erg cm^-3 s^-1 erg^-1)
+!           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
+!           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  old line luminosities (erg/s/10^38)
+!           zrems(5,ncn):  radiation field in continuum bins 
+!                          (erg/s/erg)/10^38
+!           zremso(5,ncn):  old radiation field in continuum bins 
+!                          (erg/s/erg)/10^38
+!           fline(2,nnnl):  line emissivity (net radiative)
+!              (erg cm^-3 s^-1) 
+!           flinel(ncn):  line emissivity binned into continuum bins 
+!              (erg cm^-3 s^-1 erg^-1)
+!
 !     author:  T. Kallman                                               
 !                                                                       
       use globaldata

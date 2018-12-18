@@ -8,6 +8,68 @@
      &       xilevt,bilevt,rnist)
                                                                         
 !                                                                       
+!     Name: func.f90  
+!     Description:  
+!           Master routine which steps throuch elements and ions, 
+!           calls routines which calculate rates,
+!           calculate ion fractions, level populations, heating cooling
+!           and emissivities and opacities.
+!
+!     List of Parameters:
+!           Input:
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           critf: threshold value for ion fraction to be included in 
+!                   level population calculation
+!           t: temperature in 10^4K
+!           trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           abel(nl):  element abundances relative to H=1
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           p:  pressure in dynes/cm^2
+!           lcdd: constant pressure switch, 1=constant pressure 
+!                      0=constant density
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(nnnl):  line optical depths
+!           tauc(nnml):  rrc optical depths
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           Output:
+!           xiin(nni):  ion fractions, xiin(1)=H, xiin(2)=He0, xiin(3)=He+ etc
+!           rrrts(nni): total recombination rates for each ion (s^-1)
+!           pirts(nni): total photoionization rates for each ion(s^-1)
+!           htt(nni): total heating rate for each ion (approximate) 
+!                       (erg s^-1 cm^-3)
+!           cll(nni): total cooling rate for each ion (approximate) 
+!           httot: total heating rate (erg s^-1 cm^-3) 
+!           cltot: total cooling rate (erg s^-1 cm^-3) 
+!           hmctot:  (httot-cltot)*2./(httot+cltot)
+!           elcter:  charge conservation error (relative to H)
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           clcont:  total cooling rate due to continuum (erg s^-1 cm^-3) 
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           htcomp:  compton heating rate (erg s^-1 cm^-3) 
+!           clcomp:  compton cooling rate (erg s^-1 cm^-3) 
+!           clbrems:  bremsstrahlung cooling rate (erg s^-1 cm^-3) 
+!           xilevt(nnml):  level populations (relative to parent element)
+!           bilevt(nnml):  departure coefficients for levels
+!           rnist(nnml): lte level populations
+!           also uses variables from globaldata
+!           
+!        Dependencies:  Calls func1,func2,func2i,func2l,istruc,
+!                   msolvelucy,chisq,comp2,bremem,heatf
+!
 !     this routine steps through data and calculates                    
 !     new version attempts to avoid rates for unabundant ions           
 !     author: T. Kallman                                                

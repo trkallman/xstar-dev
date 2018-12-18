@@ -1,6 +1,27 @@
       subroutine func2l(jkk,lpri,lun11,t,xee,xpx,                       &
      &              rniss,rnisse,nlev)
 !                                                                       
+!     Name: func2l.f90  
+!     Description:  
+!           Calculates quantities associated with level data
+!           for one ion.  Also unpacks level data into temporary 
+!           arrays in the module globaldata
+!
+!     List of Parameters:
+!           Input:
+!           jkk: index of ion in xstar scheme 1=H0, 432=Zn29+
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           t: temperature in 10^4K
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           Output:
+!           rniss:  lte level populations
+!           rnisse:  lte level populations with exponential removed
+!           nlev:  number of levels
+!     Calls: levwk, drd
+
 !     this routine calculates rates affecting level populations         
 !     author: T. Kallman                                                
 !     note that in this routine rniss indeces are relative to ground

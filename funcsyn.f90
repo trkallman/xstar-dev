@@ -9,6 +9,67 @@
      &       cabab,opakab,fline,flinel)                    
                                                                         
 !                                                                       
+!     Name: func.f90  
+!     Description:  
+!           Master routine which steps throuch elements and ions, 
+!           calls routines which calculate rates,
+!           calculate ion fractions, level populations, heating cooling
+!           and emissivities and opacities.
+!
+!     List of Parameters:
+!           Input:
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           vturbi: turbulent speed in km/s
+!           critf: threshold value for ion fraction to be included in 
+!                   level population calculation
+!           t: temperature in 10^4K
+!           trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           abel(nl):  element abundances relative to H=1
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           p:  pressure in dynes/cm^2
+!           lcdd: constant pressure switch, 1=constant pressure 
+!                      0=constant density
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(nnnl):  line optical depths
+!           tauc(nnml):  rrc optical depths
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           Output:
+!           xiin(nni):  ion fractions, xiin(1)=H, xiin(2)=He0, xiin(3)=He+ etc
+!           xilevt(nnml):  level populations (relative to parent element)
+!           bilevt(nnml):  departure coefficients for levels
+!           rnist(nnml): lte level populations
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!           cabab(nnml):  total energy absorbed by rrc (erg cm^-3 s^-1) 
+!           opakab(nnml):  rrc opacities (cm^-1)
+!           fline(2,nnnl):  line emissivity (net radiative)
+!              (erg cm^-3 s^-1) 
+!           flinel(ncn):  line emissivity binned into continuum bins 
+!              (erg cm^-3 s^-1 erg^-1)
+!           also uses variables from globaldata
+!           
+!        Dependencies:  Calls func2i,func2l,func3
+!
 !     calculates opacities and emissivities and does transfer           
 !     level populations and integrates continuum emissivities           
 !     and opacities are assumed as input                                

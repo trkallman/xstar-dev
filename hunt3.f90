@@ -1,6 +1,20 @@
       subroutine hunt3(xx,n,x,jlo,lpri,lun11) 
 !                                                                       
-
+!     Name: hunt3.f90  
+!     Description:  
+!           Searches in a list.
+!           from numerical recipes
+!
+!     List of Parameters:
+!           Input: 
+!           xx(n):  list to be searched
+!           n:  search length
+!           x: search value
+!           lpri:  print switch, 1=on, 0=off
+!           lun11: logical unit number to write to
+!           Output:
+!           jlo:  index of found element
+!
       implicit none 
 !                                                                       
       integer n,jlo,lpri,lun11,nint,jhi,inc,jm,nintmx 

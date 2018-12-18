@@ -1,5 +1,32 @@
       subroutine intin(x1,x2,x0,t,ri2,ri3,lpri,lun11) 
 !                                                                       
+!     Name: intin.f90  
+!     Description:  
+!           Calculates the integrals needed by milne                   
+!           Milne calculates the milne rate by dividing 
+!           into intervals and assuming linear variation of
+!           the cross section between boundaries
+!           the integrals ri1,ri2 and ri3 are exponential integrals
+!           over these intervals
+!
+!     List of Parameters:
+!           Input: 
+!           x1:  lower bound on x
+!           x2:  upper bound on x
+!           x0:  fiducial value of x
+!           t:   temperature
+!           lpri:  print switch
+!           lun11: logical unit number for printing
+!           Output:
+!           ri2:  integral
+!           ri3:  integral
+!
+!     Dependencies:
+!           none
+!
+!     Called by:
+!           milne.f90 
+!
 !     this routine does the integrals needed by milne                   
 !     author:  M. Bautista                                              
 !                                                                       

@@ -1,5 +1,29 @@
       subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,lun11)    
 !                                                                       
+!     Name: levwk.f90  
+!     Description:  
+!           Calculates and collects quantities related to level populations
+!           for one ion.  
+!
+!     List of Parameters:
+!           Input:
+!           t: temperature in 10^4K
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           nlev: number of levels for the ion
+!           output:
+!           rniss: lte level population
+!           rnisse: lte level population relative to ground 
+!                  with exponential removed
+!           From Globaldata:
+!           rlev(10,nd):  real data for levels of this ion
+!           ilev(10,nd):  integer data for levels of this ion
+!           nlpt(nd):
+!           iltp(nd):
+!
+
       use globaldata
       implicit none 
 !                                                                       

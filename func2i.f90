@@ -1,7 +1,18 @@
       subroutine func2i(jkk,                                            &
      &       nlev) 
 !                                                                       
-!     this routine counts the levels for each ion                       
+!     Name: func2i.f90  
+!     Description:  
+!            counts the levels for each ion                       
+!     List of Parameters:
+!           Input:
+!           jkk: index of ion in xstar scheme 1=H0, 432=Zn29+
+!           also uses variables from globaldata
+!           Output:
+!           nlev:  number of levels
+!        Dependencies:  Calls drd
+
+!
 !     author: T. Kallman                                                
 !                                                                       
       use globaldata

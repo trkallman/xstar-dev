@@ -1,5 +1,20 @@
       subroutine huntf(xx,n,x,jlo,lpri,lun11) 
 !                                                                       
+!     Name: huntf.f90  
+!     Description:  
+!           Searches in a list. 
+!           assumes logarithmically spaced values
+!
+!     List of Parameters:
+!           Input: 
+!           xx(n):  list to be searched
+!           n:  search length
+!           x: search value
+!           lpri:  print switch, 1=on, 0=off
+!           lun11: logical unit number to write to
+!           Output:
+!           jlo:  index of found element
+!
 !     this version of hunt assumes equally spaced data in log           
 !     author:  T. Kallman                                               
 !                                                                       

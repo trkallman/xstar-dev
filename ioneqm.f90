@@ -1,11 +1,30 @@
       subroutine ioneqm(z,a,s,n,m,l,lpri,lun11) 
       implicit none 
 !                                                                       
-!     this routine computes ionization equilibrium                      
-!     solves a system of ionization equations, attempting               
-!     to avoid overflow problems.                                       
-!     author:  T. Kallman                                               
 !                                                                       
+!     Name: ioneqm.f90  
+!     Description:  
+!          computes ionization equilibrium                      
+!          solves a system of ionization equations, attempting               
+!          to avoid overflow problems.                                       
+!     author:  T. Kallman                                               
+!
+!     List of Parameters
+!         Input:
+!         z(m): ionization rates
+!         a(m): recombination rates
+!         s(m): ion fractions
+!         m: length of rate vectors
+!         n: number of ions
+!         l: minimum ion stage of interest (should be 1)
+!         lpri:  print switch
+!         lun11:  logical unit number for printing
+!
+!         Dependencies:
+!         none
+!
+!         Called by:
+!         istruc.f90
 !                                                                       
       integer m, n 
       real(8)  z(m),a(m),s(n),q(31) 

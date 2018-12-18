@@ -1,15 +1,30 @@
 !-----------------------------------------------------------------------
       subroutine milne(temp4,nt,x4,y4,eth4,alpha4,lun11,lpri) 
 !                                                                       
-!     this routine calculates the Milne relation for type 53 data       
-!       x    = array of energies in Ry with respect to the threshold    
-!       y    = array of cross sections in Mb                            
-!       nt   = number of points in topbase arrays                       
-!       eth  = threshold energy in Ry                                   
-!       alpha= recombination rate for level n,lo                        
+!     Name: intin.f90  
+!     Description:  
+!           calculates the Milne relation for type 53 data       
+!           calculates the milne rate by dividing 
+!           into intervals and assuming linear variation of
+!           the cross section between boundaries
+!
+!     List of Parameters:
+!           Input: 
+!            temp: temperature in units of 10^4k
+!            x   : array of energies in Ry with respect to the threshold    
+!            y   : array of cross sections in Mb                            
+!            nt  : number of points in topbase arrays                       
+!            eth : threshold energy in Ry                                   
+!            Output:
+!            alpha: recombination rate for level n,lo                        
+!
+!     Dependencies:
+!            intin.f90
+!
+!      Called by:
+!             ucalc.f90
 !     author:  M. Bautista                                              
 !                                                                       
-
       implicit none 
 !                                                                       
       integer nptmpdim 
