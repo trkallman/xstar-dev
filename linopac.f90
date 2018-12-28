@@ -2,6 +2,42 @@
      &                   rcem1,rcem2,elin,vturbi,t,aatmp,delea,epi,ncn2,&
      &                   opakc,rccemis,lfast)           
 !                                                                       
+!     Name:  linopac.f90
+!     Description:
+!         puts line opacity into continuum bins
+!     author:  T. Kallman
+!
+!     List of Parameters:
+!         Input:
+!         lprie:
+!         lun11:
+!         optpp:  line center opacity from ucalc (cm^-1)
+!         ans2:   photoexcitation rate
+!         sigvtherm:  line center cross section
+!         vtherm:  ion thermal speed (km/s)
+!         bremsa(ncn):  continuum flux
+!         rcem1:  line emissivity outward (erg/s/cm^3)
+!         rcem2:  line emissivity inward (erg/s/cm^3)
+!         elin: line wavelength (A)
+!         vturbi:  ion turbulent speed (km/s)
+!         t:  temperature (10^4 K)
+!         aatmp: ion mass (amu)
+!         delea: natural line width
+!         epi(ncn):  continuum energy bins (eV)
+!         ncn2:  number of continuum energy bins
+!         lfast:  switch to choose between full voigt profile (<=2)
+!                 and single bin for line (>2)
+!         Output:
+!         opakc(ncn): continuum opacity (cm^-1)
+!         rccemis(2,ncn): continuum emissivity (erg/s/cm^2)
+!                        (in current version this is only modified if
+!                        lfast > 2)
+!
+!     Dependencies:
+!         none
+!     Called by:
+!         ucalc
+!
 !     this routine puts line opacity into continuum bins                
 !     author:  T. Kallman                                               
       use globaldata

@@ -9,12 +9,12 @@
      &       cabab,opakab,fline,flinel)                    
                                                                         
 !                                                                       
-!     Name: func.f90  
+!     Name: funcsyn.f90  
 !     Description:  
 !           Master routine which steps throuch elements and ions, 
 !           calls routines which calculate rates,
-!           calculate ion fractions, level populations, heating cooling
-!           and emissivities and opacities.
+!           calculates  emissivities and opacities
+!           this routine is called after heating=cooling solution
 !
 !     List of Parameters:
 !           Input:

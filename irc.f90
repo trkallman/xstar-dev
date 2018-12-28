@@ -1,5 +1,21 @@
       subroutine irc(n,t,rc,rno,se,lpri,lun11) 
 !                                                                       
+!     Name:  irc.f90
+!     Description:
+!          calculates ionization rate for ionization of hydrogen atoms
+!
+!     List of Parameters:
+!          Input:
+!          n: principal quantum number
+!          t: temperature
+!          rc:
+!          rno: 
+!          lpri: print switch
+!          lun11: logical unit number for printing
+!          Output:
+!          se:  collisional ionization rate
+!
+!
 ! irc calculates the excitation rate, se [cm**3/s], for ionization      
 ! of hydrogen atoms from state n due to electron collisions, assuming   
 ! the continuum starts at level rno.  the                               

@@ -13,7 +13,7 @@
 !           Master routine which steps throuch elements and ions, 
 !           calls routines which calculate rates,
 !           calculate ion fractions, level populations, heating cooling
-!           and emissivities and opacities.
+!           this is called from within the heating=cooling loop
 !
 !     List of Parameters:
 !           Input:
