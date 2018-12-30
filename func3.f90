@@ -74,6 +74,8 @@
 !              (erg cm^-3 s^-1 erg^-1)
 !           
 !        Dependencies:  Calls ucalc,drd
+!        Called by: funcsyn
+!
 !     this routine calculates rates affecting emission and              
 !        absorption                                                     
 !     author: T. Kallman                                                

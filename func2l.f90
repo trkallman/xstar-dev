@@ -20,8 +20,9 @@
 !           rniss:  lte level populations
 !           rnisse:  lte level populations with exponential removed
 !           nlev:  number of levels
-!     Calls: levwk, drd
-
+!     Dependencies: levwk, drd
+!     Called by: func, fstepr2,fstepr3,funcsyn,pprint
+!
 !     this routine calculates rates affecting level populations         
 !     author: T. Kallman                                                
 !     note that in this routine rniss indeces are relative to ground

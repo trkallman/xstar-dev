@@ -57,6 +57,7 @@
 !           nindb current length of ajisb
 !           
 !        Dependencies:  Calls ucalc,drd
+!        Called by: func
 !                  
 !     this routine calculates rates affecting level populations         
 !     author: T. Kallman                                                

@@ -1,5 +1,28 @@
       subroutine szirco(nn,t,rz,cii) 
 !                                                                       
+!     Name:  szirco.f90
+!     Description:
+!          calculates ionization rate for ionization of hydrogen atoms
+!          calculates electron impact ionizition rates from semiempirical    
+!          formula (eq.35) from Smpson & Zhang (1988, ApJ 335, 516)          
+!          author:  M. Bautista                                              
+!
+!     List of Parameters:
+!          Input:
+!          n: principal quantum number
+!          t: temperature
+!          rz: ion charge
+!          rno:  principal quantum number
+!          lpri: print switch
+!          lun11: logical unit number for printing
+!          Output:
+!          cii:  collisional ionization rate
+!
+!      Dependencies:
+!          none
+!      Called by:
+!          irc.f90
+!
 !     calculates electron impact ionizition rates from semiempirical    
 !     formula (eq.35) from smpson & zhang (1988, apj 335, 516)          
 !     author:  M. Bautista                                              

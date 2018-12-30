@@ -1,9 +1,28 @@
       subroutine szirc(nn,T,rz,rno,cii,lpri,lun11) 
 !                                                                       
-!     calculates electron impact ionizition rates from semiempirical    
-!     formula (eq.35) from Smpson & Zhang (1988, ApJ 335, 516)          
-!     author:  M. Bautista                                              
-!                                                                       
+!     Name:  szirc.f90
+!     Description:
+!          calculates ionization rate for ionization of hydrogen atoms
+!          calculates electron impact ionizition rates from semiempirical    
+!          formula (eq.35) from Smpson & Zhang (1988, ApJ 335, 516)          
+!          author:  M. Bautista                                              
+!
+!     List of Parameters:
+!          Input:
+!          n: principal quantum number
+!          t: temperature
+!          rz: ion charge
+!          rno:  principal quantum number
+!          lpri: print switch
+!          lun11: logical unit number for printing
+!          Output:
+!          cii:  collisional ionization rate
+!
+!      Dependencies:
+!          none
+!      Called by:
+!          irc.f90
+!
        implicit none 
 !                                                                       
        real(8) abethe(11), hbethe(11), rbethe(11) 

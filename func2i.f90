@@ -10,8 +10,8 @@
 !           also uses variables from globaldata
 !           Output:
 !           nlev:  number of levels
-!        Dependencies:  Calls drd
-
+!     Dependencies:  Calls drd
+!     Called by: funcsyn
 !
 !     author: T. Kallman                                                
 !                                                                       

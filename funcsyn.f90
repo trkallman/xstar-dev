@@ -69,6 +69,7 @@
 !           also uses variables from globaldata
 !           
 !        Dependencies:  Calls func2i,func2l,func3
+!        Called by:  xstar, dsec
 !
 !     calculates opacities and emissivities and does transfer           
 !     level populations and integrates continuum emissivities           

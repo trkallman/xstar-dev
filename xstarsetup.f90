@@ -11,6 +11,91 @@
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
      &       cabab,opakab,nlin,elin)                                    
 !                                                                       
+!     Name: init.f90  
+!     Description:  
+!           initializes all physical variables
+!
+!     List of Parameters:
+!           Input: 
+!           lnerrd: thermal equilibrium error switch
+!           nlimd: thermal equilibrium solver iteration limit
+!           lpri: print switch
+!           lprid: thermal equilibrium solver print switch
+!           lunlog: logical unit number for printing
+!           tinf:  temperature lower limit
+!           critf: threshold value for ion fraction to be included in 
+!                   level population calculation
+!           t: temperature in 10^4K
+!           tp: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           r:  radius in nebula (cm)
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           ababs(nl):  element abundances relative to H=1
+!           abel(nl):  element abundances relative to xstar 
+!                standard values
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!           p:  pressure in dynes/cm^2
+!           lcdd: constant pressure switch, 1=constant pressure 
+!                      0=constant density
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           atcredate:  atomic data file creation date (string length 63)
+!           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!           zremso(4,ncn):  master spectrum array previous step.  
+!                     (erg/s/erg/10^38)
+!           zremsz(ncn):  spectrum array, incident spectrum
+!                     (erg/s/erg/10^38)
+!           tau0(2,nnnl):  line optical depths
+!           dpthc(2,ncn):  continuum optical depths in continuum bins
+!           dpthcont(2,ncn):  continuum optical depths in continuum bins 
+!                          without lines
+!           tauc(2,nnml):  rrc optical depths
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           ntotit:  number of iterations for thermal equilibrium
+!           xii(nni):  ion fractions, xiin(1)=H, xiin(2)=He0, xiin(3)=He+ etc
+!           rrrt(nni): total recombination rates for each ion (s^-1)
+!           pirt(nni): total photoionization rates for each ion(s^-1)
+!           htt(nni): total heating rate for each ion (approximate) 
+!                       (erg s^-1 cm^-3)
+!           cll(nni): total cooling rate for each ion (approximate) 
+!           httot: total heating rate (erg s^-1 cm^-3) 
+!           cltot: total cooling rate (erg s^-1 cm^-3) 
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           hmctot: 2*(heating-cooling)/(heating+cooling)
+!           elcter:  charge conservation error
+!           xilev(nnml):  level populations (relative to parent element)
+!           bilev(nnml):  level departure coefficient
+!           rnist(nnml):  lte level populations (relative to parent element)
+!           elum(nnnl):  line luminosities (erg/s/10^38)
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           brcems(ncn):  bremsstrahlung emissivity (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!           cabab(nnml):  total energy absorbed by rrc (erg cm^-3 s^-1) 
+!           opakab(nnml):  rrc opacities (cm^-1)
+!           nlin:  number of lines in special line array
+!           elin:  special line array, line wavelengths
+!     Dependencies: getenv (system), xwrite, readtbl, getlunx, setptrs, 
+!          init, trnfrc, drd
+!     Called by:  xstar
+!
 !      this routine does many of the setup chores: read in atomic       
 !        data, set up pointers, zeroing variables.                      
 !      NB: no input parameters are affected                             

@@ -42,6 +42,7 @@
 !                  Only the element  corresponding to the current ion is filled.
 !           
 !        Dependencies:  Calls ucalc,drd
+!        Called by:  func
 !                  
 !                                                                       
 !     this routine calculates rates affecting ion balance               

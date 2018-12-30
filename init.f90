@@ -62,6 +62,8 @@
 !              (erg cm^-3 s^-1) 
 !           flinel(ncn):  line emissivity binned into continuum bins 
 !              (erg cm^-3 s^-1 erg^-1)
+!     Dependencies: none
+!     Called by:  xstar, xstarsetup
 !
 !     author:  T. Kallman                                               
 !                                                                       

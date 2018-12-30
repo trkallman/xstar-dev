@@ -69,6 +69,7 @@
 !           
 !        Dependencies:  Calls func1,func2,func2i,func2l,istruc,
 !                   msolvelucy,chisq,comp2,bremem,heatf
+!        Called by: xstar, dsec
 !
 !     this routine steps through data and calculates                    
 !     new version attempts to avoid rates for unabundant ions           

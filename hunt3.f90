@@ -14,6 +14,8 @@
 !           lun11: logical unit number to write to
 !           Output:
 !           jlo:  index of found element
+!     Dependencies:  none
+!     Called by: cmpfnc, find53, ispecgg, ucalc
 !
       implicit none 
 !                                                                       

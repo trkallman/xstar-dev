@@ -8,12 +8,17 @@
 !          Input:
 !          n: principal quantum number
 !          t: temperature
-!          rc:
-!          rno: 
+!          rc: effective ion charge
+!          rno: effective principal quantum number
 !          lpri: print switch
 !          lun11: logical unit number for printing
 !          Output:
 !          se:  collisional ionization rate
+!
+!      Dependencies:
+!          szirc
+!      Called by:
+!           ucalc
 !
 !
 ! irc calculates the excitation rate, se [cm**3/s], for ionization      
@@ -23,6 +28,7 @@
 ! cin is the 3-body recombination rate, determined from cni by          
 ! detailed balance.                                                     
 ! ref. johnson (1972)                                                   
+! note: this does not make sense:  reference does not exist?
 !     author:  m. bautista                                              
 !                                                                       
       implicit none 

@@ -14,6 +14,8 @@
 !           lun11: logical unit number to write to
 !           Output:
 !           jlo:  index of found element
+!     Dependencies:  none
+!     Called by:  nbinc
 !
 !     this version of hunt assumes equally spaced data in log           
 !     author:  T. Kallman                                               
