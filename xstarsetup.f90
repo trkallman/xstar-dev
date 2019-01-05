@@ -11,9 +11,11 @@
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
      &       cabab,opakab,nlin,elin)                                    
 !                                                                       
-!     Name: init.f90  
+!     Name: xstarsetup.f90  
 !     Description:  
-!           initializes all physical variables
+!           performs initialization needed for xstar run. 
+!           initializes all physical variables, reads in atomic data,
+!           compton heating tables,   sets up pointers.
 !
 !     List of Parameters:
 !           Input: 
@@ -44,6 +46,7 @@
 !                      0=constant density
 !           epi(ncn): photon energy grid (ev)
 !           ncn2: length of epi
+!       Output:
 !           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
 !           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
 !               (erg/s/cm^2)

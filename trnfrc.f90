@@ -3,6 +3,32 @@
      &      epi,ncn2,zremsz,dpthc,opakc,                                &
      &      zrems,bremsa,bremsint)                               
 !                                                                       
+!     Name: trnfrc.f90  
+!     Description:  
+!           Calculates local mean intensity
+!           Currently assumes single stream.
+!
+!     List of Parameters:
+!     Input:
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           ldir:  direction: 1=outward, -1=inward
+!           r: radius in nebula (cm)
+!           xpxcol:  column density (cm^-2)
+!           xpx: H number density (cm^-3)
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           dpthc(2,ncn): optical depth in continuum bins 
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!     Output:
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!
+!     Dependencies: none
+!     Called by:  xstar
+!
 !     this routine calculates continuum transfer                        
 !     author:  T. Kallman (from xstar1)                                 
 !                                                                       

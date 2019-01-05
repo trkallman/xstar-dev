@@ -14,6 +14,119 @@
      & rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,           &
      & cabab,elumab,elum,zrems)                                         
 !                                                                       
+!     Name: pprint.f90  
+!     Description:  
+!           prints out all quantities of interest
+!
+!     List of Parameters:
+!           Input:
+!           jj:  index which selects print type
+!           jkstep:  spatial step index 
+!           tp: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!           xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!           lunlog: logical unit number for printing
+!           lwri: write switch
+!           lpri: print switch
+!           r:  radius in nebula (cm)
+!           t: temperature in 10^4K
+!           xpx: H number density (cm^-3)
+!           p:  pressure in dynes/cm^2
+!           lcdd: constant pressure switch, 1=constant pressure 
+!                      0=constant density
+!           numrec:  total number of spatial zones
+!           npass:  number of global passes
+!           nnmax:  obsolete
+!           nlimd:  maximum number of temperature iterations
+!           rmax:  maxumum radius (cm)
+!           xpxcol:  column density (cm^-2)
+!           xi:  ionization parameter (erg cm s^-1)
+!           zeta:  log10(xi)
+!           lfix:  step size switch.  obsolete.
+!           zremsz:  input spectrum (erg s^-1 erg^-1 /10^38)
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           abel(nl):  element abundances relative to xstar 
+!                standard values
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           emult:  courant condition step multiplier
+!           taumax:  maximum optical depth for inclusion in courant condition
+!           xeemin:  minimum electron fraction
+!           spectrype:  spectrum type
+!           specfile:  file name for input spectrum
+!           specunit:  units of input spectrum 0=energy, 1=photons 2=log(energy)
+!           kmodelname:  model name (char*72)
+!           nloopctl:  loop control parameter (for xstar2xspec)
+!           nparms: number of input parameters
+!           parname(nparms): names of input parameters
+!           partype(nparms): types of input parameters
+!           parval(nparms): values of input parameters
+!           parcomm(nparms): comments of input parameters
+!           atcredate:  atomic data file creation date (string length 63)
+!           lun11: logical unit number for printing
+!           tinf:  temperature lower limit
+!           xcol:  maximum allowed column density (cm^-2)
+!           vturbi:  turbulent speed (km/s)
+!           critf: threshold value for ion fraction to be included in 
+!                   level population calculation
+!           radexp:  power law for radial dependence of density
+!           delr: thickness of current spatial zone (cm)
+!           rdel:  distance from illuminated face of cloud (cm)
+!           xee: electron fraction relative to H
+!           ababs(nl):  element abundances relative to H=1
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           bremsint(ncn):  Integral of bremsa from each bin to epi(ncn2)
+!               (erg/s/cm^2)
+!           tau0(2,nnnl):  line optical depths
+!           tauc(2,nnml):  rrc optical depths
+!           ncsvn:  number of rrcs
+!           nlsvn:  number of lines
+!           xii(nni):  ion fractions, xiin(1)=H, xiin(2)=He0, xiin(3)=He+ etc
+!           rrrt(nni): total recombination rates for each ion (s^-1)
+!           pirt(nni): total photoionization rates for each ion(s^-1)
+!           htt(nni): total heating rate for each ion (approximate) 
+!                       (erg s^-1 cm^-3)
+!           cll(nni): total cooling rate for each ion (approximate) 
+!           httot: total heating rate (erg s^-1 cm^-3) 
+!           cltot: total cooling rate (erg s^-1 cm^-3) 
+!           hmctot:  2*(httot-cltot)/(httot+cltot)
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           clcont:  total cooling rate due to continuum (erg s^-1 cm^-3) 
+!           htcomp:  compton heating rate (erg s^-1 cm^-3) 
+!           clcomp:  compton cooling rate (erg s^-1 cm^-3) 
+!           clbrems:  bremsstrahlung cooling rate (erg s^-1 cm^-3) 
+!           xilev(nnml):  level populations (relative to parent element)
+!           bilev(nnml):  level departure coefficients
+!           rnist(nnml):  lte level populations (relative to parent element)
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           brcems(ncn):  bremsstrahlung emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!           cabab(nnml):  total energy absorbed by rrc (erg cm^-3 s^-1) 
+!           opakab(nnml):  rrc opacities (cm^-1)
+!           dpthc(2,ncn):  continuum optical depths in continuum bins
+!           dpthcont(2,ncn):  continuum optical depths in continuum bins 
+!                          without lines
+!           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
+!           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  old line luminosities (erg/s/10^38)
+!           zrems(5,ncn):  radiation field in continuum bins 
+!                          (erg/s/erg)/10^38
+!     Output:  none
+!     Dependencies: drd, func2l, xwrite
+!     Called by:  xstar, xstarsetup
+!
+!
 !     this routine prints                                               
 !     author:  T. Kallman                                               
 !                                                                       

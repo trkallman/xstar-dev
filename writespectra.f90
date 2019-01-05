@@ -4,6 +4,38 @@
      &       np2,nlsvn,                                                 &
      &       elum,zrems,zremsz,kmodelname,nloopctl)             
 !                                                                       
+!     Name: writespectra.f90  
+!     Description:  
+!           Writes out spectrum binned in continuum bins 
+!              including emission lines into the file xout_spect1.fits
+!
+!     List of Parameters:
+!     Input:
+!           lun11: logical unit number for printing
+!           lpri: print switch, 1=on, 0=off
+!           atcredate:  atomic data file creation date (string length 63)
+!           nparms: number of input parameters
+!           parname(nparms): names of input parameters
+!           partype(nparms): types of input parameters
+!           parval(nparms): values of input parameters
+!           parcomm(nparms): comments of input parameters
+!           atcredate:  atomic data file creation date (string length 63)
+!           t:  temperature (10^4 K)
+!           vturbi:  ion turbulent speed (km/s)
+!           epi(ncn):  continuum energy bins (eV)
+!           ncn2:  number of continuum energy bins
+!           dpthc(2,ncn): optical depth in continuum bins 
+!           np2: atomic data parameter, number of records in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           elum(3,nnnl):  line luminosities (erg/s/10^38)
+!           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!           zremsz(ncn):  input spectrum  (erg/s/erg/10^38)
+!           kmodelname:  model name 
+!           nloopcntl:  loop control variable
+!
+!     Dependencies: binemis
+!     Called by:  xstar
+!     
 !     Write extension containing the spectra for                        
 !     this particular model.                                            
 !                                                                       

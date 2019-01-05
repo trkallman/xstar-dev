@@ -2,6 +2,27 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       abcosmic,abel)                         
 !                                                                       
+!     Name: setptrs.f90  
+!     Description:  
+!           sets up atomic database pointers
+!
+!     List of Parameters:
+!     Input:
+!           lun11: logical unit number for printing
+!           lpri: print switch, 1=on, 0=off
+!           abel(nl):  element abundances relative to H=1
+!      Output
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           abcosmic(nl):  cosmic element abundances relative to H=1
+!                taken from database
+!
+!     Dependencies:  none
+!     Called by:  xstarsetup
+!
+!     See below for description of database quantities:
+!
 !     this program set the pointers of the database                     
 !       Written by Ke Zhang, Oct.8 2001                                 
 !                                                                       

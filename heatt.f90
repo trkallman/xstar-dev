@@ -6,6 +6,57 @@
      &       rcem,oplin,rccemis,opakc,opakcont,cemab,fline,flinel,      &
      &       brcems)
 !                                                                       
+!     Name: heatt.f90  
+!     Description:  
+!           Calculates heating, cooling, and does radiative transfer
+!
+!     List of Parameters:
+!     Input:
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           t: temperature in 10^4K
+!           r:  radius in nebula (cm)
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           abel(nl):  element abundances relative to H=1
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
+!                  inward and outward
+!           oplin(nnnl):  line opacities  (cm^-1)
+!           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 
+!       Output:
+!           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!           zremso(4,ncn):  master spectrum array previous step.  
+!                     (erg/s/erg/10^38)
+!           zremsz(ncn):  spectrum array, incident spectrum
+!                     (erg/s/erg/10^38)
+!           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
+!           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  old line luminosities (erg/s/10^38)
+!           fline(2,nnnl):  line emissivity (net radiative)
+!              (erg cm^-3 s^-1) 
+!           flinel(ncn):  line emissivity binned into continuum bins 
+!              (erg cm^-3 s^-1 erg^-1)
+!           brcems(ncn):  bremsstrahlung emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!           
+!        Dependencies:  Calls drd
+!        Called by: xstar
+!
 !     this routine calculates heating and cooling.                      
 !     author:  T. Kallman                                               
 !                                                                       

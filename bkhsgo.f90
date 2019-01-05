@@ -1,5 +1,22 @@
       subroutine bkhsgo(sg,et,d,b,na,a,epi,ncn2,t,lpri,lfast,lun11) 
 !                                                                       
+!     Name: bkhsgo.f90  
+!     Description:  
+!           does the work in computing cross sections by the     
+!
+!     List of Parameters:
+!     Input:
+!           lpri: print switch
+!           lfast: fast switch
+!           t:  temperature (10^4 K)
+!           lun11: logical unit number for printing
+!           b(na),a(11,na):  arrays of coefficents from Barfield 
+!              1972JQSRT..12.1409B
+!           epi(ncn):  continuum energies (eV)
+!           ncn2: number of continuum bins
+!      Output:
+!           sg(ncn):  array of photoionization cross sections
+!
 !     this routine does the work in computing cross sections by the     
 !     method of barfield, et. al.                                       
 !     author:  T. Kallman (from xstar1)                                 
@@ -7,7 +24,6 @@
       use globaldata
       implicit none 
 !                                                                       
-                                                                        
       integer na 
 !                                                                       
       real(8) sg(ncn),b(na),a(11,na),epi(ncn) 

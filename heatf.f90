@@ -6,6 +6,48 @@
      &       brcems,cmp1,cmp2,httot,cltot,hmctot,                       &
      &             cllines,clcont,htcomp,clcomp,clbrems)                
 !                                                                       
+!     Name: heatf.f90  
+!     Description:  
+!           Adds Compton and brems heating, cooling, 
+!           to total rates from func2..
+!
+!     List of Parameters:
+!     Input:
+!           jkk:  ion number
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           t: temperature in 10^4K
+!           r:  radius in nebula (cm)
+!           cfrac:  covering fraction (affects line and continuum 
+!                forward-backward ratio
+!           delr: thickness of current spatial zone (cm)
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           abel(nl):  element abundances relative to H=1
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           nlev:  number of levels in ion
+!           cmp1:  coefficient for use in compton heating calculation
+!           cmp2:  coefficient for use in compton cooling calculation
+!           brcems(ncn):  bremsstrahlung emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!       Output:
+!           httot: total heating rate (erg s^-1 cm^-3) 
+!           cltot: total cooling rate (erg s^-1 cm^-3) 
+!           hmctot: 2*(heating-cooling)/(heating+cooling)
+!           cllines:  total cooling rate due to lines (erg s^-1 cm^-3) 
+!           clcont:   total cooling rate due to recombination (erg s^-1 cm^-3) 
+!           htcomp: total heating rate due to compton (erg s^-1 cm^-3) 
+!           clcomp: total cooling rate due to compton (erg s^-1 cm^-3) 
+!           clbrems: total cooling rate due to bremsstrahlung (erg s^-1 cm^-3) 
+!           
+!        Dependencies:  Calls drd
+!        Called by: func
+!
 !     this routine calculates heating and cooling.                      
 !     author:  T. Kallman                                               
 !                                                                       

@@ -3,6 +3,34 @@
      &       np2,nlsvn,                                                 &
      &       eliml,elimh,elum,zrtmp,zremsz)
 !                                                                       
+!     Name: binemis.f90  
+!     Description:  
+!           Puts emission lines into continuum bins, using voigt profile.
+!           Emission analog of linopac
+!
+!     List of Parameters:
+!     Input:
+!           lun11: logical unit number for printing
+!           lpri: print switch, 1=on, 0=off
+!           xlum:  Input continuum luminosity 1 - 1000 Ry (erg/s/10^38)
+!           r: radius in nebula (cm)
+!           t:  temperature (10^4 K)
+!           vturbi:  ion turbulent speed (km/s)
+!           epi(ncn):  continuum energy bins (eV)
+!           ncn2:  number of continuum energy bins
+!           dpthc(2,ncn): optical depth in continuum bins 
+!           np2: atomic data parameter, number of records in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!           eliml:  energy lower limit (eV)
+!           elimh:  energy upper limit (eV)
+!           elum(3,nnnl):  line luminosities (erg/s/10^38)
+!           zremsz(ncn):  input spectrum  (erg/s/erg/10^38)
+!         Output:
+!           zrtmp(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!
+!     Dependencies: voigte
+!     Called by:  writespectra
+!     
 !     revised 3/2/2018 to reduce memory TK
 !     note that initially zrtmp contains zrems
 !     and that in this routine zrems is a temporary

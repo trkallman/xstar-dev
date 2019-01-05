@@ -3,6 +3,36 @@
      &       np2,ncsvn,                                                 &
      &       elumab,tauc,kmodelname,nloopctl)                   
 !                                                                       
+!     Name: writespectra4.f90  
+!     Description:  
+!           Writes out rrcs into the file xout_rrc1.fits
+!
+!     List of Parameters:
+!     Input:
+!           lun11: logical unit number for printing
+!           lpri: print switch, 1=on, 0=off
+!           nparms: number of input parameters
+!           parname(nparms): names of input parameters
+!           partype(nparms): types of input parameters
+!           parval(nparms): values of input parameters
+!           parcomm(nparms): comments of input parameters
+!           atcredate:  atomic data file creation date (string length 63)
+!           t:  temperature (10^4 K)
+!           vturbi:  ion turbulent speed (km/s)
+!           epi(ncn):  continuum energy bins (eV)
+!           ncn2:  number of continuum energy bins
+!           dpthc(2,ncn): optical depth in continuum bins 
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of lines in atomic database
+!           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
+!           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
+!           tauc(2,nnml):  rrc optical depths
+!           kmodelname:  model name 
+!           nloopcntl:  loop control variable
+!
+!     Dependencies: none
+!     Called by:  xstar
+!
 !     Write extension containing the spectra for                        
 !     this particular model.                                            
 !                                                                       

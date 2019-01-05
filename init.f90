@@ -41,6 +41,8 @@
 !           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
 !                   /10^38
 !                  inward and outward
+!           brcems(ncn):  bremsstrahlung emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
 !           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
 !           opakcont(ncn):  continuum opacities lines excluded (cm^-1)
 !           cemab(nnml):  rrc emissivities (erg cm^-3 s^-1) 

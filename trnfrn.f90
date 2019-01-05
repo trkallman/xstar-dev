@@ -2,6 +2,28 @@
      &       nlsvn,ncsvn,ncn2,                                          &
      &       zrems,zremso,elumab,elumabo,elum,elumo)                    
 !                                                                       
+!     Name: trnfrn.f90  
+!     Description:  
+!           updates global continua and lines quantities
+!
+!     List of Parameters:
+!     Input:
+!           lpri: print switch, 1=on, 0=off
+!           lun11: logical unit number for printing
+!           np2: atomic data parameter, number of records in atomic database
+!           ncsvn: atomic data parameter, number of rrcs in atomic database
+!           nlsvn: atomic data parameter, number of lines in atomic database
+!     Output:
+!           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
+!           zrems(4,ncn):  old master spectrum array.  (erg/s/erg/10^38)
+!           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
+!           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  old line luminosities (erg/s/10^38)
+!
+!     Dependencies: none
+!     Called by:  xstar
+!
 !     this routine updates escaping continua and lines                  
 !     author:  T. Kallman                                               
 !                                                                       
