@@ -1,11 +1,25 @@
 !_______________________________________________________________        
       real(8) function calc_sampson_s(om, Z, Te) 
                                                                         
+!     Name: calc_sampson_s.f90  
+!     Description:  
+!       routines to implement rates from 
+!       Sampson, Goett, & Clark, ADNDT 29, 467 
+!       author:  apec
+!     Parameters:
+!       Input:
+!       om=array of coefficients
+!       z=ion charge
+!       Te=temperature in kelvin
+!       Output:
+!       calc_sampson_s
+!     Dependencies:  exint_n
+!     Called by: calc_maxwell_rates
+
       real(8) om(14) 
       integer Z 
       real(8) Te 
                                                                         
-!  /* These routines come from Sampson, Goett, & Clark, ADNDT 29, 467 */
                                                                         
       real(8) result 
       real(8) kT, y 
