@@ -3,32 +3,40 @@
      & z,  degl,  degu,                                                 &
      & exc_rate, dex_rate,upsilon)                                      
 !                                                                       
-! /*! \file calc_maxwell_rates.c                                        
-! *  \brief Calculates Maxwellian-averaged collision strengths          
-! */                                                                    
-!  /*! \brief Calculates Maxwellian-averaged collision strengths.       
-!    Calculates Maxwellian-averaged collision strengths for any         
-!    transition, given input values taken from the APED (collision type,
-!    temperature minimum/maximum, and data vectors Tarr and om.  Also   
-!    requires the energy separating the two levels, the electron (or pro
-!    temperature, the proton number, and the upper and lower level      
-!    degeneracies.  Returns both the excitation and the deexcitation rat
-!    \param coll_type The collision type, as defined in calc_maxwell_rat
-!    \param min_T The minimum temperature (in Kelvin) for which the     
-!    transition is defined.                                             
-!    \param max_T The maximum temperature (in Kelvin) for which the     
-!    transition is defined.                                             
-!    \param Tarr                                                        
-!    \param om                                                          
-!    \param dE The delta Energy of the transition, in keV               
-!    \param T  Temperature, in Kelvin, of either the electrons or proton
-!    involved in the transition.                                        
-!    \param Z  The # of protons in the target ion.                      
-!    \param degl The degeneracy of the lower level in the transition    
-!    \param degu The degeneracy of the upper level in the transition    
-!    \param exc_rate The calculated excitation rate coefficient, in cm^3
-!    \param dex_rate The calculated deexcitation rate coefficient, in cm
-!  */                                                                   
+!     Name: calc_maxwell_rates.f90  
+!     Description:  
+!      Calculates Maxwellian-averaged collision strengths          
+!      Calculates Maxwellian-averaged collision strengths for any         
+!      transition, given input values taken from the APED (collision type,
+!      temperature minimum/maximum, and data vectors Tarr and om.  Also   
+!      requires the energy separating the two levels, the electron (or pro
+!      temperature, the proton number, and the upper and lower level      
+!      degeneracies.  Returns both the excitation and the deexcitation rat
+!      author:  apec
+!     Parameters:
+!        Input:
+!        lpri= print switch
+!        lun11= logical unit for printing
+!        coll_type The collision type, as defined in calc_maxwell_rat
+!        min_T=The minimum temperature (in Kelvin) for which the     
+!               transition is defined.                              
+!        max_T=The maximum temperature (in Kelvin) for which the     
+!               transition is defined.                                  
+!        Tarr=array of temperatures
+!        om=array of collision strengths                                
+!        dE=The delta Energy of the transition, in keV               
+!        T=Temperature, in Kelvin, of either the electrons or proton
+!               involved in the transition.                           
+!        Z=The # of protons in the target ion.                      
+!        degl=The degeneracy of the lower level in the transition    
+!        degu=The degeneracy of the upper level in the transition    
+!        Output:
+!        exc_rate=The calculated excitation rate coefficient, in cm^3
+!        dex_rate=The calculated deexcitation rate coefficient, in cm
+!     Called by: ucalc
+!     Dependencies:  calc_kato, prep_spline, calc_spline, errmess, 
+!       calc_sampson_s,calc_sampson_p,calc_sampson_h, exint1,expo,
+!       interpol_huntd
 !_______________________________________________________________        
 !                                                                       
       real(8) calc_spline 

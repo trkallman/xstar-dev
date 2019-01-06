@@ -1,9 +1,24 @@
 !_______________________________________________________________        
       real(8) function calc_kato(coll_type,par,z,te) 
-                                                                        
-! /* This fit comes from Kato & Nakazaki, 1989, Atomic Data and Nuclear 
+
+!     Name: calc_kato.f90  
+!     Description:  
+!      This routine calculates collision strengths for He-like transitions
+!      using expressions from Kato and Nakazaki
+!      originally from apec
+!      This fit comes from Kato & Nakazaki, 1989, Atomic Data and Nuclear 
 !           Data Tables 42, 2, 313 */                                   
-                                                                        
+!      author:  apec
+!     Parameters:
+!        Input:
+!        te=temperature in K
+!        z=ion charge                                                           
+!        par=array of coefficients, length 9
+!        coll_type=interpolation type
+!     Called by:  calc_maxwell_rates
+!     Dependencies: exint_n
+!
+!             
       real(8) result 
       real(8) dE, kT 
       real(8) A, B, C, D, E, P, Q, X1 
