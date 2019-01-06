@@ -1,16 +1,27 @@
       subroutine calt57(te,den2,e,ep,n,cion,crec,lun11,lpri) 
 !                                                                       
-!  this routine calculates rates for type 57 data, collisional ionizatio
-!                                                                       
-!  temp   temperature in K                                              
-!  den    electron density in cm-3                                      
-!  e      level energy in eV (first real(8) in type 6)                   
-!  ep     ionization potential in eV (forth real(8) in type 6)           
-!  n      level's principal quatum number (first integer in type 6)     
-!  cion   ionization rate in s-1.cm+3                                   
-!  crec   3-body recombination rate in s-1.cm+6. THIS VALUE MUST BE     
+!     Name: calt57.f90  
+!     Description:  
+!      this routine calculates rates for type 57 data, collisional ionizatio
+!      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!         temp=temperature in K                                              
+!         den=electron density in cm-3                                      
+!         e=level energy in eV (first real(8) in type 6)                   
+!         ep=ionization potential in eV (forth real(8) in type 6)           
+!         n= level's principal quatum number (first integer in type 6)     
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!         cion=  ionization rate in s-1.cm+3                                   
+!         crec=   3-body recombination rate in s-1.cm+6. THIS VALUE MUST BE     
 !         MUTIPLIED BY (stat. weigth level/stat. weigth recombining     
 !          level)                                                       
+!     Dependencies: irc, eint
+!     called by:  ucalc
+!                                                                       
+!                                                                       
 !      author: M. Bautista                                              
 !                                                                       
       use globaldata

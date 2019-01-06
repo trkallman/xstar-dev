@@ -1,13 +1,29 @@
       subroutine erc(n,m,t,ic,se,sd,a,lun11,lpri) 
 !                                                                       
-! erc calculates the excitation rate, se [cm**3/s],  for atomic         
-! transitions between lower state n and upper state m in hydrogen       
-! due to electron collisions.  the energy loss rate, sl [ev*cm**3/s],   
-! from the electron gas is also determined.  (cf. johnson,1972)         
-! sd = deexcitation rate;   sg = energy gained by electron gas          
-! sm is a quantity symmetrical in n and m, used in models               
-! ***  the quantity em1 is required from subr. expint in this program   
-!     author:  M. Bautista                                              
+!     Name: impact.f90  
+!     Description:  
+!       erc calculates the excitation rate, se [cm**3/s],  for atomic         
+!       transitions between lower state n and upper state m in hydrogen       
+!       due to electron collisions.  the energy loss rate, sl [ev*cm**3/s],   
+!       from the electron gas is also determined.  (cf. johnson,1972)         
+!       sd = deexcitation rate;   sg = energy gained by electron gas          
+!       sm is a quantity symmetrical in n and m, used in models               
+!       ***  the quantity em1 is required from subr. expint in this program   
+!       author:  M. Bautista                                              
+!     List of Parameters:
+!           Input:
+!           n:  principal quantum number 1
+!           m:  principal quantum number 2
+!           t:  temperature in K
+!           ic = ionic charge of target particle                              
+!           a= sum of all angular momentum changing rates
+!           lun11= logical unit number for printing
+!           lpri= print switch
+!           Output:
+!           sd = deexcitation rate;  
+!           se = excitation rate;  
+!      Called by: ucalc
+!      Dependencies:  impactn, szcoll, expint
 !                                                                       
       implicit none 
 !                                                                       

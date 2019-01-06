@@ -1,30 +1,35 @@
       subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,          &
      &                 lpri,lun11)                                      
 !                                                                       
-! the angular momentum changing collision rates are calculated using    
-! either the pengelly & seaton (1964) formula (amcol) or the impact     
-! parameter method of seaton (1962) (impact) if the energy levels are   
-! non-degenerate.  the ps routine is used if the ratio of amcol/impact  
-! is greater than 0.94 since this code is faster.  ** beware - there    
-! may be problems if ne is too large ( > 1.e+7).  pc1 will be used in   
-! amcol rather than pc3 and the change will not occur.                  
+!     Name: amcrs.f90  
+!     Description:  
+!      Calculates angular momentum changing collision rates using    
+!      either the pengelly & seaton (1964) formula (amcol) or the impact     
+!      parameter method of seaton (1962) (impact) if the energy levels are   
+!      non-degenerate.  the ps routine is used if the ratio of amcol/impact  
+!      is greater than 0.94 since this code is faster.  ** beware - there    
+!      may be problems if ne is too large ( > 1.e+7).  pc1 will be used in   
+!      amcol rather than pc3 and the change will not occur.                  
 !      author: M. Bautista                                              
+!
+!     List of Parameters:
+!           Input:
+!           n = principal quantum number of initial state                     
+!           l = orbital quantum number of initial state                       
+!           temp = temperature in kelvin                                      
+!           ic = ionic charge of target particle                              
+!           z1 = charge of incident particle                                  
+!           rm = mass of incident particle in units of electron mass me       
+!           ne = electron number density                                      
+!           sum = total spontaneous transition rate out of n,l                
+!           ecm = energy difference between nl and nl-1                       
+!           psi = see notes for defn                                          
+!           il = flag to decide whether to use impact or amcol                
+!           Output:
+!           cn = transition rate for nl -> nl-1                               
+!     Dependencies: amcol, velimp, impact
+!     Called by:  ucalc
 !                                                                       
-!     n = principal quantum number of initial state                     
-!     l = orbital quantum number of initial state                       
-!     temp = temperature in kelvin                                      
-!     ic = ionic charge of target particle                              
-!     z1 = charge of incident particle                                  
-!     rm = mass of incident particle in units of electron mass me       
-!     ne = electron number density                                      
-!     sum = total spontaneous transition rate out of n,l                
-!     cn = transition rate for nl -> nl-1                               
-!     ecm = energy difference between nl and nl-1                       
-!     psi = see notes for defn                                          
-!     il = flag to decide whether to use impact or amcol                
-!     cn = transition rate for nl -> nl-1                               
-!                                                                       
-
       implicit none 
 !                                                                       
       real(8) ne 

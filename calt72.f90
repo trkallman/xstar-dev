@@ -1,8 +1,21 @@
       subroutine calt72(temp,np1r,nrdt,rate,lun11,lpri) 
 !                                                                       
-!   Takes coefficients in data type 72 and returns capture rates        
-!   (in s^-1) for DR through satellite levels considered explicitly.    
-!      author: M. Bautista                                              
+!     Name: calt72.f90  
+!     Description:  
+!       Takes coefficients in data type 72 and returns capture rates        
+!       (in s^-1) for DR through satellite levels considered explicitly.    
+!       author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np1r=pointer to beginning of real data
+!        nrdt=number of reals
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!        rate=rate
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

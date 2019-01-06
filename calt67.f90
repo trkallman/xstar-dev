@@ -1,9 +1,19 @@
        subroutine calt67(temp,np1r,gamma) 
 !                                                                       
-!   Takes coefficients in data type 67 and returns effective collision  
-!    strenghts for He-like ions according to Keenan, McCann, & Kingston 
-!    (1987) eq. (2)                                                     
+!     Name: calt67.f90  
+!     Description:  
+!      Takes coefficients in data type 67 and returns effective collision  
+!      strenghts for He-like ions according to Keenan, McCann, & Kingston 
+!      (1987) eq. (2)                                                     
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np1r=pointer to real data
+!        nrdt=number real data parameters
+!        gamma=upsilon
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

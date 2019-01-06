@@ -1,11 +1,32 @@
       subroutine impactn(n,m,temp,ic,amn,cmm,lun11,lpri) 
 !                                                                       
-! impact parameter collision cross-sections using the method of seaton. 
-! impactn.ftn calculates the electron collisional excitation rate for   
-! transitions between principal quantum number n and m in hydrogenic    
-! atoms with ionic charge ic.  it is assumed that rm=1 and z1=1.        
-! cmm is the symmetrical quantity used in the models.                   
+!     Name: impact.f90  
+!     Description:  
+!     impact parameter collision cross-sections using the method of seaton:
+!        Proceedings of the Physical Society, Volume 79, Issue 6, 
+!          pp. 1105-1117 (1962).
+!       impact parameter collision cross-sections using the method of seaton. 
+!       impactn.ftn calculates the electron collisional excitation rate for   
+!       transitions between principal quantum number n and m in hydrogenic    
+!       atoms with ionic charge ic.  it is assumed that rm=1 and z1=1.        
+!       cmm is the symmetrical quantity used in the models.                   
 !     author:  M. Bautista                                              
+!     author:  M. Bautista                                              
+!     List of Parameters:
+!           Input:
+!           n:  principal quantum number 1
+!           m:  principal quantum number 2
+!           temp:  temperature in K
+!           ic = ionic charge of target particle                              
+!           amn =
+!           lun11= logocal unit number for printing
+!           lpri= print switch
+!           Output:
+!           amn = charge of incident particle                                  
+!           cmm = mass of incident particle in units of electron mass me       
+!      Called by: erc
+!      Dependencies:  impcfn
+!
 !                                                                       
       implicit none 
 !                                                                       

@@ -1,17 +1,37 @@
       subroutine calt70(temp,den,eth,ic,m,np1r,np1i,                    &
      &                  nx,xe,xs,rec,al,lun11,lpri)                     
 !                                                                       
-!  This routine takes the coefficients in data type 70 (dtype70 reals   
-!  in itype70 integers) and returns the recombination rate (in s-1cm-3) 
-!  and the correstpondent phot. x-section for the superlevel. m is the  
-!  dimension of dtype70. nx is the number of points in the x-section    
-!  xe() contains the photon energy in Ry and xx() is the x-section      
-!  in Mb.                                                               
-!  temp, den, and ic are the temperature, electron density              
-!  and effective charge of the ion respectively.                        
-!  eth is the threshold energy for the superlevel in Ry.                
-!  new revision (2017) quadratic density dependence tk
+!     Name: calt70.f90  
+!     Description:  
+!      This routine takes the coefficients in data type 70 (dtype70 reals   
+!      in itype70 integers) and returns the recombination rate (in s-1cm-3) 
+!      and the correstpondent phot. x-section for the superlevel. m is the  
+!      dimension of dtype70. nx is the number of points in the x-section    
+!      xe() contains the photon energy in Ry and xx() is the x-section      
+!      in Mb.                                                               
+!      temp, den, and ic are the temperature, electron density              
+!      and effective charge of the ion respectively.                        
+!      eth is the threshold energy for the superlevel in Ry.                
+!      new revision (2017) quadratic density dependence tk
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        den=density in cm^-3
+!        ic=ion charge
+!        m=?
+!        np1r=pointer to beginning of real data
+!        np1i=pointer to beginning of integer data
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!        nx=number of energy points in cross section
+!        xe=energy grid for cross section
+!        xs=cross section (cm^2)
+!        rec=recombination rate coefficient (cm^3 s^-1)
+!        al=milne recombination rate coefficient (cm^3 s^-1)
+!     Dependencies: milne
+!     called by:  ucalc
 !                                                                       
                                                                         
       use globaldata

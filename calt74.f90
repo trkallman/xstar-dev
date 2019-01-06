@@ -1,17 +1,34 @@
     subroutine calt74(temp,np,xse,xss,nddd,np1r,rate,alpha) 
 !                                                                       
-!   Takes coefficients in data type 74 and any given radiation flux     
-!   array given in xse(i) (energiesin eV) and xss(i) (flux values)      
-!   and return the the analytic integral over resonances in the         
-!   cross sections represented by delta functions.                      
-!   The routine also returns the DR recombination coefficient (in       
-!   s-1cm-3) for the given value of temp (in Kelvins). alpha MUST       
-!   be mutiplied by the stadistical of the recombined state and         
-!   divided by that of the recombining state.                           
-!                                                                       
-!   np is the number of points xse() and nd is the number of real       
-!   values in dtype74()                                                 
+!     Name: calt74.f90  
+!     Description:  
+!      Takes coefficients in data type 74 and any given radiation flux     
+!      array given in xse(i) (energiesin eV) and xss(i) (flux values)      
+!      and return the the analytic integral over resonances in the         
+!      cross sections represented by delta functions.                      
+!      The routine also returns the DR recombination coefficient (in       
+!      s-1cm-3) for the given value of temp (in Kelvins). alpha MUST       
+!      be mutiplied by the stadistical of the recombined state and         
+!      divided by that of the recombining state.                           
+!      np is the number of points xse() and nd is the number of real       
+!      values in dtype74()                                                 
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np=number of energy points
+!        xse=array of energies
+!        xss=array of fluxes
+!        nddd=number of reals in data
+!        np1r=pointer to real data
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!        rate=photoionization rate
+!        alpha=recombination rate (without statistical weights)
+!     Dependencies: none
+!     called by:  ucalc
+!                                                                       
 !                                                                       
       use globaldata
        implicit none 

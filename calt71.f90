@@ -1,14 +1,31 @@
       subroutine calt71(temp,den,ic,m,np1r,np1i,wav,aij,                 &
      &                  lun11,lpri)                                     
 !                                                                       
-!  This rutine takes the coefficients in data type 71 (dtype71 reals    
-!  in itype71 integers) and returns the radiative transition prbability 
-!  (in s-1) from the superlevels to the spectroscopic level given by    
-!  itype71(3).                                                          
-!  The wavelength for the transition is also given in wav               
-!  temp, den, and ic are the temperature, electron density              
-!  and effective charge of the ion respectively.                        
+!     Name: calt71.f90  
+!     Description:  
+!      This routine takes the coefficients in data type 71 (dtype71 reals    
+!      in itype71 integers) and returns the radiative transition prbability 
+!      (in s-1) from the superlevels to the spectroscopic level given by    
+!      itype71(3).                                                          
+!      The wavelength for the transition is also given in wav               
+!      temp, den, and ic are the temperature, electron density              
+!      and effective charge of the ion respectively.                        
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        den=density in cm^-3
+!        ic=ion charge
+!        m=?
+!        np1r=pointer to beginning of real data
+!        np1i=pointer to beginning of integer data
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!        wav=wavelength of transition (A)
+!        aij=transition probability (s^-1)
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

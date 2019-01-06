@@ -1,14 +1,25 @@
       subroutine anl1(ni,nf,lf,iq,alm,alp,lpri,lun11) 
 !                                                                       
-! this subroutine is used to calculate the values of the                
-! spontaneous transition rates for electric dipole transitions from     
-! level ni,lf+1 and ni,lf-1 to level nf,lf.                             
-! the transition probabilities (a values) are calculated                
-! using the gordon (1929) formula.                                      
-!        iq=ionic charge                                                
-!      author: M. Bautista                                              
+!     Name: anl1.f90  
+!     Description:  
+!       this subroutine is used to calculate the values of the                
+!       spontaneous transition rates for electric dipole transitions from     
+!       level ni,lf+1 and ni,lf-1 to level nf,lf.                             
+!       the transition probabilities (a values) are calculated                
+!       using the gordon (1929) formula.                                      
+!     author:  M. Bautista                                              
+!     Parameters:
+!         Input:
+!         ni=first principal quantum number
+!         nf=final principal quantum number
+!         lf=final angular momentum
+!         iq=ionic charge           
+!         Output:
+!         alm: forward a value                                     
+!         alp: forward a value                                     
+!     Dependencies: hgf, dfact
+!     Called by: ucalc
 !                                                                       
-
       implicit none 
 !                                                                       
       real(8) y1,y2,x1,x2,x3,x4,x5,t 

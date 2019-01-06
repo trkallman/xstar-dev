@@ -1,8 +1,18 @@
        subroutine calt68(temp,np1r,np1i,gamma) 
 !                                                                       
-!    Takes coefficients in data type 68 and returns effective collision 
-!    strenghts for He-like ions according to Sanpson & Zhang.           
+!     Name: calt68.f90  
+!     Description:  
+!      Takes coefficients in data type 68 and returns effective collision 
+!      strenghts for He-like ions according to Sanpson & Zhang.           
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np1r=pointer to real data
+!        np1i=pointer to integer data
+!        gamma=upsilon
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

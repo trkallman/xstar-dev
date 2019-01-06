@@ -1,8 +1,17 @@
       subroutine dfact(n,x) 
 !                                                                       
-! to calculate the factorial of an integer n.  the output x is          
-! the natural log of n factorial, in double precision.                  
-!     author:  T. Kallman                                               
+!     Name: dfact.f90  
+!     Description:  
+!       to calculate the factorial of an integer n.  the output x is          
+!       the natural log of n factorial, in double precision.                  
+!       author:  T. Kallman                                               
+!     Parameters:
+!        Input:
+!        n=integer
+!        Output:
+!        x=output
+!     Dependencies: none
+!     Called by:  anl1
 !                                                                       
 
       implicit none 

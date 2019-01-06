@@ -1,7 +1,7 @@
 !-----------------------------------------------------------------------
       subroutine milne(temp4,nt,x4,y4,eth4,alpha4,lun11,lpri) 
 !                                                                       
-!     Name: intin.f90  
+!     Name: milne.f90  
 !     Description:  
 !           calculates the Milne relation for type 53 data       
 !           calculates the milne rate by dividing 

@@ -1,21 +1,28 @@
 !                                                                       
       subroutine amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn) 
 !                                                                       
-! subroutine amcol determines the rate of angular momentum changing     
-! collisions in hydrogenic atoms due to collisions with ions.           
-! the codes are based on the method of hummer & storey (1987)           
+!     Name: amcol.f90  
+!     Description:  
+!       subroutine amcol determines the rate of angular momentum changing     
+!       collisions in hydrogenic atoms due to collisions with ions.           
+!       the codes are based on the method of hummer & storey (1987)           
 !      author: M. Bautista                                              
-!                                                                       
-!        z1=charge of colliding ion                                     
-!        ic=ionic charge of hydrogenic atom                             
-!        rm=reduced mass of colliding system in units of electron mass  
-!        ne=electron number density                                     
-!        sum = sum of spontaneous transitions out of level n,l          
-!        cn = transition rate for nl -> nl-1                            
-!        cn(nl -> nl-1) = cn                                            
-!        cn(nl -> nl+1) = cn*(2.*l+1)/(2.*l-1)                          
-!                                                                       
-
+!
+!     List of Parameters:
+!           Input:
+!           z1=charge of colliding ion                                     
+!           ic=ionic charge of hydrogenic atom                             
+!           rm=reduced mass of colliding system in units of electron mass  
+!           ne=electron number density                                     
+!           ecm=energy splitting (cm^-1)
+!           Output:
+!           sum = sum of spontaneous transitions out of level n,l          
+!           cn = transition rate for nl -> nl-1                            
+!           cn(nl -> nl-1) = cn                                            
+!           cn(nl -> nl+1) = cn*(2.*l+1)/(2.*l-1)                          
+!       Dependencies: none
+!       Called by: amcrs                                                   
+!
       implicit none 
 !                                                                       
       real(8) ne,temp,z1,rm,sum,ecm,cn 

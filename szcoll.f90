@@ -1,10 +1,20 @@
       subroutine szcoll(ni,nj,tt,rate,ic) 
 !                                                                       
-!     calculates electron impact excitation rates from semiempirical    
-!     formula (eq.35) from smpson & zhang (1988, apj 335, 516)          
-!       real(8)  abethe(11), hbethe(11), rbethe(11)                      
-!       real(8)  fvg1(5),fvg2(5),fvg3(5)                                 
+!     Name: szcoll.f90  
+!     Description:  
+!       calculates electron impact excitation rates from semiempirical    
+!       formula (eq.35) from smpson & zhang (1988, apj 335, 516)          
 !     author:  M. Bautista                                              
+!     Parameters:
+!         Input:
+!         ni=first principal quantum number
+!         nj=first principal quantum number
+!         tt=temperature in K
+!         ic = ionic charge of target particle                              
+!         Output:
+!         rate=rate
+!      Dependencies: eint
+!      Called by:  erc
 !                                                                       
        implicit none 
 !                                                                       

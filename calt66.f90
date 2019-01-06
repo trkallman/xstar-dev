@@ -1,9 +1,19 @@
       subroutine calt66(temp,np1r,nrdt,gamma) 
 !                                                                       
-!   Takes coefficients in data type 66 and returns effective collision  
-!    strenghts for He-like ions according to Kato & Nakazaki (1989)     
-!    eq. (6).                                                           
+!     Name: calt66.f90  
+!     Description:  
+!       Takes coefficients in data type 66 and returns effective collision  
+!       strenghts for He-like ions according to Kato & Nakazaki (1989)     
+!       eq. (6).                                                           
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np1r=pointer to real data
+!        nrdt=number real data parameters
+!        gamma=upsilon
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

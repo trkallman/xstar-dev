@@ -1,9 +1,22 @@
        subroutine calt69(temp,m,np1r,gamma,lpri,lun11) 
 !                                                                       
-!   Takes coefficients in data type 69 and returns effective collision  
-!    strenghts for He-like ions according to Kato & Nakazaki (1989)     
-!    eq. (6). m is the dimension of dtype69                             
-!      author: M. Bautista                                              
+!     Name: calt69.f90  
+!     Description:  
+!       Takes coefficients in data type 69 and returns effective collision  
+!        strenghts for He-like ions according to Kato & Nakazaki (1989)     
+!        eq. (6). m is the dimension of dtype69                             
+!       author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        m=number of reals
+!        np1r=pointer to real data
+!        lpri=print switch
+!        lun11=logical unit number
+!        Output:
+!        gamma=upsilon
+!     Dependencies: expint1
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 

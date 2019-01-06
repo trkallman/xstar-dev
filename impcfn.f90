@@ -1,8 +1,17 @@
       subroutine impcfn(x,xsi,phi) 
 !                                                                       
-! data for functions used in the impact parameter method are generated  
-! using polynomials fitted to seaton's (1962) values using least square 
-!     author:  M. Bautista                                              
+!     Name: impcfn.f90  
+!     Description:  
+!      data for functions used in the impact parameter method are generated  
+!      using polynomials fitted to seaton's (1962) values using least square 
+!      author:  M. Bautista                                              
+!     List of Parameters:
+!           Input:
+!           x=energy parameter
+!           xsi= polynomial 1
+!           phi= polynomial 2
+!     Dependencies:  none
+!     Called by: impact
 !                                                                       
       implicit none 
 !                                                                       

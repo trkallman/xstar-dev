@@ -1,11 +1,24 @@
        subroutine calt60_62(temp,m,idata,np1r,np1i,Upsilon) 
 !                                                                       
-!  This rutine takes the coefficients in data type 60 and 62 (reals     
-!  as dtype and integers as itype) and return effective collision       
-!  strengths according to fits by Callaway (1994).                      
-!  "temp" is the temperature in Kelvin and "m" is the number of         
-!  reals in dtype. "idata" is the data type either 60 or 62.            
+!     Name: calt60_62.f90  
+!     Description:  
+!       This rutine takes the coefficients in data type 60 and 62 (reals     
+!       as dtype and integers as itype) and return effective collision       
+!       strengths according to fits by Callaway (1994).                      
+!       "temp" is the temperature in Kelvin and "m" is the number of         
+!       reals in dtype. "idata" is the data type either 60 or 62.            
 !      author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!         temp=temperature in K                                              
+!         m=number ofreals
+!         idata=data type either 60 or 62
+!         np1r=pointer to real data
+!         np1i=pointer to integer data
+!        Output:
+!         Upsilon=upsilon
+!     Dependencies: none
+!     called by:  ucalc
 !                                                                       
       use globaldata
         implicit none 

@@ -1,9 +1,26 @@
       subroutine impact(en,l,temp,ic,z1,rm,ecm,psi,cr) 
 !                                                                       
-! impact parameter collision cross-sections using the method of seaton. 
+!     Name: impact.f90  
+!     Description:  
+!     impact parameter collision cross-sections using the method of seaton:
+!        Proceedings of the Physical Society, Volume 79, Issue 6, 
+!          pp. 1105-1117 (1962).
 !     author:  M. Bautista                                              
-!                                                                       
-
+!     List of Parameters:
+!           Input:
+!           en:  principal quantum number
+!           l: angular momentum quantum number
+!           temp:  temperature in K
+!           ic = ionic charge of target particle                              
+!           z1 = charge of incident particle                                  
+!           rm = mass of incident particle in units of electron mass me       
+!           ecm:  energy splitting in cm^-1
+!           psi = see notes for defn                                          
+!           Output:
+!           cr:  rate
+!      Called by: amcrs
+!      Dependencies:  impcfn
+!
       implicit none 
 !                                                                       
       real(8) en,temp,z1,rm,ecm,psi,cr 

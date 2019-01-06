@@ -1,9 +1,20 @@
        subroutine calt73(temp,np1r,np1i,crate) 
 !                                                                       
-!   Takes coefficients in data type 73 and returns excitation rate times
-!   the statistical weight of the lower level (w_i C(i,j) in s^-1       
-!   cm^3).                                                              
-!      author: M. Bautista                                              
+!     Name: calt73.f90  
+!     Description:  
+!       Takes coefficients in data type 73 and returns excitation rate times
+!       the statistical weight of the lower level (w_i C(i,j) in s^-1       
+!       cm^3).                                                              
+!       author: M. Bautista                                              
+!     Parameters:
+!        Input:
+!        temp=temperature in K
+!        np1r=pointer to beginning of real data
+!        np1i=pointer to beginning of integer data
+!        Output:
+!        crate=rate
+!     Dependencies: expint,eint
+!     called by:  ucalc
 !                                                                       
       use globaldata
        implicit none 
