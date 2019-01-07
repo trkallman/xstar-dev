@@ -1,15 +1,23 @@
-!  /* Subroutine exint1(x,jump),                                        
-!   translated from Fortran.                                            
-!   This subroutine can be called by an external main program, such     
-!   as call_exint1.c.                                                   
-!                                                                       
-!   jump = 1: exint1 = E1(x);                                           
-!   jump = 2: exint1 = exp(x) * E1(x);                                  
-!   jump = 3: exint1 = x * exp(x) * E1(x);                              
-!   Returns a real(8) precision floating pointeger value.                
-!*/                                                                     
-                                                                        
       real(8) function exint1(x,jump) 
+!
+!     Name: exint1.f90  
+!     Description:  
+!        translated from Fortran to c for apec.                
+!        This subroutine can be called by an external main program, such     
+!        as call_exint1.c.                                                   
+!        jump = 1: exint1 = E1(x);                                           
+!        jump = 2: exint1 = exp(x) * E1(x);                                  
+!        jump = 3: exint1 = x * exp(x) * E1(x);                              
+!        Returns a real(8) precision floating pointeger value.                
+!        author:  apec
+!     Parameters:
+!        x=independent variable
+!        jump=case (see above)
+!        Output:
+!        exint1=value
+!     Dependencies: pow, expo
+!     Called by:  calc_maxwell_rates
+                                                                        
       real(8) x 
       integer jump 
       real(8) EI_1 

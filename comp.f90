@@ -1,10 +1,30 @@
       subroutine comp(lpri,lun11,epi,ncn2,bremsa,cmp1,cmp2) 
 !                                                                       
 !                                                                       
-!     this subroutine computes the heating - cooling due to compton     
-!     scattering.                                                       
-!     non-relativistic version                                          
-!     the rate is returned in the common block coheat.                  
+!     Name: comp.f90  
+!     Description:  
+!       this  computes the heating - cooling due to compton    
+!       scattering. 
+!       non-relativistic version                                          
+!       Output is cmp1, cmp2, to be used as follows:
+!         htcomp = cmp1*xnx*ergsev 
+!         clcomp = ekt*cmp2*xnx*ergsev 
+!       where htcomp, clcomp are heating, cooling rates in erg cm^-3 s^-1
+!       xnx is electron number density, ergsev=1.602197e-12, ekT=kT in eV
+!       author:  T. Kallman (from xstar1)                                 
+!     Parameters:
+!           Input:
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           bremsa(ncn):  Ionizing flux (erg/s/cm^2/erg)
+!           t: temperature in 10^4K
+!           lun11=logical unit number for printing
+!           lpri=print switch
+!           Output:
+!           cmp1=compton heating coefficient
+!           cmp2=compton cooling coefficient
+!     Dependencies: cmpfnc
+!     Called by:  not currently called
 !                                                                       
 !                                                                       
       use globaldata

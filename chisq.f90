@@ -1,6 +1,25 @@
       subroutine chisq(ajisb,cjisb,indb,nindb,                          &
      &   ipmat,x,lun11,lpri)                                            
 !                                                                       
+!     Name: chisq.f90  
+!     Description:  
+!           evaluate statistical equilibrium solution
+!           print out diagonal and largest off diagonal element 
+!             in each row
+!           no Output returned.  result is printed
+!     List of Parameters:
+!           Input:
+!           ajisb(2,ndb)=elements of rate array (s^-1)
+!           cjisb(2,ndb)=elements of heating-cooling rate array (erg s^-1 cm^-3)
+!           indb(2,ndb)=indeces for entries of ajisb,cjisb
+!           ipmat=number of levels
+!           lpri=print switch
+!           lun11=logical unit number for printing
+!           x=vector of level populations
+!           Output:none
+!     Dependencies:  none
+!     called by:  func
+!
       use globaldata
 !                                                                       
       real(8) ajisb(2,ndb),cjisb(ndb) 

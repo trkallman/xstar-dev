@@ -1,5 +1,16 @@
       real(8) function ee1expo(x) 
 !                                                                       
+!     Name: ee1expo.f90  
+!     Description:  
+!       this function computes the first exponential integral.             
+!       same as ee1exp but with limit on exponential.
+!     Parmameters:
+!          x=independent variable
+!          Output:
+!          ee1exp=first exponential integral
+!     Dependencies:  expo
+!     Called by: ucalc     
+!                                                                       
 !     this routine computes the first exponential integral.             
 !                                                                       
       use globaldata

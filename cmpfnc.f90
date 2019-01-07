@@ -1,6 +1,20 @@
       real(8) function cmpfnc(ee,sxx,lun11,lpri) 
 !                                                                       
-!     this routine is used in the relativistic compton calculation      
+!     Name: cmpfnc.f90  
+!     Description:  
+!       this routine is used in the relativistic compton calculation      
+!       searches in coheat.dat table and returns compton heating-cooling
+!       author:  T. Kallman
+!     Parameters:
+!           Input:
+!           ee=photon energy in m_ec^2
+!           sxx=kT/m_ec^2
+!           lun11=logical unit number for printing
+!           lpri=print switch
+!           Output:
+!           cmpfnc=Delta(E)/E for compton heating-cooling
+!     Dependencies: hunt3
+!     Called by:  comp2
 !                                                                       
       use globaldata
 !                                                                       

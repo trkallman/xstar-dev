@@ -1,7 +1,16 @@
       subroutine deletefile(filename,status) 
 !                                                                       
-!     a simple little routine to delete a fits file                     
-!     author:  T. Bridgman                                              
+!     Name: deletefile.f90  
+!     Description:  
+!       a simple little routine to delete a fits file                     
+!       author:  T. Bridgman                                              
+!     Parameters:
+!           Input:
+!           filename=name of file to delete
+!           Output:
+!           status=status 
+!     Dependencies: ftgiuo, getlunx, ftopen,ftdelt,ftcmsg, frelunx
+!     Called by: fheader
 !                                                                       
 
       implicit none 

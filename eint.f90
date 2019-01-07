@@ -1,8 +1,17 @@
        subroutine eint(t,e1,e2,e3) 
 !                                                                       
-!  returns the values of the exponential integral function of order     
-!  1, 2, and 3                                                          
-!     author:  T. Kallman                                               
+!     Name: ee1exp.f90  
+!     Description:  
+!       returns the values of the exponential integral function of order     
+!       1, 2, and 3                                                          
+!       author:  T. Kallman                                               
+!     Parmameters:
+!          t=independent variable
+!          Output:
+!          e1,e2,e3= exponential integrals
+!     Dependencies:  expint
+!     Called by: calt57, szirc, szirco, ucalc, calt73
+!                                                                       
 !                                                                       
 
        implicit none 

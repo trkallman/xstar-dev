@@ -1,7 +1,28 @@
       subroutine bremem(lpri,lun11,xee,xpx,t,epi,ncn2,brcems,opakc) 
 !                                                                       
+!     Name: pprint.f90  
+!     Description:  
 !     this routine computes emissivities due to thermal bremsstrahlung. 
+!     nb currently uses gaunt factor=1.  needs to be fixed!
 !     author:  T. Kallman (from xstar1)                                 
+!
+!     List of Parameters:
+!           Input:
+!           lpri=print switch
+!           lun11=logical unit for printing
+!           xee: electron fraction relative to H
+!           xpx: H number density (cm^-3)
+!           t: temperature in 10^4K
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           Output:
+!           brcems(ncn):  bremsstrahlung emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!           opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!     Dependencies:  none
+!     Called by:  func
+
+!     author:  T. Kallman                                               
 !                                                                       
       use globaldata
       implicit none 

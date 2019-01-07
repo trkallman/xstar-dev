@@ -1,6 +1,21 @@
       subroutine deleafnd(jkk,lup,                                      &
      &   delea,lfnd,lpri,lun11)                           
 !                                                                       
+!     Name: deleafnd.f90  
+!     Description:  
+!       finds the damping parameter for a transition
+!     Parameters:
+!           Input:
+!           jkk=ion number
+!           lup=level index for upper level
+!           lpri=print switch
+!           lun11=logical unit number
+!           Output:
+!           delea=damping parameter in s^-1
+!           lfnd=found flag
+!      Dependencies: none
+!      Called by:  ucalc
+!
       use globaldata
       implicit none 
 !                                                                       

@@ -1,6 +1,14 @@
       real(8) function ee1exp(x) 
 !                                                                       
-!     this routine computes the first exponential integral.             
+!     Name: ee1exp.f90  
+!     Description:  
+!       this function computes the first exponential integral.             
+!     Parmameters:
+!          x=independent variable
+!          Output:
+!          ee1exp=first exponential integral
+!     Dependencies:  none
+!     Called by: ucalc     
 !                                                                       
       implicit none 
 !                                                                       

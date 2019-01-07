@@ -1,12 +1,26 @@
 !_______________________________________________________________        
       real(8) function exint_n(x,E1x_in,n) 
+!
+!     Name: exint_n.f90  
+!     Description:  
+!        translated from Fortran to c for apec.                
+!        Calculates E_n(x), for n = 1,2,3,4. If n.gt.1, and E1x_in .ge. 0, th
+!        routine uses E1x for E_1(x) in calculating recurrance.              
+!        Returns a real(8) precision floating pointeger value.
+!        author:  apec
+!     Parameters:
+!        x=independent variable
+!        n=1,2,3,4 for E_n(x)
+!        E1x_in=E1(x)
+!        Output:
+!        exint_n=value
+!     Dependencies: none
+!     Called by:  calc_maxwell_rates
+!
       real(8) x 
       real(8) E1x_in 
       integer n 
                                                                         
-!/* Calculates E_n(x), for n = 1,2,3,4. If n.gt.1, and E1x_in .ge. 0, th
-!   routine uses E1x for E_1(x) in calculating recurrance.              
-!   Returns a real(8) precision floating pointeger value. */             
 !                                                                       
       real(8) E1x,retval
       real(8) x2, x3, x4 

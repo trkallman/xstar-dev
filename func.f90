@@ -5,7 +5,9 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       xiin,rrrts,pirts,htt,cll,httot,cltot,hmctot,elcter,        &
      &       cllines,clcont,htcomp,clcomp,clbrems,                      &
-     &       xilevt,bilevt,rnist)
+     &       xilevt,bilevt,rnist,                                       &
+     &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
+     &       cabab,opakab,fline,flinel)                       
                                                                         
 !                                                                       
 !     Name: func.f90  
@@ -84,14 +86,24 @@
       use globaldata
       implicit none 
 !                                                                       
+!     line emissivities                                                 
+      real(8) rcem(2,nnnl) 
+!     line opacities                                                    
+      real(8) oplin(nnnl) 
+      real(8) fline(2,nnnl),flinel(ncn) 
 !     line optical depths                                               
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
+!     continuum emissivities                                            
+      real(8) rccemis(2,ncn),brcems(ncn) 
+!     continuum opacities                                               
+      real(8) opakc(ncn),opakcont(ncn)
 !     level populations                                                 
       real(8) xilevt(nnml),bilevt(nnml),rnist(nnml)
+      real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
 !     ion abundances                                                    
       real(8) xiin(nni) 
       real(8) rrrts(nni),pirts(nni) 

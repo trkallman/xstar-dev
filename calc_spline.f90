@@ -2,6 +2,24 @@
                                                                         
       real(8) function calc_spline(xa, ya,y2a,n,x,lpri,lun11) 
 !                                                                       
+!     Name: calc_spline.f90  
+!     Description:  
+!           performs spline interpolation
+!           from apec
+!     List of Parameters:
+!           Input:
+!           xa=vector of x values for interpolation
+!           ya=raw vector of y values for interpolation
+!           y2a=vector of y values for interpolation put onto x grid
+!           n=length of vectors
+!           x=x value
+!           lpri=print switch
+!           lun11=logical unit for printing
+!           Output:
+!           calc_spline=interpolated value
+!     Dependencies:  none
+!     Called by: calc_maxwell_rates, upsiln
+!
       use globaldata
       implicit none 
       integer n,lpri,lun11 

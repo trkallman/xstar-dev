@@ -1,5 +1,16 @@
       real(8) function expo(x) 
 !                                                                       
+!     Name: expo.f90  
+!     Description:  
+!        calculates e^x with limits, currently 600
+!     Parameters:
+!         Input: 
+!         x=independent value
+!         Output:
+!         expo=e^x
+!     Dependencies:  none
+!     Called by:  ucalc
+!
       use globaldata
       implicit none 
 !                                                                       

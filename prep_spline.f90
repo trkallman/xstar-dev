@@ -1,5 +1,19 @@
       subroutine  prep_spline(x,y,n,y2) 
 !                                                                       
+!     Name: prep_spline.f90  
+!     Description:  
+!           Sets up spline coefficients
+!           from apec
+!     List of Parameters:
+!           Input:
+!           x=vector of x values for interpolation
+!           y=raw vector of y values for interpolation
+!           n=length of vectors
+!           Output:
+!           y2=vector of y values for interpolation put onto x grid
+!     Dependencies:  none
+!     Called by: calc_maxwell_rates,upsiln
+!
       real(8) x(n) 
       real(8) y(n) 
       integer n 

@@ -1,9 +1,19 @@
       subroutine expint(x,em1) 
 !                                                                       
-! expint is a subroutine to calculate the value of e1, the exponential  
-! integral or em1=x*expo(x)*e1 at the point x.  the polynomial          
-! expressions that are used come from abromowitz and stegen             
-!     author:  T. Kallman                                               
+!     Name: ee1exp.f90  
+!     Description:  
+!       this function computes the first exponential integral.             
+!       expint is a subroutine to calculate the value of e1, the exponential  
+!       integral or em1=x*expo(x)*e1 at the point x.  the polynomial          
+!       expressions that are used come from abromowitz and stegen             
+!       author:  T. Kallman                                               
+!     Parmameters:
+!          x=independent variable
+!          Output:
+!          em1=first exponential integral
+!     Dependencies:  expo
+!     Called by: eint,calt66,calt69,calt73,erc,irc,expint,ucalc,velimp  
+!                                                                       
 !                                                                       
       implicit none 
       real(8) x,em1,b1,b2,b3,b4,c1,c2,c3,c4,a0,a1,a2,a3,a4,a5,e1,expo 
