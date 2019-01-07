@@ -3,8 +3,33 @@
      &  np1r,np1i,np1k,np2,                                             &
      &  lpri,lun11)                             
 !                                                                       
-!     this  routine prints one element of the database                  
+!     Name: dprint.f90  
+!     Description:  
+!     this  routine puts one record of the database into the database arrays
 !     author:  T. Kallman                                               
+!     List of Parameters:
+!           Input:
+!           ltyp=data type
+!           lrtyp=rate type
+!           lcon=continuation switch
+!           lrdat=number of reals
+!           rdat=array of real data
+!           lidat=number of integers
+!           idat=array of integer data
+!           lkdat=number of characters
+!           kdat=array of character data
+!           lpri=print switch
+!           lun11=logical unit number for printout
+!           Output (updated by routine):
+!           np1r=pointer to first element of master databas real 
+!                array to be filled
+!           np1i=pointer to first element of master databas integer
+!                array to be filled
+!           np1k=pointer to first element of master databas character
+!                array to be filled
+!           np2=number of records in database
+!     Dependencies: none
+!     Called by: not called by xstar routines themselves; included for reference
 !                                                                       
       use globaldata
       implicit none 

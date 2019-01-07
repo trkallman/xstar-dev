@@ -1,8 +1,26 @@
       subroutine dprints(ltyp,lrtyp,lcon,                               &
      &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
-!     this  routine prints one element of the database                  
+!     Name: dprinto.f90  
+!     Description:  
+!     this  routine printe one record of the database, just the first two 
+!     values for each type 
+!     differs from dprints2 because data is passed directrly
 !     author:  T. Kallman                                               
+!     List of Parameters:
+!           Input:
+!           ltyp=data type
+!           lrtyp=rate type
+!           lcon=continuation switch
+!           nrdt=number of reals
+!           rdat=array of real data
+!           nidt=number of integers
+!           idat=array of int data
+!           nkdt=number of chars
+!           kdat=array of char data
+!           lun11=logical unit number for printout
+!     Dependencies:  none
+!     Called by:  not called by current xstar routines.  Included for reference.
 !                                                                       
       implicit none 
       integer nptmpdim 

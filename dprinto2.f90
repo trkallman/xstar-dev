@@ -1,8 +1,25 @@
       subroutine dprinto2(ltyp,lrtyp,lcon,                              &
      &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
-!     this  routine prints one element of the database                  
+!     Name: dprinto.f90  
+!     Description:  
+!     this  routine printe one record of the database 
+!     differs from dprinto because data is passed directrly
 !     author:  T. Kallman                                               
+!     List of Parameters:
+!           Input:
+!           ltyp=data type
+!           lrtyp=rate type
+!           lcon=continuation switch
+!           nrdt=number of reals
+!           rdat=array of real data
+!           nidt=number of integers
+!           idat=array of int data
+!           nkdt=number of chars
+!           kdat=array of char data
+!           lun11=logical unit number for printout
+!     Dependencies:  none
+!     Called by:  ucalc, pprint, setptrs, dprinto2, func1, writespectra2
 !                                                                       
 !                                                                       
       implicit none 

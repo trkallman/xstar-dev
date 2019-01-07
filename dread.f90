@@ -1,8 +1,28 @@
       subroutine dread(ltyp,lrtyp,lcon,lrdat,rdat,lidat,idat,lkdat,kdat,&
      &                 np2,lpri,lun11)          
 !                                                                       
-!     this routine reads one element from the database                  
+!     Name: drd.f90  
+!     Description:  
+!     this  routine reads  one record of the database 
+!     differs from drd because data is put in arrays
 !     author:  T. Kallman                                               
+!     List of Parameters:
+!           Input:
+!           np2: record of database
+!           lpri= print switch
+!           lun11=logical unit number for printout
+!           Output:
+!           ltyp=data type
+!           lrtyp=rate type
+!           lcon=continuation switch
+!           lrdat=number of reals
+!           rdat=array of reals
+!           lidat=number of integers
+!           idat=array if integers
+!           lkdat=number of chars
+!           kdat=array of characters
+!     Dependencies:  none
+!     Called by:  ucalc, pprint, setptrs, func1, writespectra2, deleafnd
 !                                                                       
       use globaldata
       implicit none 
