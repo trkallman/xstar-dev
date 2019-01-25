@@ -1,8 +1,30 @@
       subroutine enxt(eth,nb1,lpri,epi,ncn2,t,lfast,lun11,              &
      &                  jk,nskp,nphint,lrcalc)                          
 !                                                                       
-!     finds next energy bin for photoionizaion rate integrations        
+!     Name: enxt.f90  
+!     Description:  
+!     This routine finds next energy bin for photoionizaion rate integrations 
 !     author: T. Kallman                                                
+!     Parameters:
+!           input:
+!           eth=photoionization threshold energy (eV)
+!           nb1=index of threshold energy
+!           lpri=print switch
+!           epi(ncn)=energy grid (eV)
+!           ncn2=length of epi
+!           t=temperature (10^4 K)
+!           lfast=mode switch:  1,2 --> nskp=1, nphint corresponds to 40 keV; 
+!                               3 --> 16 steps to nphint, 
+!                                 nphint corresponds to max(eth+3kT,3*eth);
+!                               other --> nskp=1, nphint correspnds to 10 keV
+!           lun11=logical unit number for printing
+!           jk=current energy bin index
+!           Output:
+!           nskp=number of bins to skip for next index
+!           nphint=maximum index for integration
+!           lrcalc=rate calculation switch
+!     Dependencies: nbinc
+!     Called by:  ucalc
 !                                                                       
       use globaldata
       implicit none 

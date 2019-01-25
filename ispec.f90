@@ -1,13 +1,28 @@
       subroutine ispec(tp,xlum,epi,ncn2,zremsz,lpri,lun11) 
 !                                                                       
 !                                                                       
-!     this subroutine generates the initial spectrum.                   
-!     brems stores the flux to be used                                  
-!     author:  T. Kallman                                               
+!     Name: ispec.f90
+!     Description:
+!       this subroutine generates the initial spectrum. 
+!       Bremsstahlung with unit gaunt factor
+!       brems stores the flux to be used    
+!       author:  T. Kallman                   
+!     Parameters:                            
+!         Input:
+!           tp: radiation temperature in kev (for thermal spectrum) 
+!           xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           lpri: print switch
+!           lun11: logical unit number for printing
+!         Output:
+!           zremsz:  input spectrum (erg s^-1 erg^-1 /10^38)
+!     Dependencies: none
+!     called by:  rread1
 !                                                                       
       use globaldata
       implicit none 
-!                                                                       
 !                                                                       
       real(8) zremsz(ncn),epi(ncn) 
       integer ncn2,lpri,lun11 

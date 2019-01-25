@@ -1,7 +1,7 @@
       subroutine dprinto2(ltyp,lrtyp,lcon,                              &
      &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
-!     Name: dprinto.f90  
+!     Name: dprinto2.f90  
 !     Description:  
 !     this  routine printe one record of the database 
 !     differs from dprinto because data is passed directrly

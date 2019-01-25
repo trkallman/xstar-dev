@@ -1,7 +1,23 @@
       subroutine find53(stmpp,etmpp,ntmp,efnd,sg,jlo,lun11,lpri) 
 !                                                                       
-!     this routine finds the continuum bin index.                       
+!     Name: find53.f90  
+!     Description:  
+!     this routine finds the continuum bin index for integrating over type 
+!     53 data             
 !     author T. Kallman                                                 
+!     Parameters:
+!          Input:
+!          stmpp(ntmp)= type 53 photoionization cross section array (cm^2)
+!          etmpp(ntmp)= type 53 energy array (eV)
+!          ntmp=length of stmpp, etmpp
+!          efnd=input energy(eV)
+!          lpri= print switch
+!          lun11= logical unit number
+!          Output:
+!          sg=cross section (cm^2)
+!          jlo=bin in type 53 data
+!     Dependencies:  hunt3
+!     Called by:  phint53hunt
 !                                                                       
 
       implicit none 

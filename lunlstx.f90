@@ -1,12 +1,14 @@
 !-----------------------------------------------------------------------
         subroutine lunlstx(iounit) 
                                                                         
-!       generic routine to manage logical unit numbers in the range 10-4
-!                                                                       
-!       I/O  (i) iounit - The logical unit number to be allocated/freed 
-!                                                                       
+!     Name: lunlstx.f90
+!     Description:
+!       generic routine to manage logical unit numbers in the range 10-40
 !       James Peachey, HEASARC/GSFC/NASA  Hughes STX, November, 1996    
 !       Copied with minor changes from the FITSIO routine ftxiou.       
+!     Parameters:
+!       Input:
+!       I/O  (i) iounit - The logical unit number to be allocated/freed 
                                                                         
         integer iounit,i 
         integer array(40) 

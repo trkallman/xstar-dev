@@ -1,11 +1,18 @@
       subroutine fitsclose(lun11,unit,status) 
 !                                                                       
-!     Close the file & release the unit number                          
-!     author: T. Bridgman                                               
-!                                                                       
-!     Parameters:                                                       
-!        unit    integer            File unit number                    
-!        status  integer            Returned status code                
+!     Name: fitsclose.f90  
+!     Description:  
+!        Close the file & release the unit number                          
+!        author: T. Bridgman                                               
+!
+!     List of Parameters:
+!           Input:
+!           lun11=logical unit number for printing
+!           unit=File unit number to clos                   
+!           status= Returned status code                
+!     Dependencies:  none
+!     Called by:  xstar, writespectra, writespectra2, 
+!                 writespectra3, writespectra4, pprint
 !                                                                       
 
       implicit none 

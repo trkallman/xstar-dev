@@ -1,6 +1,24 @@
       subroutine lubksb(a,n,np,indx,b,lun11,lpri) 
-      implicit none 
 !                                                                       
+!     Name: leqt2f.f90
+!     Description:
+!       routine to solve system by back substitution
+!       from numerical recipes
+!     Parameters:
+!       Input:
+!         a(np,np):  coefficient matrix after lu decomposition
+!         np:  first dimension of a
+!         n: number of unknowns
+!         indx:n
+!         b(np): right hand side vector
+!         lun11: logical unit number for printing
+!         lpri: print switch
+!     Output:
+!          b(np):  vector of answers
+!     Dependencies:  none
+!     Called by:  leqt2f
+!
+      implicit none 
       integer i, ii, j, ll, n, np 
       integer lpri, lun11 
 !                                                                       

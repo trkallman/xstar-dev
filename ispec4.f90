@@ -1,9 +1,24 @@
       subroutine ispec4(tp,xlum,epi,ncn2,zremsz,lpri,lun11) 
 !                                                                       
-!     this subroutine generates the initial spectrum.                   
-!     power law spectrum                                                
-!     brems stores the flux to be used                                  
-!     author:  T. Kallman                                               
+!     Name: ispec4.f90
+!     Description:
+!       this subroutine generates the initial spectrum. 
+!       Power law
+!       brems stores the flux to be used    
+!       author:  T. Kallman                   
+!     Parameters:                            
+!         Input:
+!           tp: power law index (energy)
+!           xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           lpri: print switch
+!           lun11: logical unit number for printing
+!         Output:
+!           zremsz:  input spectrum (erg s^-1 erg^-1 /10^38)
+!     Dependencies: none
+!     called by:  rread1
 !                                                                       
 !                                                                       
       use globaldata

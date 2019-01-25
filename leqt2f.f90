@@ -1,8 +1,26 @@
       subroutine leqt2f(a,m,n,np,b,idgt,wkarea,ier,lun11,lpri) 
 !                                                                       
+!     Name: leqt2f.f90
+!     Description:
+!       solve a system of equations using numerical recipes routines
+!     Parameters:
+!       Input:
+!         a(np,np):  coefficient matrix
+!         m: number of right hand sides (not used)
+!         n: number of unknowns
+!         b(np): right hand side vector
+!         idgt: (not used)
+!         wkarea(1): work area (not used)
+!         ier:  error flag
+!         lun11: logical unit number for printing
+!         lpri: print switch
+!     Output:
+!          b(np):  vector of answers
+!     Dependencies:  ludcmp, lubksb, mprove
+!     Called by:  msolvelucy
+!
       use globaldata
       implicit none 
-!                                                                       
 !                                                                       
       integer indx(nd),ier,lun11,lpri,n,np,m,npp 
       real(8) a(np,np),b(np),wkarea(1) 

@@ -3,37 +3,35 @@
      &             zrems,dpthc,opakc,rccemis,                           &
      &             lun11,lpri,status)                                   
 !                                                                       
-!     Reads a FITS extension binary table containing                    
-!     nrhs columns and at most nrhdimj rows                             
-!     author: T. Kallman                                                
-!                                                                       
-!     Parameters:                                                       
+!     Name: rstepr4.f90
+!     Description:
+!       read continuum quantities for each radial zone to an individual 
+!       extension of the file xoxx_detal4.fits
+!       Append a FITS extension binary table containing                   
+!       nrhs columns and at most nrhdimj rows                             
+!       author: T. Bridgman                                               
+!     Parameters:                               
+!        Input:                        
 !        unit    integer            File unit number                    
 !        hdunum  integer            Number of last HDU written          
 !        radin   real(8)               inner radius of shell             
 !        radout  real(8)               outer radius of shell             
-!                                   nb but now it is delr in the call   
-!        t    real(8)               temperature of shell                 
-!        prs    real(8)               pressure in shell                  
-!        nrhdimj  integer            Maximum number of rows             
-!        idat1   integer(nidat1)    Needed by the atomic database       
-!        rdat1   real(nidat1)       Needed by the atomic database       
-!        kdat1   char*nidat1        Needed by the atomic database       
-!        nptrs                      Needed by the atomic database       
-!        npnxt                      Needed by the atomic database       
-!        npfi                       Needed by the atomic database       
-!        npfirst                    Needed by the atomic database       
-!        npcon                      Needed by the atomic database       
-!        npconi                     Needed by the atomic database       
-!        npcon2                     Needed by the atomic database       
-!        xilev   real(nrhdimj)       Fractional level population array  
-!        cemab   real(2,nrhdimj)     Recombination emission             
-!        opakab  real(nrhdimj)       Opacity                            
-!        tauc    real(2,nrhdimj)     Optical depth                      
-!        poptol  real(8)               Tolerance for population level    
-!        nloopctl integer           Loop control variable               
-!        nzone   integer            Pass number through iteration proces
+!        delr    real(8)               thickness of shell
+!        temp    real(8)               temperature of shell in 10^4K          
+!        pres    real(8)               pressure in shell                 
+!        epi(ncn)                   energy grid (eV)
+!        ncn2                       number of energy points
+!        zrems(5,ncn)               radiation field
+!        dpthc(2,ncn)               continuum optical depths
+!        opakc(ncn)                 continuum opacity
+!        rccemis                    continuum emissivity
+!        lun11                      logical unit number for printing
+!        lpri                       print switch
+!        Output:
 !        status  integer            Returned status code                
+!     Dependencies:  none
+!     called by:  xstar       
+!
       use globaldata
 !                                                                       
       implicit none 

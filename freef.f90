@@ -1,9 +1,24 @@
 !-----------------------------------------------------------------------
       subroutine freef(lpri,lun11,epi,ncn2,t,xpx,xee,opakc) 
 !                                                                       
-!     this sub-routine computes the free-free opacity and               
-!     include it into the total one (opakc)                             
-!     author:  J. Garcia (July 2008)                                    
+!     Name: freef.f90
+!     Description:
+!         this sub-routine computes the free-free opacity and               
+!         include it into the total one (opakc)                             
+!          author:  J. Garcia (July 2008)                                    
+!     Parameters:
+!         Input:
+!         lpri=print switch
+!         lun11=locial unit number for printing
+!         epi(ncn): photon energy grid (ev)
+!         ncn2: length of epi
+!         t: temperature in 10^4K
+!         xpx: H number density (cm^-3)
+!         xee: electron fraction relative to H
+!         Output:
+!         opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!     Dependencies:  none (fbg)
+!     Called by:  func.f90
 !                                                                       
       use globaldata
       implicit none 

@@ -1,8 +1,12 @@
       subroutine fparmlist(unit,hdunum,mdlname,npar,parname,partype,    &
      &                    parval,parcomm,nloopctl,status,lun11)         
 !                                                                       
-!     author: T. Bridgman                                               
-!     parameters:                                                       
+!     Name:  fparmlist.f90
+!     Description:
+!        Write the input parameters to a fits file header
+!        author: T. Bridgman                                               
+!     Parameters:                                                       
+!        Input:
 !        unit    integer            file unit number                    
 !        hdunum  integer            number of last hdu written          
 !        mdlname char*30            model name for this run             
@@ -12,9 +16,11 @@
 !        parval  real(999)          parameter values converted to reals 
 !        parcomm char*30(999)       parameter comments & string values  
 !        nloopctl integer           loop control parameter              
+!     Output:
 !        status  integer            returned status code                
-!                                                                       
-
+!     Dependencies:  None (fitsio)
+!     Called by: xstar, writespectra,writespectra2,writespectra3,writespectra4
+!
       implicit none 
 !     passed parameters                                                 
       character(30) mdlname 

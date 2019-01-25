@@ -1,5 +1,22 @@
       subroutine ludcmp(a,n,np,indx,d,lun11,lpri) 
 !                                                                       
+!     Name: ludcmp.f90
+!     Description:
+!       routine to solve system by lu decomposition
+!       from numerical recipes
+!     Parameters:
+!       Input:
+!         a(np,np):  coefficient matrix
+!         np:  first dimension of a
+!         n: number of unknowns
+!         indx:
+!         d:
+!         lun11: logical unit number for printing
+!         lpri: print switch
+!     Output:
+!         a(np,np):  coefficient matrix after lu decomposition
+!     Dependencies:  none
+!     Called by:  leqt2f
 !                                                                       
       use globaldata
       implicit none 

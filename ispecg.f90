@@ -1,10 +1,26 @@
       subroutine ispecg(eptmp,zrtmp,nret,epi,ncn2,zremsz,xlum,          &
      &                  lpri,lun11)                                     
 !                                                                       
-!     this subroutine generates the initial spectrum.                   
-!     brems stores the flux to be used                                  
-!     generic renormalization                                           
-!     author:  T. Kallman                                               
+!     Name: ispecg.f90
+!     Description:
+!       generic renormalization of initial spectrum. 
+!       and mapping to epi grod
+!       author:  T. Kallman                   
+!     Parameters:                            
+!         Input:
+!           xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!           eptmp(ncn): photon energy grid (ev)
+!           zrtmp:  input spectrum (erg s^-1 erg^-1 /10^38)
+!           nret: length of eptmp
+!           epi(ncn): photon energy grid (ev)
+!           ncn2:  length of epi
+!           lpri: print switch
+!           lun11: logical unit number for printing
+!         Output:
+!           zremsz:  input spectrum (erg s^-1 erg^-1 /10^38)
+!     Dependencies: none
+!     called by:  rread1
 !                                                                       
       use globaldata
       implicit none 

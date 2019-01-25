@@ -1,8 +1,17 @@
       real(8) function ff2(x,lpri,lun11) 
 !                                                                       
+!     Name: ff2.f90  
+!     Description:  
 !     expression usind in collisional ionization rate coefficient follow
 !     arnaud and raymond (1992)                                         
 !     author:  T. Kallman                                               
+!     Parameters:  
+!         Input:
+!         x=Eth/KT
+!         lpri=print switch
+!         lun11=logical unit
+!     Dependencies: none
+!     Called by:  ucalc
 !                                                                       
       use globaldata
       implicit none 

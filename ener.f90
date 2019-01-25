@@ -1,7 +1,17 @@
       subroutine ener(epi,ncn2) 
 !                                                                       
-!     sets up energy grin                                               
+!     Name: dprinto.f90  
+!     Description:  
+!     This routine sets up the energy grid
+!     Grid is logarithmic with two subranges:  0.1eV-40 keV, 40keV-1MeV.
+!     This structure of epi is key to operation of various other routines
 !     author: T. Kallman                                                
+!     List of Parameters:
+!           Output:
+!           epi(ncn)=energy grid (ev)
+!           ncn2=length of epi
+!     Dependencies:  none
+!     Called by:  xstar
 !                                                                       
       use globaldata
       implicit none 

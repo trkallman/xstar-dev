@@ -1,11 +1,18 @@
       real(8) function fbg(u,gam) 
 !                                                                       
-!     this function computes the free-free gaunt factor                 
-!      u=h nu/kt                                                        
-!      gam=z**2 ry/kt                                                   
-!         z=charge of scattering ion                                    
-!         ry=rydberg constant                                           
-!         kt=kt, etc.                                                   
+!     Name: fbg.f90  
+!     Description:  
+!     this function computes the free-free gaunt factor.
+!     After Kellogg, Baldwin and Koch 1975 Ap J 199, 299.
+!     This routine needs to be tested and reevaluated before adoption
+!     Parameter:
+!         Input:                 
+!         u=h nu/kt                                                        
+!         gam=z**2 ry/kt, z=charge of scattering ion ry=rydberg constant  
+!         Output:
+!         fbg=gaunt factor
+!     Dependencies:  none
+!     Called by: none (was bremem)
 !                                                                       
       use globaldata
       implicit none 
@@ -101,7 +108,7 @@
             endif 
          endif 
       endif 
-      fbg = born 
+!      fbg = born 
 !                                                                       
       return 
       END                                           

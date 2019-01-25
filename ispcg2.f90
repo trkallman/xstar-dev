@@ -1,7 +1,20 @@
       subroutine ispcg2(zremsz,epi,ncn2,enlum,lpri,lun11) 
 !                                                                       
-!     this subroutine calculates number luminosity                      
-!     author:  T. Kallman                                               
+!     Name: ispcg2.f90
+!     Description:
+!       this subroutine calculates photon number luminosity      
+!       author:  T. Kallman                   
+!     Parameters:                            
+!         Input:
+!           zremsz:  input spectrum (erg s^-1 erg^-1 /10^38)
+!           epi(ncn): photon energy grid (ev)
+!           ncn2: length of epi
+!           lpri: print switch
+!           lun11: logical unit number for printing
+!         Output:
+!           enlum: photon number luminosity
+!     Dependencies: none
+!     called by:  rread1
 !                                                                       
       use globaldata
       implicit none 
