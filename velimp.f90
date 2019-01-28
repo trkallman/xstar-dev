@@ -1,14 +1,30 @@
       subroutine velimp(n,l,temp,ic,z1,rm,ne,sum,cn) 
-
-      implicit none 
+!
+!     Name: velimp.f90
+!     Description:
+!       impact parameter collision rate calculated following the method of
+!       pengelly & seaton (1964) but using the lowest cross-section at eve
+!       velocity.                                                         
+!       note that cn is the rate for nl -> nl-1 and hence l > 0 *         
+!       cne(l+1)=cn                                                       
+!       cen(l)=cn*(2.*l+1)/(2.*l-1)                                       
+!       author:  M. Bautista                                              
+!     Parameters:
+!           Input:
+!           n = principal quantum number of initial state                     
+!           l = orbital quantum number of initial state                       
+!           temp = temperature in kelvin                                      
+!           ic = ionic charge of target particle                              
+!           z1 = charge of incident particle                                  
+!           rm = mass of incident particle in units of electron mass me       
+!           ne = electron number density                                      
+!           sum = total spontaneous transition rate out of n,l                
+!           Output:
+!           cn = transition rate for nl -> nl-1                               
+!     Dependencies: expint
+!     Called by: amcrs
 !                                                                       
-!     impact parameter collision rate calculated following the method of
-!     pengelly & seaton (1964) but using the lowest cross-section at eve
-!     velocity.                                                         
-!     note that cn is the rate for nl -> nl-1 and hence l > 0 *         
-!     cne(l+1)=cn                                                       
-!     cen(l)=cn*(2.*l+1)/(2.*l-1)                                       
-!     author:  M. Bautista                                              
+      implicit none 
 !                                                                       
       real(8) ne, temp, z1, rm, sum, cn 
       real(8) pi, pa, pd, alfa, b, dnl, bb 

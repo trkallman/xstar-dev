@@ -2,8 +2,23 @@
      &       np2,                                                       &
      &       filename,credate,lpri,lun11)                           
 !                                                                       
-!     reads in atomic data                                              
+!     Name:  readtbl.f90
+!     Description:
+!       reads in atomic data                                              
 !       written by Ke Zhang, Nov. 9, 2001                               
+!     Parameters:
+!       Input:
+!          filename=file name
+!          lpri=print switch
+!          lun11=logical unit number
+!       Output:
+!          credate=creation date
+!          np1r=number of reals
+!          np1i=number of integers
+!          np1k=number of characters
+!          np2=number of records
+!    Dependencies:  none
+!    Called by: xstarsetup
 !                                                                       
        use globaldata
        implicit none 

@@ -2,9 +2,22 @@
 !  ---------------------------------------------------------------------
       subroutine rdflo(flo,qry,ios,lpri,ind) 
                                                                         
-!       reads integer from file param corresponding to character string 
+!     Name:  rdflo.f90
+!     Description:
+!       peel a float off a string.
+!       sfter mit eclipse system
 !       'char'. if no integer there, prompts user for parameter ...     
-!      author:  T. Kallman                                              
+!        author:  T. Kallman                                              
+!     Parameters:
+!       Input:
+!       qry=input string
+!       ios=flag
+!       lpri=print switch
+!       ind=index of starting position
+!       Output:
+!       flo=result
+!    Dependencies:  none
+!    Called by: not called
 !                                                                       
        implicit none 
                                                                         

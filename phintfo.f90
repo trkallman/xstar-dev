@@ -2,8 +2,39 @@
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lpri,epi,ncn2,bremsa,t,swrat,xnx,lfast,lun11)  
 !                                                                       
-!     this routine does the integration over the spectrum as required by
-!     type 59 data                                                      
+!     Name:  phintfo.f90
+!     Description:
+!       this routine does the integration over the spectrum as required by
+!       type 59 data                                                      
+!       author T. Kallman
+!     Parameters:
+!       sigc(ncn)=cross section (Mb)
+!       ethi=threshold energy (eV)
+!       abund1=lower level population
+!       abund2=upper level population
+!       lpri=print switch
+!       ptmp1=backward rrc escape probability
+!       ptmp2=forward rrc escape probability
+!       xpx=H nucleus density (cm^-3)
+!       rnist=LTE level population ratio
+!       epi(ncn2)=continuum bins (eV)
+!       ncn2=length of epi
+!       bremsa(ncn)=radiation flux (erg s^-1 cm^-2 erg^-1)
+!       t=temperature in 10^4 K
+!       swrat=statistical weight ratio relative to continuum
+!       xnx=electron number sensity (cm^-3)
+!       lfast=fast switch, >=2 --> include milne integral
+!       lun11=logical unit number
+!       Output:
+!       pirt=photoionization rate (s^-1)
+!       rrrt=recombination rate (s^-1)
+!       piht=photoionization heating rate (erg s^-1)
+!       rrcl=recombination cooling rate (erg s^-1)
+!       opakab=opacity at threshold (cm^-1)
+!       opakc(ncn)=opacity (cm^-1)
+!       opakcont(ncn)=continuum only opacity (cm^-1)
+!     dependencies:  none
+!     called by:  ucalc
 !     author:  T. Kallman                                               
 !                                                                       
       use globaldata

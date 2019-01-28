@@ -1,22 +1,29 @@
       function upsiln(k,eij,cc,ntem,cstr,temps,t,lpri,lun11) 
       use globaldata
+!
+!     Name: upsiln.f90
+!     Description:
+!       this routine calculates upsilons for Burgess and Tully            
+!       author:  M. Bautista                                              
+!       rewrite of upsil.f90 by T. Kallman
+!     Parameters:
+!       Input:                                                                  
+!       t = electron temperature in Kelvin                                
+!       p# = spline knot values                                           
+!       c = abscissa scale parameter                                      
+!       k = transition type                                               
+!       eij = transition energy (Ryd)                                     
+!       Output:
+!       upsiln=upsilon value
+!     Dependencies:  prep_spline, calcspline
+!     Called by:  ucalc
+!                                                                       
       implicit none 
       real(8) cstr(50),temps(50),calc_spline 
       real(8)  eij, cc,      t 
       real(8)   upsiln, xt, y2(50), kte, ups, sups 
       integer k,ntem,lpri,lun11 
 !                                                                       
-!     this routine calculates upsilons for Burgess and Tully            
-!     used by chianti                                                   
-!     author:  T. Kallman                                               
-!                                                                       
-!     t = electron temperature in Kelvin                                
-!     p# = spline knot values                                           
-!     c = abscissa scale parameter                                      
-!     k = transition type                                               
-!     eij = transition energy (Ryd)                                     
-!                                                                       
-!     ;c                                                                
                                                                         
        kte=t/eij/1.57888d5 
                                                                         

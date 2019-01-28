@@ -1,10 +1,31 @@
                                                                         
       subroutine mprove(a,alud,n,np,indx,b,x,lun11,lpri) 
+!
+!     Name: mprove.f90
+!     Description:
+!       routine to improve system solution
+!       from numerical recipes
+!     Parameters:
+!       Input:
+!         a(np,np):  coefficient matrix
+!         a(np,np):  coefficient matrix after lu decomposition
+!         np:  first dimension of a
+!         n: number of unknowns
+!         indx:n
+!         b(np): right hand side vector
+!         lun11: logical unit number for printing
+!         lpri: print switch
+!     Output:
+!          x(np):  vector of answers
+!     Dependencies:  lubksb
+!     Called by:  leqt2f
+!
       implicit none 
       integer np, n,nl 
       parameter (nl=10000) 
       real(8)  a(np,np), alud(np,np), b(n), x(n), r(nl), sdp 
       integer indx(n), lun11, lpri, i, j 
+!
       if (lpri.gt.1)                                                    &
      & write (lun11,*)'in mprove:'                                      
       do 12 i=1,n 

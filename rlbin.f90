@@ -1,9 +1,28 @@
       subroutine rlbin(jkk1,ebln,emis,opac,n1,emin,emax,epi,ncn2,nlbin, &
      &    lopak,lun11,lpri)
 !                                                                       
-!     this routine sorts line and continuum emissivities
-!     author: T. Kallman       
-!     nb1 is a temporary bin number                                         
+!     Name:  rlbin.f90
+!     Description:
+!       this routine sorts line and continuum emissivities
+!       author: T. Kallman       
+!     Parameters:
+!       Input:
+!       jkk1
+!       ebln
+!       emis(n1)=emissivities
+!       opac(n1)=opacities
+!       n1=length of emis,opac
+!       emin=minimum energy to be considered
+!       emax=maximum energy 
+!       epi(ncn)=energy bins (eV)
+!       ncn2=length of epi
+!       lun11=logical unit number
+!       lpri=print switch
+!       lopak=emis/opac switch
+!       Output:
+!       nlbin=index array of sorted quantities
+!     Called by:  fopac, fopach
+!     Dependencies:  none
 !                                                                       
 !                                                                       
       use globaldata

@@ -2,9 +2,37 @@
      &      np2,ncsvn,nlsvn,                                            &
      &      epi,ncn2,opakc,opakcont,oplin,opakab,delr,t,                &
      &      dpthc,dpthcont,tau0,tauc,eliml,elimh)                               
-!                                                                       
-!     this routine updates.  calculates depths, etc.                    
-!     author:  T. Kallman                                               
+!                                        
+!     Name: stpcut.f90
+!     Description:                               
+!       this routine updates optical depths
+!       author:  T. Kallman                                               
+!     Paramters:
+!       Input:
+!       ldirt=direction switch
+!       lpri=print switch
+!       lun11=logical unit number for printing
+!       vturbi=turbulent velocity (km/s)
+!       np2=number of records in atomic database
+!       ncsvn=number of rrcsin atomic database
+!       nlsvn=number of rrcsin atomic database
+!       epi(ncn)=continum bins (eV)
+!       ncn2=length of epi
+!       opakc(ncn)=continuum opacity (cm^-1)
+!       opakcont(ncn)=continuum opacity, continuum only(cm^-1)
+!       oplin(nnnl)=line opacities (cm^-1)
+!       opakab(nnml)=rrc opacities at threshold (cm^-1)
+!       delr=step size (cm)
+!       t=temperature/10^4K
+!       eliml=energy range lower limit
+!       elimh=energy range upper limit
+!       Output:
+!       dpthc(2,ncn)=continuum optical depths
+!       dpthcont(2,ncn)=continuum optical depths, continuum only
+!       tau0(2,nnnl)=line optical depths
+!       tauc(2,nnml)=rrc optical depths
+!     Dependencies: none
+!     called by:  xstar
 !                                                                       
       implicit none 
 !                                                                       

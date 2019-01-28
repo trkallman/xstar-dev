@@ -1,18 +1,27 @@
       function upsil(k,eij,c,p1,p2,p3,p4,p5,t) 
+!
+!     Name: upsil.f90
+!     Description:
+!       this routine calculates upsilons for Burgess and Tully            
+!       author:  M. Bautista                                              
+!     Parameters:
+!       Input:                                                                  
+!       t = electron temperature in Kelvin                                
+!       p# = spline knot values                                           
+!       c = abscissa scale parameter                                      
+!       k = transition type                                               
+!       eij = transition energy (Ryd)                                     
+!       Output:
+!       upsil=upsilon value
+!     Dependencies:  splinem
+!     Called by:  ucalc
+!                                                                       
+!
       use globaldata
       implicit none 
       real(8) e, eij, c, p1, p2, p3, p4, p5, t 
       real(8) y, splinem, upsil, x 
       integer k 
-!                                                                       
-!     this routine calculates upsilons for Burgess and Tully            
-!     author:  M. Bautista                                              
-!                                                                       
-!     t = electron temperature in Kelvin                                
-!     p# = spline knot values                                           
-!     c = abscissa scale parameter                                      
-!     k = transition type                                               
-!     eij = transition energy (Ryd)                                     
 !                                                                       
                                                  !<<<<<< CORRECTED LINE 
        e=abs(t/(1.57888e5*eij)) 

@@ -1,9 +1,23 @@
       subroutine gull1(n,rs,gus,gls,lpri,lun11) 
 !                                                                       
-! this subroutine calculates the value of |g(n,l;r,l')|**2              
-! given n the principal qn and r for all l=[o,n-1] and                  
-! l'=l+1 or l'=l-1.  ref burgess (1964), brockelhurst (1971)            
+!     Name: gull1.f90  
+!     Description:  
+!        this subroutine calculates the value of |g(n,l;r,l')|**2              
+!        given n the principal qn and r for all l=[o,n-1] and                  
+!        l'=l+1 or l'=l-1.  ref burgess (1964), 
+!        and brockelhurst (1971) MNRAS 153, 471.
 !      author: m. bautista                                              
+!      Parameters:
+!           Input:
+!           n=number of levels
+!           rs=k/z^2, k=wavenumber of outgoing electron
+!           lpri=print switch
+!           lun11=logical unit number
+!           Output:
+!           gus=quantities needed for radial matrix element (eqn 3.17)
+!           gls=quantities needed for radial matrix element (eqn 3.17)
+!     Called by: hphotx
+!     Dependencies:  fact
 !                                                                       
 
       implicit none 

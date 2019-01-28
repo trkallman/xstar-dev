@@ -1,10 +1,20 @@
       subroutine printerror(lun11,status) 
 
+!     Name:  printerror.f90
+!     Description:
+!       print out the fitsio error messages to the user                   
+!       author:  T. Bridgman                                              
+!     Parameters:
+!       Input:
+!       lun11=logical unit number
+!       status=cfitsio status code
+!     Dependencies: none
+!     Called by: fheader, fparmlist, writespectra, writespectra2, 
+!       writespectra3, writespectra4, rstepr, rstepr2, rstepr3, rstepr4, 
+!       fstepr, fstepr2, fstepr3, fstepr4, pprint, fwrtascii, savd, unsavd
+!                                                                       
       implicit none 
                                                                         
-!     print out the fitsio error messages to the user                   
-!     author:  T. Bridgman                                              
-!                                                                       
       integer status, lun11 
       character errtext*30,errmessage*80 
 !                                                                       

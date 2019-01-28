@@ -7,8 +7,44 @@
      &       epi,ncn2,zrems,dpthc,opakc,rccemis,                        &
      &       lunlog,status)                                             
 !                                                                       
-!     this routine  saves only depths for iterative calculation         
-!     author:  T. Kallman                                               
+!     Name: unsavd.f90
+!     Description:
+!       Read quantities for each radial zone to an individual 
+!       extension of the file xoxx_detail.fits
+!       Append a FITS extension binary table containing                   
+!       nrhs columns and at most nrhdimj rows                             
+!       author: T. Bridgman                                               
+!     Parameters:                               
+!        Input:                        
+!        unit    integer            File unit number                    
+!        hdunum  integer            Number of last HDU written          
+!        radin   real(8)               inner radius of shell             
+!        radout  real(8)               outer radius of shell             
+!        delr    real(8)               thickness of shell
+!        temp    real(8)               temperature of shell in 10^4K          
+!        pres    real(8)               pressure in shell                 
+!        lun11                      logical unit number for printing
+!        lpri                       print switch
+!        Output:
+!        xilev   real(nrhdimj)       Fractional level population array  
+!        rnist   real(nrhdimj)       LTE level populations
+!        rcem(2,nrhdimj)              line emissivities
+!        oplin(nrhdimj)             line opacities
+!        tau0(2,nrhdimj)            line optical depths
+!        cemab(nnml):               rrc emissivities (erg cm^-3 s^-1) 
+!        cabab(nnml):               total energy absorbed by 
+!                                      rrc (erg cm^-3 s^-1)
+!        opakab(nnml):              rrc opacities (cm^-1)
+!        tauc(2,nnml):              rrc optical depths
+!        epi(ncn)                   energy grid (eV)
+!        ncn2                       number of energy points
+!        zrems(5,ncn)               radiation field
+!        dpthc(2,ncn)               continuum optical depths
+!        opakc(ncn)                 continuum opacity
+!        rccemis                    continuum emissivity
+!        status  integer            Returned status code                
+!     Dependencies:  none
+!     called by:  xstar       
 !                                                                       
       use globaldata
       implicit none 

@@ -2,9 +2,33 @@
      &  zrems,lpri,delr,dpthc,r,                                        &
      &  xpxcol,xcol,xpx,taumax,numrec0,lun11)                           
 !                                                                       
+!     Name:  step.f90
+!     Description
+!       this routine calculates radial step sizes  using courant condition
+!     Parameters:
+!       ectt=lower bound energy for application of courant condition (eV)
+!       emult=courant multiplier
+!       epi(ncn)=energy grid (eV)
+!       ncn2=length of epi
+!       opakc(ncn)=opacity (cm^-1)
+!       rccemis(2,ncn)=emissivity (erg cm^-2 s^-1 erg^-1)
+!       fline(ncn)=line flux in continuum bins (erg s^-1 erg^-1)
+!       zrems(5,ncn):  radiation field in continuum bins 
+!                          (erg/s/erg)/10^38
+!       lpri=print switch
+!       dpthc(2,ncn)=continuum optical depths
+!       r=radius (cm)
+!       xpxcol=column density limit(cm^-2)
+!       xcol=column density (cm^-2)
+!       xpx= H number density (cm^-3)
+!       taumax= maximum optical depth for inclusion in courant condition
+!       numrec0=maximum number of radial zones
+!       lun11=logical unit number for printing
+!       Output:
+!       delr=step size (cm)
+!     Dependencies:  none
+!     Called by:  xstar
 !                                                                       
-!                                                                       
-!     this routine claculates step sizes                                
 !                                                                       
       use globaldata
       implicit none 

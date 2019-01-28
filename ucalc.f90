@@ -8,9 +8,70 @@
      &   rniss,rnisse,nlev,lfast,lun11,                                 &
      &   np2,ncsvn,nlsvn)                
 !                                                                       
-!     this routine calculates rates for all atomic processes            
-!     author:  T. Kallman                                               
-!                                                                       
+!     Name: ucalc.f90  
+!     Description:  
+!       this routine calculates rates for all atomic processes            
+!       author:  T. Kallman                                               
+!     List of Parameters:
+!       Input:
+!       ndesc:  data type
+!       nrdesc=rate type
+!       ml=database record index
+!       lcon=continuation flag (not used)
+!       jkion=ion index
+!       vturbi:  turbulent speed (km/s)
+!       nrdt=number of reals
+!       np1r=real pointer
+!       nidt=number of integers
+!       np1i=integer pointer
+!       nkdt=number of chars
+!       np1k=char pointer
+!       idest1=level index of initial level
+!       idest2=level index of final level
+!       idest3=ion index of initial level
+!       idest4=ion index of final level
+!       abund1=population of initial levle
+!       abund2=population of final level
+!       ptmp1=escape probability in reverse direction
+!       ptmp2=escape probability in the forward direction
+!       xpx= H number density (cm^-3)
+!       opakab(nnml):  rrc opacities (cm^-1)
+!       opakc(ncn):  continuum opacities with lines binned in (cm^-1)
+!       opakcont(ncn):  continuum opacities lines excluded (cm^-1)
+!       rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
+!                   /10^38
+!                  inward and outward
+!       lpriu=print switch
+!       kdesc2=description string
+!       r:  radius in nebula (cm)
+!       delr=step size (cm)
+!       t: temperature in 10^4K
+!       trad: radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!       tsq=sqrt(t)
+!       xee=electron fractional abundance relative to neutral H
+!       xh1=H+ density
+!       xh0=H0 density
+!       epi(ncn)=energy grid (eV)
+!       ncn2=length of epi
+!       bremsa=flux (erg cm^-2 s^-1 erg^-1)
+!       bremsint=integrated flux
+!       rniss:  lte level populations
+!       rnisse:  lte level populations with exponential removed
+!       nlev:  number of levels for the ion
+!       lfast=fast switch
+!       lun11=logical unit for printing
+!       np2=number of atomic database records
+!       ncsvn=number of rrcs
+!       nlsvn=number of lines
+!       Output:
+!       ans1=forward rate
+!       ans2=reverse rate
+!       ans3=heating rate
+!       ans4=cooling rate
+!     Dependencies: many
+!     Called by:  func1,func2,func3
+!
       use globaldata
       implicit none 
 !                                                                       

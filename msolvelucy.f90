@@ -1,8 +1,35 @@
       subroutine msolvelucy(ajisb,cjisb,indb,nindb,nsup,nspmx,          &
      &   ipmat,bmat,x,ht,cl,niter,nit2,nit3,nitmx,nitmx2,lun11,lpri)    
 !                                                                       
-!     solves lucy iteration                                             
-!     author:  T. Kallman                                               
+!     Name: msolvelucy.f90
+!     Description:
+!       solves a linear system using the iterative technique of 
+!       lucy 2001 MNRAS 326 95
+!     author:  T. Kallman     
+!     Parameters:
+!        Input:
+!         ajisb(2,ndb)=entries to coefficient matrix
+!         cjisb(ndb)=heating-cooling rates
+!         indb(2,ndb)=index arracy to coefficient matrix
+!         nindb=number of entries to indb
+!         nsup=number of superlevels
+!         nspmx=max number of superlevels
+!         ipmat=number of levels
+!         bmat=not used
+!         nitmx=max number of iterations
+!         nitmx2=max number of superlevel iterations
+!         lun11=logical unit number for printing
+!         lpri=print switch
+!        Output:
+!         x(nd)=solution vector
+!         ht= heating rates
+!         cl= cooling rates
+!         niter=number of iterations 
+!         nit2=number of iterationson superlevels
+!         nit3=number of fixed point iterations
+!     Depedencies: leqt2f
+!     Called by:  func
+!                                               
 !                                                                       
 !     solves lucy iteration                                             
       use globaldata

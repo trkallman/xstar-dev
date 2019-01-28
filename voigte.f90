@@ -1,14 +1,22 @@
       function voigte(vs,a) 
-!      real(8) function voigtevoigt(vs,a)                                
+!
+!     Name:  voigte.f90
+!     Description:
+!       computes a voigt function  h = h(a,v)                             
+!       a=gamma/(4*pi*dnud)   and  v=(nu-nu0)/dnud.  this  is  done after 
+!       traving (landolt-b\rnstein, p. 449).                              
+!       the integral of this function over vs (-infinity -> infinity) is s
+!       author:  tlusty                                                   
+!     Parameters:
+!       a=damping parameter
+!       vs=frequency relative to line center in units of doppler width
+!       Output
+!       voigte=voigt function
+!     Dependencies: none
+!     Called by:  binemis, writespectra
+!                                                                       
       use globaldata
       implicit none 
-!                                                                       
-!     computes a voigt function  h = h(a,v)                             
-!     a=gamma/(4*pi*dnud)   and  v=(nu-nu0)/dnud.  this  is  done after 
-!     traving (landolt-b\rnstein, p. 449).                              
-!     author:  tlusty                                                   
-!                                                                       
-!     the integral of this function over vs (-infinity -> infinity) is s
 !                                                                       
       real(8) vs, a, un, two, voigte, sqp, sq2 
       real(8) v, u, v2, ex, quo, h1, h, pqs, h1p 

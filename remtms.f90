@@ -1,4 +1,11 @@
       subroutine remtms(ct) 
+!
+!     Name:  remtms.f90
+!     Description:
+!       calculate time using etime
+!     Parameters:
+!        ct=not used
+!     
       implicit none 
 !                                                                       
       real(8) ct 

@@ -1,11 +1,22 @@
       function nbinc(e,epi,ncn2) 
 !                                                                       
-!     this function bins the continuum                                  
-!     lines between   epi(i) and   epi(i+1) are put in bin number i.    
-!     energies between 0 and   epi(1) are put in bin number 50.         
+!     Name:  nbinc.f90
+!     Description:
+!        this function bins the continuum                                  
+!        lines between   epi(i) and   epi(i+1) are put in bin number i.    
+!        energies between 0 and   epi(1) are put in bin number 50.         
+!        author:  T. Kallman                                               
+!     Parameters:
+!        Input:
+!        e=energy to be binned (ev)
+!        epi(ncn)=energy grid (ev)
+!        ncn2=length of epi
+!        Output:
+!        nbinc=bin number
+!     Dependencies: huntf
+!     Called by:  pprint.f90, ucalc.f90, ... many 
+!
       use globaldata
-!     author:  T. Kallman                                               
-!                                                                       
 !                                                                       
       real(8) e 
       integer jlo, lun11,nbinc, ncn2, numcon, numcon2,                  &

@@ -1,9 +1,17 @@
       real(8) function pescv(tau) 
 !                                                                       
-!     this routine calculates escape probability for                    
-!       continuum                                                       
-!     inputs: optical depths-- tau, energy                              
-!     author:  T. Kallman                                               
+!     Name:  pescv.f90
+!     Description:
+!       this routine calculates escape probability for an rrc
+!       inputs: optical depths-- tau for a line transition                
+!       Currently using trivial expression
+!     Parameters:
+!       Input: 
+!       tau=line center optical depth
+!       output:
+!       pescl=escape probability
+!     Dependencies:  none
+!     Called by: ucalc
 !                                                                       
       implicit none 
 !                                                                       

@@ -3,8 +3,52 @@
      & lun11,abel,cfrac,emult,taumax,xeemin,spectype,specfile,specunit, &
      & kmodelname,nloopctl,critf,vturbi,eptmp,zrtmp,numcon2,ncn2,radexp)
 !                                                                       
-!     this routine handles reading of the input data.                   
-!     author:  T. Kallman                                               
+!     Name:  rread1.f90
+!     Description:
+!       this routine handles reading of the input data.                   
+!       author:  T. Kallman                                               
+!     Parameters:
+!       Input:
+!       lun11=logical unit number for printint
+!       Output:
+!       trad= radiation temperature (for thermal spectrum) 
+!               or energy index (for power law).
+!       xlum: source luminosity integrated from 1-1000 Ry
+!               in units of 10^38 erg/s
+!       lwri: write switch
+!       lpri: print switch
+!       r:  radius in nebula (cm)
+!       t: temperature in 10^4K
+!       xpx: H number density (cm^-3)
+!       p:  pressure in dynes/cm^2
+!       lcdd=constant density switch
+!       numrec=
+!       npass=number of global passes
+!        nlimd=maximum number of temperature and charge conservtion iterations
+!       rmax=maximum radius (cm)
+!       xpxcol=column density (cm^-2)
+!       xi=L/nR^2
+!       zeta=log(xi)
+!       lfix=not used
+!       abel(30)=input element abundances relative xstar fiducial set
+!       cfrac=covering fraction
+!       emult=multiplier to courant condition
+!       taumax=maximum optical depth for inclusion in courant condition
+!       xeemin=minimum allowed electron fraction
+!       spectype=spectrum type
+!       specfile=spectrum input file
+!       specunit=spectrum units (0=energy 1=photons, 2=log10)
+!       kmodelname=model name 
+!       nloopctl=loop control variable
+!       critf=critical abundance for inclusion in level-to-level calculation
+!       vturbi=turbulent velocty (km/s)
+!       eptmp(ncn)=input spectrum energy array (eV)
+!       zrtmp(ncn)=input spectrum (arbitrary units)
+!       numcon2=length of eptmp, zptmp
+!       ncn2=number of continuum bins
+!       radexp=radius exponent for density dependence
+!     Called by: xstar
+!     Dependencies: uclgsi, uclgsr8, uclgst
 !                                                                       
       use globaldata
       implicit none 

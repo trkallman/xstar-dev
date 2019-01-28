@@ -1,4 +1,21 @@
       function splinem(p1,p2,p3,p4,p5,x) 
+!
+!     Name:  splinem.f90
+!     Description:
+!        5-point spline interpolation of y(x), for x in the range (0,1)        
+!        knot values p1=y(0), p2=y(1/4), p3=y(1/2), p4=y(3/4), p5=y(1)         
+!        author:  M. Bautista                                              
+!     Parameters:
+!        Input:
+!        p1,p2,p3,p4,p5:  function values at variou y points
+!        x: independent variable (0,1)
+!        Output:
+!        splinem: interpolated value
+!     Dependencies:  none
+!     Called by: upsil
+!
+!                                                                       
+
       use globaldata
       implicit none 
 !                                                                       
@@ -6,10 +23,6 @@
       real(8) s, s2, s3, s4, x0 
       real(8) t0, t1, t2, t3, splinem 
                                                                         
-!                                                                       
-! 5-point spline interpolation of y(x), for x in the range (0,1)        
-! knot values p1=y(0), p2=y(1/4), p3=y(1/2), p4=y(3/4), p5=y(1)         
-!     author:  M. Bautista                                              
 !                                                                       
        s=1./30. 
        s2=32.*s*(19.*p1-43.*p2+30.*p3-7.*p4+p5) 

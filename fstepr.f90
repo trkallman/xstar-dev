@@ -28,7 +28,7 @@
 !        Output:
 !        status  integer            Returned status code                
 !     Dependencies:  none
-!     called by:  xstar       
+!     called by:  savd
 !                                                        
       use globaldata
       implicit none 

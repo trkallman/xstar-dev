@@ -1,7 +1,17 @@
       real(8) function pescl(tau) 
 !                                                                       
-!     this routine calculates escape probability for a line transition  
-!     inputs: optical depths-- tau for a line transition                
+!     Name:  pescl.f90
+!     Description:
+!       this routine calculates escape probability for a line transition  
+!       inputs: optical depths-- tau for a line transition                
+!       Currently using expression from Kwan and Krolik 1982
+!     Parameters:
+!       Input: 
+!       tau=line center optical depth
+!       output:
+!       pescl=escape probability
+!     Dependencies:  none
+!     Called by: ucalc
 !                                                                       
       implicit none 
 !                                                                       

@@ -1,10 +1,18 @@
       subroutine fwrtascii(unit,extname,rdati,ncol,                     &
      &                      nidat1j,klabs, kform, kunits,lun11)         
-                                                                        
-!     write an ascii table extension containing                         
-!     ncol columns and nidat1 rows                                      
-!     author: T. Bridgman                                               
-!                                                                       
+!                                                                        
+!     Name: fwrtascii.f90  
+!     Description:  
+!       write an ascii table extension containing                         
+!       ncol columns and nidat1 rows                                      
+!       modifications:                                                    
+!        1998/12/17, wtb: fix fits keyword format problem.  enhanced    
+!                    parameter list for more flexibility.               
+!        1999/01/04, wtb: added file creation date, model name, creator 
+!                    code & checksum                                    
+!        1999/01/25, wtb: convert this routine so it just writes an     
+!                    ascii table extension.                             
+!       author: T. Bridgman                                               
 !     parameters:                                                       
 !        unit    integer            file unit number                    
 !        extname char*30            name of the ascii extension         
@@ -15,14 +23,9 @@
 !        klabs   char*16(ncol)      column labels                       
 !        kform   char*16(ncol)      column numeric format               
 !        kunits  char*15(ncol)      column units                        
+!     Dependencies:  none
+!     Called by: pprint.f90
 !                                                                       
-!     modifications:                                                    
-!        1998/12/17, wtb: fix fits keyword format problem.  enhanced    
-!                    parameter list for more flexibility.               
-!        1999/01/04, wtb: added file creation date, model name, creator 
-!                    code & checksum                                    
-!        1999/01/25, wtb: convert this routine so it just writes an     
-!                    ascii table extension.                             
 !                                                                       
 
       implicit none 

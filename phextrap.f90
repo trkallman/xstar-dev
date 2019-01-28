@@ -1,9 +1,24 @@
       subroutine phextrap(etmp,stmp,ntmp,ntmp2,ett,ncn2,lpri,lun11) 
 !                                                                       
-!     this routine does the extrapolation of the ip photoionization cros
-!     sections                                                          
+!     Name:  phextrap.f90
+!     Description:
+!       this routine does extrapolation of the ip photoionization cros
+!       sections                                                          
+!       Must be used with care because extrapolation can produce unphysical
+!       values at high energies
+!       author: T. Kallman                                                
+!     Parameters:
+!       etmp(ntmp)=energy grid (RY above threshold
+!       stmp(ntmp)=cross section (cm^2)
+!       ntmp=length of stmp
+!       ett=threshold (eV)
+!       ncn2=length of epi
+!       lpri=print switch
+!       lun11=logical unit number for print
+!       Output:
+!       ntmp2=length of stmp after extrapolation
+!     Dependencies:  none
 !     called by ucalc, for data types 53, 49.                           
-!     author: T. Kallman                                                
 !                                                                       
       use globaldata
       implicit none 

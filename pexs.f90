@@ -2,23 +2,28 @@
       subroutine pexs(nmin,kdim,zc,eion,far,gam,scal,                   &
      &                e,axs,ierr,lpri,lun11)                            
 !                                                                       
-!     Compute photoexcitation cross-section assuming one                
-!     Rydberg serie converging to a threshold.                          
-!                                                                       
-!     nmin = starting princ. quant. num. of the serie                   
-!     zc = effective charge, Z-Ne+1                                     
-!     eion = threshold energy in Ry                                     
-!     far = oscillator strength of the serie member with                
+!     Name:  pexs.f90
+!     Description:
+!       Compute photoexcitation cross-section assuming one                
+!       Rydberg serie converging to a threshold.                          
+!       Author: P. Palmeri 2005
+!     Parameters:
+!       Input:
+!       nmin = starting princ. quant. num. of the serie                   
+!       zc = effective charge, Z-Ne+1                                     
+!       eion = threshold energy in Ry                                     
+!       far = oscillator strength of the serie member with                
 !            n=nmin                                                     
-!     gam = resonance width in Ry                                       
-!     e = external energy grid in Ry                                    
-!     kdim = dimension of the external energy grid                      
-!     axs = cross section                                               
-!     scal = scaling factor                                             
-!     ierr = error indicator (=0: OK; .ne.0:error)                      
-!     author:  P. Palmeri                                               
+!       gam = resonance width in Ry                                       
+!       e = external energy grid in Ry                                    
+!       kdim = dimension of the external energy grid                      
+!       scal = scaling factor                                             
+!       Output:
+!       axs = cross section                                               
+!       ierr = error indicator (=0: OK; .ne.0:error)                      
+!     Dependencies:  none
+!     Called by:  ucalc
 !                                                                       
-
       implicit none 
 !                                                                       
       integer nmax,nmin 

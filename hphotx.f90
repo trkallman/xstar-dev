@@ -1,14 +1,24 @@
       subroutine hphotx(ener,ic,nq,xsec,lun11,lpri) 
 !                                                                       
-!     ener   is the photon energy in ryds with respect to the ionization
-!         threshold                                                     
-!     xsec   is an array containing the cross section in mb (18^{-18} cm
-!         for all l=[0,nq-1]                                            
-!     ic     ion charge                                                 
-!     np     principal quantum number                                   
-!     ll     angular momentum number                                    
+!     Name: hphotx.f90  
+!     Description:  
+!        this subroutine calculates the photoionization cross section 
+!       in the hydrogenic approximation, using expressions from 
+!       Brocklehurst 1971 MNRAS 153 471
 !        real(8)  en,cons,r,rk,theta1,theta2,gu,gl                       
-!     author:  M. Bautista                                              
+!       author:  M. Bautista                                              
+!     Parameters:
+!       Input:
+!       ic=ion charge                                                 
+!       np=principal quantum number                                   
+!       ll=angular momentum number                                    
+!       Output:
+!       ener=photon energy in ryds with respect to the ionization
+!         threshold                                                     
+!       xsec=array containing the cross section in mb (18^{-18} cm
+!         for all l=[0,nq-1]                                            
+!     Dependencies:  gull1
+!     Called by:  ucalc
 !                                                                       
 !                                                                       
       use globaldata
