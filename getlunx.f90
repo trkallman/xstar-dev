@@ -1,4 +1,4 @@
-        subroutine getlunx(iounit) 
+      subroutine getlunx(iounit) 
                                                                         
 !     Name: getlunx.f90
 !     Description:

@@ -1,4 +1,4 @@
-      subroutine calt77(lpri,lun11,temp,den,                            &
+      subroutine calt77(lpri,lun11,temp,den,                         &
      &                       np1r,np1i,cul,clu)             
 !                                                                       
 !  This rutine takes the coefficients in data type 77 (dtype77 reals    
@@ -74,7 +74,7 @@
       rm=(rec2-rec1)/(masterdata%rdat1(np1r-1+in+1)                     &
      &      -masterdata%rdat1(np1r-1+in)+1.d-36) 
       rec=rec1+rm*(rne-masterdata%rdat1(np1r-1+in)) 
-      if (lpri.gt.1) write (lun11,*)'in calt77:',                       &
+      if (lpri.gt.1) write (lun11,*)'in calt77:',                    &
      & temp,den,nden,ntem,rte,rne,wav,in,it,div,rm,                     &
      & rec1,rec2,rec                                                    
       cul=10.**rec 

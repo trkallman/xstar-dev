@@ -1,4 +1,4 @@
-      subroutine trnfrc(lpri,lun11,ldir,                                &
+      subroutine trnfrc(lpri,lun11,ldir,                             &
      &      r,xpxcol,xpx,                                               &
      &      epi,ncn2,zremsz,dpthc,opakc,                                &
      &      zrems,bremsa,bremsint)                               

@@ -42,7 +42,7 @@
         theta1=(1.+nq*nq*rk*rk)*exp(gu(lm+1)) 
         theta2=(1.+nq*nq*rk*rk)*exp(gl(lm+1)) 
         if (lpri.ne.0)                                                  &
-     &   write (lun11,*)'after call gull1:',lm,gu(lm+1),gl(lm+1),       &
+     &   write (lun11,*)'after call gull1:',lm,gu(lm+1),gl(lm+1),    &
      &           theta1,theta2                                          
         xsec(lm+1)=cons*((lm+1)*theta1+lm*theta2)/(2.*lm+1.) 
         xsec(lm+1)=float(nq*nq)/float(ic*ic)*xsec(lm+1) 

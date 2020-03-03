@@ -1,4 +1,3 @@
-!-----------------------------------------------------------------------
         subroutine lunlstx(iounit) 
                                                                         
 !     Name: lunlstx.f90
@@ -11,15 +10,15 @@
 !       I/O  (i) iounit - The logical unit number to be allocated/freed 
                                                                         
         integer iounit,i 
-        integer array(40) 
+        integer array(400) 
         save array 
-        data array/40*0/ 
+        data array/400*0/ 
                                                                         
 !        write (6,*)'entering lunlstx',iounit                           
 !                                                                       
         if (iounit .eq. 0)then 
 !           get an unused logical unit number                           
-            do 10 i=40,1,-1 
+            do 10 i=400,1,-1 
                                                                         
 !        The following would be a more robust way of testing for        
 !        an available unit number, however, this cannot work            
@@ -47,7 +46,7 @@
                                                                         
         else if (iounit .eq. -1)then 
 !           deallocate all the unit numbers                             
-            do 20 i=1,40 
+            do 20 i=1,400 
                  array(i)=0 
    20       continue 
                                                                         

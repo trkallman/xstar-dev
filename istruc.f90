@@ -26,8 +26,8 @@
 !                                                                       
       integer nnz,lpri,lun11 
 !                                                                       
-      real(8) zeff(31),alpha(31),xitp(31),xisum 
-      real(8)  z8(31),a8(31),x8(31) 
+      real(8) zeff(30),alpha(30),xitp(31),xisum 
+      real(8)  z8(30),a8(30),x8(31) 
       integer mm,nnzp1,ill 
 !                                                                       
       if (lpri.ne.0)                                                    &
@@ -35,9 +35,6 @@
       do mm=1,nnz 
           z8(mm)=dble(zeff(mm)) 
           a8(mm)=dble(alpha(mm)) 
-          if (lpri.ne.0)                                                &
-     &     write (lun11,9901)zeff(mm),alpha(mm)                         
- 9901     format (1x,2(1pe11.3)) 
           enddo 
 !                                                                       
       nnzp1 = nnz + 1 
@@ -48,8 +45,11 @@
       do mm=1,nnz 
           xitp(mm)=(x8(mm)) 
           xisum=xisum+xitp(mm) 
+          if (lpri.ne.0)                                                &
+     &     write (lun11,9901)mm,zeff(mm),alpha(mm),xitp(mm)
+ 9901     format (1x,i4,3(1pe11.3)) 
           enddo 
-      xitp(nnz+1)=max(0.,1.-xisum) 
+      xitp(nnz+1)=max(0.d0,1.-xisum) 
 !                                                                       
       return 
       end                                           

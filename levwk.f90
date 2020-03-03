@@ -68,12 +68,13 @@
      &   write (lun11,9901)ll,eexlv,emltlv,ethsht,explev2,              &
      &     rniss(ll),rs,bb,leveltemp%ilev(1,ll),leveltemp%iltp(ll),     &
      &     leveltemp%nlpt(ll),(leveltemp%klev(mm,ll),mm=1,8)         
- 9901   format (1x,i4,7(1pe11.3),3i6,8a1) 
+ 9901   format (1x,i4,7(1pe11.3),3i12,8a1) 
         enddo 
+        if (lpri.gt.1) write (lun11,*)'rniss:'
         do ll=1,nlev 
           rniss(ll)=rniss(ll)/bb 
+          if (lpri.gt.1) write (lun11,*)ll,rniss(ll)
           enddo 
-       bb=1. 
        lpri=lprisv 
 !                                                                       
       return 

@@ -1,4 +1,4 @@
-      subroutine ispecgg(xlum,epi,ncn2,zremsz,                          &
+      subroutine ispecgg(xlum,epi,ncn2,zremsz,                       &
      &               lpri,lun11)                                        
 !                                                                       
 !     Name: ispecgg.f90

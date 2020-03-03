@@ -1,7 +1,7 @@
-      subroutine dread(ltyp,lrtyp,lcon,lrdat,rdat,lidat,idat,lkdat,kdat,&
-     &                 np2,lpri,lun11)          
+      subroutine dread(ltyp,lrtyp,lcon,lrdat,rdat,lidat,idat,lkdat,  &
+     &                 kdat,np2,lpri,lun11)          
 !                                                                       
-!     Name: drd.f90  
+!     Name: dread.f90  
 !     Description:  
 !     this  routine reads  one record of the database 
 !     differs from drd because data is put in arrays
@@ -45,6 +45,7 @@
       mlk = 0 
       nrd = 0 
       lcon=1 
+      np2=np2-1
       do while (lcon.ne.0) 
         np2 = np2 + 1 
         nrd = nrd + 1 
@@ -58,7 +59,7 @@
         np1r = masterdata%nptrs(8,np2) 
         np1i = masterdata%nptrs(9,np2) 
         np1k = masterdata%nptrs(10,np2) 
-        if ( lpri.ne.0 ) write (lun11,*) 'in dread:' , np2 , np1 ,ltyp, &
+        if ( lpri.ne.0 ) write (lun11,*) 'in dread:' , np2,np1, ltyp,   &
      &                                 lrtyp , lrdat , lidat            
         if ( lpri.ne.0 ) write (lun11,99001) lkdat , lcon , np1r ,np1i, &
      &                        np1k                                      

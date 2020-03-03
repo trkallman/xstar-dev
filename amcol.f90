@@ -1,4 +1,3 @@
-!                                                                       
       subroutine amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn) 
 !                                                                       
 !     Name: amcol.f90  
@@ -21,7 +20,7 @@
 !           cn(nl -> nl-1) = cn                                            
 !           cn(nl -> nl+1) = cn*(2.*l+1)/(2.*l-1)                          
 !       Dependencies: none
-!       Called by: amcrs                                                   
+!       Called by: xsamcrs                                                   
 !
       implicit none 
 !                                                                       

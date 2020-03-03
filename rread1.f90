@@ -1,5 +1,5 @@
-      subroutine rread1(trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,numrec,npass,&
-     & nlimd,rmax,xpxcol,xi,zeta,lfix,                                  &
+      subroutine rread1(trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,          &
+     & numrec,npass,nlimd,rmax,xpxcol,xi,zeta,lfix,                     &
      & lun11,abel,cfrac,emult,taumax,xeemin,spectype,specfile,specunit, &
      & kmodelname,nloopctl,critf,vturbi,eptmp,zrtmp,numcon2,ncn2,radexp)
 !                                                                       
@@ -215,13 +215,20 @@
             xpxcol=xpcol 
             xi=10.**zeta 
             if (lcdd.ne.1) then 
-               xpx = p/1.38e-12/max(t,1.e-24) 
-               r19 = sqrt(xlum2/12.56/ccc/max(1.e-24,p*xi)) 
+               xpx = p/1.38d-12/max(t,1.d-49) 
+               r19 = sqrt(xlum2/12.56/ccc/max(1.d-49,p*xi)) 
             else 
-               r19 = sqrt(xlum2/max(1.e-24,xpx*xi)) 
+               r19 = sqrt(xlum2/max(1.d-49,xpx*xi)) 
             endif 
-            rmax = xpxcol/(max(xpx,1.e-36)) 
+            rmax = xpxcol/(max(xpx,1.d-49)) 
             r = r19*(1.e+19) 
 !                                                                       
+!      write (lun11,*)'in rread1',trad,xlum,lwri,lpri,r,t,xpx,p,      &
+!     & lcdd,numrec,npass,                                               &
+!     & nlimd,rmax,xpxcol,xi,zeta,lfix,                                  &
+!     & lun11,abel,cfrac,emult,taumax,xeemin,spectype,specfile,          &
+!     & specunit,kmodelname,nloopctl,critf,vturbi,numcon2,               &
+!     &     ncn2,radexp
+
       return 
       end                                           

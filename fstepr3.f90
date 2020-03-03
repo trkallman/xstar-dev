@@ -1,7 +1,7 @@
-      subroutine fstepr3(unit,hdunum,radin,radout,rdel,t,prs,abel,      &
+      subroutine fstepr3(unit,hdunum,radin,radout,rdel,t,prs,abel,   &
      &             xcol,xee,xpx,xi,                                     &
-     &             np2,ncsvn,nlsvn,                                     &
-     &             rnist,cemab,cabab,opakab,tauc,                       &
+     &             np2,                                                 &
+     &             cemab,cabab,opakab,tauc,                             &
      &             lun11,lpri,status)                                   
 !                                                                       
 !     Name: fstepr3.f90
@@ -20,7 +20,6 @@
 !        delr    real(8)               thickness of shell
 !        temp    real(8)               temperature of shell in 10^4K          
 !        pres    real(8)               pressure in shell                 
-!        rnist(nrhdimj)             LTE level populations
 !        cemab(nnml):               rrc emissivities (erg cm^-3 s^-1) 
 !        cabab(nnml):               total energy absorbed by 
 !                                      rrc (erg cm^-3 s^-1)
@@ -42,7 +41,7 @@
       parameter (nptmpdim=500000) 
 !                                                                       
       real(4) rtmp 
-      real(8) radin, radout,rdel, t, prs, xcol,xee,xpx,xi 
+      real(8) radin, radout,rdel, t, prs, xcol,xee,xpx,xi
       integer unit,hdunum, nrows, status, np2
 !     line opacities                                                    
       real(8) tauc(2,nnml) 
@@ -51,30 +50,30 @@
                                                                         
                                                                         
 !     Internal work areas                                               
-      real(8) rnist(nnml)
-      real(8) rniss(nd),rnisse(nd)
       integer nlev 
-      real(4) rwrk1(nptmpdim),rwrk3(nptmpdim),                           &
-     &  rwrk4(nptmpdim),rwrk5(nptmpdim),                                &
-     &  rwrk6(nptmpdim),rwrk7(nptmpdim),rwrk8(nptmpdim)                 
-      integer ntptr(nptmpdim),ntptr2(nptmpdim) 
-      character(20) klevl(nptmpdim),klevu(nptmpdim),kblnk20 
+      real(4), dimension(:), allocatable :: rwrk1,rwrk3,rwrk4,rwrk5,  &
+     &  rwrk6,rwrk7,rwrk8                 
+      integer, dimension(:), allocatable :: ntptr,ntptr2
+      character(20), dimension(:), allocatable :: klevl,klevu
+      character(8), dimension(:), allocatable :: kion
+      integer, dimension(:), allocatable :: ilevlo,ilevup 
+      real(4), dimension(:), allocatable :: elsv
       integer tfields,varidat 
       character(16) ttype(12),tform(12),tunit(12) 
       integer colnum,frow,felem,hdutype,ll, ltyp 
       integer lrtyp, lcon, nrdt, nidt, mm, lun11, lpri 
       integer jkk,nidti 
       integer ml,nlpl,                                                  &
-     &         nlines,nlsvn,                                            &
+     &         nlines,                                                  &
      &         kk,mlm,kkkl,idest1,idest2,lk,                            &
      &         mlel,mlion,mllel,mlleltp,mlpar,mt2,mltype,nkdti,         &
-     &         jk,kl,klel,klion,ncsvn,nnz,np1ki,mmlv             
+     &         jk,kl,klel,klion,nnz,np1ki,mmlv             
       integer np1i,np1r,np1k 
       real(8) eth,xeltp 
       character(33) extname 
+      character(20) kblnk20 
       character(20) ktmp20 
-      character(8) ktmp8,kion(nptmpdim) 
-      character(20) ktmp2 
+      character(8) ktmp8
 !     needed for upper level search                                     
       integer jkk3,nlevp,ndtmp,iltmp,lcon2,lrtyp2,ltyp2,                &
      &         np1r2,nrdt2,np1i2,nidt2,np1k2,nkdt2                      
@@ -83,8 +82,6 @@
 !     Database manipulation quantities                                  
       integer nkdt 
       character(1) kblnk
-      integer ilevlo(nptmpdim),ilevup(nptmpdim) 
-      real(4) elsv(nptmpdim) 
                                                                         
       data kblnk/' '/ 
       data kblnk20/'                    '/ 
@@ -100,6 +97,22 @@
       data tunit/' ',' ','ev',' ',' ',' ','erg/cm^3/s',                 &
      & 'erg/cm^3/s','erg/cm^3/s','/cm',' ',' '/                         
                                                                         
+     allocate(rwrk1(nptmpdim))
+     allocate(rwrk3(nptmpdim))
+     allocate(rwrk4(nptmpdim))
+     allocate(rwrk5(nptmpdim))
+     allocate(rwrk6(nptmpdim))
+     allocate(rwrk7(nptmpdim))
+     allocate(rwrk8(nptmpdim))
+     allocate(ntptr(nptmpdim))
+     allocate(ntptr2(nptmpdim))
+     allocate(klevl(nptmpdim))
+     allocate(klevu(nptmpdim))
+     allocate(kion(nptmpdim))
+     allocate(ilevlo(nptmpdim))
+     allocate(ilevup(nptmpdim))
+     allocate(elsv(nptmpdim))
+!
       varidat=0 
 !                                                                       
 !                                                                       
@@ -135,7 +148,7 @@
 !                                                                       
 !       get element data                                                
         jk=jk+1 
-        mt2=mlel-1 
+        mt2=mlel 
         call drd(ltyp,lrtyp,lcon,                                       &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
      &        0,lun11)                                            
@@ -161,7 +174,7 @@
               jkk=jkk+1 
 !                                                                       
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion 
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
@@ -176,8 +189,8 @@
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
 !                                                                       
 !               now find level data                                     
-                call func2l(jkk,lpri,lun11,t,xee,xpx,                   &
-     &              rniss,rnisse,nlev)                               
+                call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
+     &              nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -209,7 +222,7 @@
                       endif 
 !                                                                       
 !                   get rrc  data                                       
-                    mlm=ml-1 
+                    mlm=ml 
                     call drd(ltyp,lrtyp,lcon,                           &
      &                nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                &
      &                0,lun11)                                    
@@ -257,7 +270,7 @@
                       do while ((ndtmp.ne.0).and.(ndtmp.le.np2).and.    &
      &                    (iltmp.ne.(idest2-nlevp+1)).and.              &
      &                    (derivedpointers%npar(ndtmp).eq.mllz2))              
-                        mlm=ndtmp-1 
+                        mlm=ndtmp 
                         call drd(ltyp2,lrtyp2,lcon2,                    &
      &                    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,      &
      &                    0,lun11)                                
@@ -373,26 +386,26 @@
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xcol 
+      rtmp=sngl(xcol)
       call ftpkye(unit,'COLUMN',rtmp,3,'[/cm**2] Column ',              &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=xee 
+      rtmp=sngl(xee)
       call ftpkye(unit,'XEE',rtmp,3,'electron fraction',                &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xpx 
+      rtmp=sngl(xpx)
       call ftpkye(unit,'DENSITY',rtmp,3,'[/cm**3] Density',             &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xi 
+      rtmp=sngl(xi)
       call ftpkye(unit,'LOGXI',rtmp,3,                                  &
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
-                                                                        
+
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
@@ -457,12 +470,12 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0) then 
-           rwrk3(ll)=cemab(1,ntptr(ll)) 
-           rwrk4(ll)=cemab(2,ntptr(ll)) 
-           rwrk5(ll)=cabab(ntptr(ll)) 
-           rwrk6(ll)=opakab(ntptr(ll)) 
-           rwrk7(ll)=tauc(1,ntptr(ll)) 
-           rwrk8(ll)=tauc(2,ntptr(ll)) 
+           rwrk3(ll)=sngl(cemab(1,ntptr(ll)))
+           rwrk4(ll)=sngl(cemab(2,ntptr(ll)))
+           rwrk5(ll)=sngl(cabab(ntptr(ll)))
+           rwrk6(ll)=sngl(opakab(ntptr(ll)))
+           rwrk7(ll)=sngl(tauc(1,ntptr(ll)))
+           rwrk8(ll)=sngl(tauc(2,ntptr(ll)))
            endif 
          enddo 
 !                                                                       
@@ -520,5 +533,21 @@
       call ftpcks(unit,status) 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
+     deallocate(rwrk1)
+     deallocate(rwrk3)
+     deallocate(rwrk4)
+     deallocate(rwrk5)
+     deallocate(rwrk6)
+     deallocate(rwrk7)
+     deallocate(rwrk8)
+     deallocate(ntptr)
+     deallocate(ntptr2)
+     deallocate(klevl)
+     deallocate(klevu)
+     deallocate(kion)
+     deallocate(ilevlo)
+     deallocate(ilevup)
+     deallocate(elsv)
+ !
       return 
       end                                           

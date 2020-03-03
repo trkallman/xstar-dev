@@ -1,6 +1,6 @@
-      subroutine binemis(lun11,lpri,xlum,                               &
+      subroutine binemis(lun11,lpri,xlum,                            &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
-     &       np2,nlsvn,                                                 &
+     &       nlsvn,                                                     &
      &       eliml,elimh,elum,zrtmp,zremsz)
 !                                                                       
 !     Name: binemis.f90  
@@ -19,7 +19,6 @@
 !           epi(ncn):  continuum energy bins (eV)
 !           ncn2:  number of continuum energy bins
 !           dpthc(2,ncn): optical depth in continuum bins 
-!           np2: atomic data parameter, number of records in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
 !           eliml:  energy lower limit (eV)
 !           elimh:  energy upper limit (eV)
@@ -63,14 +62,14 @@
       real(8) e00,deleepi,etptst,tst,sume,zrsum1,zrsum2,deletpp,         &
      &        deleused,tmpe,zrtp2,zrtp1,bbb,xlum
       integer ml1,mlmin,mlmax,ij,mlm,ldir,ml1m,mlc,ncut,                &
-     &        ml2,np1k,np1i,np1r,np1i2,ml1max,ml1min,np2,mm
+     &        ml2,np1k,np1i,np1r,np1i2,ml1max,ml1min,mm
 !     arrays containing printout info                                   
 !      integer ilsv(nnnl)
 !      real(8) ewsv(nnnl),elsv(nnnl) 
-      real(8) etpp(nbtpp)
-      real(8) zrtpp2(2,nbtpp)
-      real(8) zrtmps(2,nbtpp)
-      real(8) zrems(5,ncn)
+      real(8), allocatable, dimension(:) :: etpp
+      real(8), allocatable, dimension(:,:) :: zrtpp2
+      real(8), allocatable, dimension(:,:) :: zrtmps
+      real(8), allocatable, dimension(:,:) :: zrems
       integer ldon(2) 
 !                                                                       
       integer lpri,ncn2,nlsv,nelin 
@@ -82,6 +81,10 @@
 !                                                                       
       data dpcrit/1.e-6/ 
 !                                                                       
+      allocate(zrtpp2(2,nbtpp))
+      allocate(etpp(nbtpp))
+      allocate(zrtmps(2,nbtpp))
+      allocate(zrems(5,ncn))
 !
       verbose=lpri 
 !                                                                       
@@ -110,21 +113,21 @@
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
         call drd(ltyp,lrtyp,lcon,                                       &
-     &          nrdt,np1r,nidt,np1i,nkdt,np1k,ml-1,                     &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,ml,                       &
      &          0,lun11)                                          
         elin=abs(masterdata%rdat1(np1r)) 
         egam=masterdata%rdat1(np1r+2) 
         lup=masterdata%idat1(np1i+1) 
         nilin=derivedpointers%npar(ml) 
         call drd(ltyp,lrtyp,lcon,                                       &
-     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nilin-1,                  &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nilin,                    &
      &          0,lun11)                                          
         nelin=derivedpointers%npar(nilin) 
         nilin=masterdata%idat1(np1i+2) 
 !       get nuclear mass                                                
         ml=nelin 
         call drd(ltyp,lrtyp,lcon,                                       &
-     &          nrdt,np1r,nidt,np1i,nkdt,np1k,ml-1,                     &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,ml,                       &
      &          0,lun11)                                          
         aatmp=masterdata%rdat1(np1r+1) 
         elmmtpp=(elum(2,ln)+elum(1,ln))/2. 
@@ -154,7 +157,7 @@
           iion=1 
           nitmp=derivedpointers%npfi(13,iion) 
           call drd(ltyp,lrtyp,lcon,                                     &
-     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp-1,                  &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp,                    &
      &          0,lun11)                                          
           if (lpri.ne.0)                                                &
      &      write (lun11,*)'searching for ion'                          
@@ -163,7 +166,7 @@
             iion=iion+1 
             nitmp=derivedpointers%npfi(13,iion) 
             call drd(ltyp,lrtyp,lcon,                                   &
-     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp-1,                  &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp,                    &
      &          0,lun11)                                          
             if (lpri.ne.0)                                              &
     &        write (lun11,*)iion,masterdata%idat1(np1i-1+nidt),         &
@@ -176,14 +179,14 @@
      &        write (lun11,*)'  found ion',lup,ndtmp                    
             mllz=derivedpointers%npar(ndtmp) 
             call drd(ltyp2,lrtyp2,lcon2,                                &
-     &          nrdt,np1r,nidt,np1i2,nkdt,np1k,ndtmp-1,                 &
+     &          nrdt,np1r,nidt,np1i2,nkdt,np1k,ndtmp,                   &
      &         0,lun11)                                           
             iltmp=masterdata%idat1(np1i2+1) 
             mlpar=mllz 
             do while ((ndtmp.ne.0).and.(lup.ne.iltmp)                   &
      &         .and.(mlpar.eq.mllz))                                    
                call drd(ltyp2,lrtyp2,lcon2,                             &
-     &           nrdt,np1r,nidt,np1i2,nkdt,np1k,ndtmp-1,                &
+     &           nrdt,np1r,nidt,np1i2,nkdt,np1k,ndtmp,                  &
      &          0,lun11)                                          
               iltmp=masterdata%idat1(np1i2+1) 
               if (lpri.ne.0)                                            &
@@ -215,7 +218,7 @@
 !         thermal width quantities                                      
           vth=(1.2e+1)*sqrt(t/aatmp) 
           vturb=max(bbb,vth) 
-          e0=(12398.42)/max(elin,1.e-24) 
+          e0=(12398.42)/max(elin,1.d-49) 
           deleturb=e0*(vturb/3.e+5) 
           deleth=e0*(vth/3.e+5) 
 !         old expression                                                
@@ -252,7 +255,7 @@
           mlmax=1 
           ml1min=ncn+1 
           ml1max=0 
-          ml2=nbtpp/2 
+          ml2=int(nbtpp/2)
           if (lpri.ne.0) write (lun11,*)'ncut=',ncut,deleused,deletpp,  &
      &                                    deleepi                       
 !                                                                       
@@ -271,7 +274,7 @@
 !                                                                       
 !         now put profile on temporary grid                             
 !         work outward in both directions from line center              
-          do while ((ldon(1)*ldon(2).eq.0).and.(mlc.lt.nbtpp/2)) 
+          do while ((ldon(1)*ldon(2).eq.0).and.(mlc.lt.int(nbtpp/2)))
 !                                                                       
             mlc=mlc+1 
 !                                                                       
@@ -333,7 +336,7 @@
      &               .or.(mlm.le.1).or.(mlm.ge.nbtpp)                   &
      &               .or.(etptst.le.0.).or.(etptst.ge.epi(ncn2))        &
      &               .or.(mlc.gt.nbtpp)                                 &
-     &               .or.(abs(delet).gt.max(50.,200.*aasmall)))         &
+     &               .or.(abs(delet).gt.max(50.d0,200.*aasmall)))       &
      &               .and.(ml1min.lt.ml1-2).and.(ml1max.gt.ml1+2)       &
      &               .and.(ml1min.ge.1).and.(ml1max.le.ncn))            &
      &                ldon(ij)=1                                        
@@ -430,7 +433,11 @@
          zrtmp(1,kl)=zremsz(kl) 
          zrtmp(5,kl)=zrems(4,kl) 
          enddo 
+!
+      deallocate(zrtpp2)
+      deallocate(etpp)
+      deallocate(zrtmps)
+      deallocate(zrems)
 !         
       return 
       END                                           
-!                                                                       

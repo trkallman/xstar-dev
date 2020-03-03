@@ -1,6 +1,6 @@
       subroutine expint(x,em1) 
 !                                                                       
-!     Name: ee1exp.f90  
+!     Name: expint.f90  
 !     Description:  
 !       this function computes the first exponential integral.             
 !       expint is a subroutine to calculate the value of e1, the exponential  
@@ -12,7 +12,7 @@
 !          Output:
 !          em1=first exponential integral
 !     Dependencies:  expo
-!     Called by: eint,calt66,calt69,calt73,erc,irc,expint,ucalc,velimp  
+!     Called by: eint,calt66,calt69,calt73,erc,irc,ucalc,velimp  
 !                                                                       
 !                                                                       
       implicit none 

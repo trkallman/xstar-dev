@@ -1,13 +1,16 @@
       subroutine xstarcalc(lpri2,lnerrd,nlimdt,                         &
      &       lpri,lprid,lun11,tinf,vturbi,critf,                        &
-     &       t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,                  &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,        &
+     &       elcter,                                                    &
      &       cllines,clcont,htcomp,clcomp,clbrems,                      &
-     &       xilev,bilev,rnist,                                         &
+     &       httot2,cltot2,                                             &
+     &       xilevg,bilevg,rnisg,                                       &
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
      &       cabab,opakab,fline,flinel)                           
                                                                         
@@ -15,12 +18,12 @@
 !     Description:  
 !           Calculates all relevant quantities for one spatial zone.
 !           First calls dsec for thermal equilibrium calculation (if needed)
-!           Then calls func and funcsyn
+!           Then calls calc_hmc_all and calc_emis_all
 !
 !     List of Parameters:
 !           Input: 
 !           lpri2: local print switch.  Turns on printing for 
-!                 the func and funcsyn calls only
+!                 the func and calc_emis calls only
 !           lnerrd: thermal equilibrium error switch
 !           nlimdt: thermal equilibrium solver iteration limit
 !           lpri:  print switch
@@ -37,7 +40,7 @@
 !           delr: thickness of current spatial zone (cm)
 !           xee: electron fraction relative to H
 !           xpx: H number density (cm^-3)
-!           ababs(nl):  element abundances relative to H=1
+!           abel(nl):  element abundances relative to H=1
 !           cfrac:  covering fraction (affects line and continuum 
 !                forward-backward ratio
 !           p:  pressure in dynes/cm^2
@@ -65,9 +68,9 @@
 !           cltot: total cooling rate (erg s^-1 cm^-3) 
 !           hmctot: 2*(heating-cooling)/(heating+cooling)
 !           elcter:  charge conservation error
-!           xilev(nnml):  level populations (relative to parent element)
-!           bilev(nnml):  level departure coefficient
-!           rnist(nnml):  lte level populations (relative to parent element)
+!           xilevg(nnml):  level populations (relative to parent element)
+!           bilevg(nnml):  level departure coefficient
+!           rnisg(nnml):  lte level populations (relative to parent element)
 !           elum(nnnl):  line luminosities (erg/s/10^38)
 !           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
 !                  inward and outward
@@ -86,7 +89,7 @@
 !              (erg cm^-3 s^-1) 
 !           flinel(ncn):  line emissivity binned into continuum bins 
 !              (erg cm^-3 s^-1 erg^-1)
-!     Dependencies: dsec,func,funcsyn
+!     Dependencies: dsec,calc_hmc_all,calc_emis_all
 !     Called by:  xstar
 !
       use globaldata
@@ -109,22 +112,25 @@
 !     continuum opacities                                               
       real(8) opakc(ncn),opakcont(ncn)
 !     level populations                                                 
-      real(8) xilev(nnml),bilev(nnml),rnist(nnml)
+      real(8) xilevg(nnml),bilevg(nnml),rnisg(nnml)
       real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
       real(8) tauc(2,nnml) 
 !     ion abundances                                                    
       real(8) xii(nni) 
 !     heating and cooling                                               
       real(8) htt(nni),cll(nni) 
+      real(8) htt2(nni),cll2(nni) 
       real(8) rrrt(nni),pirt(nni) 
 !     element abundances                                                
-      real(8) ababs(nl) 
+      real(8) abel(nl) 
+!     limits on ion indeces vs element
+      integer mml(nl),mmu(nl)
 !                                                                       
 !     state variables                                                   
       real(8) p,r,t,xpx,delr 
 !     heating-cooling variables                                         
-      real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,          &
-     &     clcont,hmctot                                                
+      real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,         &
+     &     clcont,hmctot,httot2,cltot2,zeta
       real(8) trad 
       real(8) cfrac,critf,vturbi,xee,tinf 
       integer lcdd,ncn2 
@@ -135,45 +141,46 @@
 !     strings for atomic data read                                      
       integer nlsvn,ncsvn,lun11,np2,lprisv,lpri2 
 !                                                                       
+!      write (lun11,*)'in xstarcalc',lun11,lpri,lprid
 !                                                                       
       lprisv=lpri 
       lpri=0 
       if (nlimdt.ne.0) then 
         call dsec(lnerrd,nlimdt,                                        &
      &       lpri,lprid,lun11,tinf,vturbi,critf,                        &
-     &       t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,                  &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
      &         cllines,clcont,htcomp,clcomp,clbrems,                    &
-     &       xilev,bilev,rnist,                                         &
-     &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,fline,flinel)                        
+     &       httot2,cltot2,                                             &
+     &       xilevg,bilevg,rnisg,                                       &
+     &       rcem,oplin,brcems,opakc,cemab,                             &
+     &       cabab,opakab)                         
         endif 
-!       do ll=1,nnml                                                    
-!         xilev(ll)=0.                                                  
-!         enddo                                                         
 !                                                                       
-      if (lpri2.eq.1) lpri=1 
-      call func(lpri,lun11,vturbi,critf,                                &
-     &       t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,                  &
+      call calc_hmc_all(lpri2,lun11,vturbi,critf,                       &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
      &       cllines,clcont,htcomp,clcomp,clbrems,                      &
-     &       xilev,bilev,rnist)
-      call funcsyn(lpri,lun11,vturbi,critf,                             &
-     &       t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,                  &
+     &       httot2,cltot2,                                             &
+     &       xilevg,bilevg,rnisg)  
+      call calc_emis_all(lpri2,lun11,vturbi,critf,                      &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
-     &       xii,                                                       &
-     &       xilev,bilev,rnist,                                         &
-     &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,fline,flinel)                           
+     &       xii,xilevg,bilevg,rnisg,                                   &
+     &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
+     &       cabab,opakab)                         
 !                                                                       
        lpri=lprisv 
 !                                                                       

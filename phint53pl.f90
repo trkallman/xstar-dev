@@ -1,11 +1,11 @@
-      subroutine phint53pl(sth,e1,alph,ethi,pirt,rrrt,piht,rrcl,        &
+      subroutine phint53pl(sth,e1,alph,ethi,pirt,rrrt,piht,rrcl,     &
      & abund1,abund2,ptmp1,ptmp2,xpx,opakab,                            &
      & opakc,opakcont,rccemis,lpri,epi,ncn2,bremsa,t,swrat,xnx,         &
      & lfast,lun11)                                                     
 !                                                                       
 !                                                                       
 !                                                                       
-!     Name:  phint53.f90
+!     Name:  phint53pl.f90
 !     Description:
 !       this routine does the integration over the spectrum to calculate 
 !       photoionization rates, milne rates, heating and cooling rates
@@ -74,7 +74,7 @@
       tsq = sqrt(t) 
       rnist=(2.61e-21)*swrat/t/tsq 
 !                                                                       
-      if (lpri.ge.1) write (lun11,*)'in phint53pl:',                    &
+      if (lpri.ge.1) write (lun11,*)'in phint53pl:',                 &
      &      eth,xnx,swrat,t,                                            &
      &      lfast,ptmp1,ptmp2                                           &
      &      ,abund1,abund2                                              
@@ -204,7 +204,7 @@
       piht = piht + sumh*ergsev 
       rrcl = rrcl + xnx*sumc*ergsev 
                                                                         
-      if (lpri.ge.1) write (lun11,*)'in phint53:',eth,pirt,rrrt         &
+      if (lpri.ge.1) write (lun11,*)'in phint53:',eth,pirt,rrrt      &
      &         ,piht,rrcl                                               
       lpri=lprisv 
 !                                                                       

@@ -1,4 +1,4 @@
-      subroutine fwrtascii(unit,extname,rdati,ncol,                     &
+      subroutine fwrtascii(unit,extname,rdati,ncol,                  &
      &                      nidat1j,klabs, kform, kunits,lun11)         
 !                                                                        
 !     Name: fwrtascii.f90  
@@ -42,9 +42,12 @@
 !      character(30) extname  !jg                                       
       character(10) extname 
                                                                         
+      integer, dimension(:), allocatable :: tbcol
       integer unit, status, tfields, nrows, rowlen, verbose,lun11 
-      integer tbcol(nrhmx),felem,frow,colnum,kk,ll 
+      integer felem,frow,colnum,kk,ll 
 !                                                                       
+      allocate(tbcol(nrhmx))
+!
       status=0 
       verbose=0 
       tfields=ncol 
@@ -79,5 +82,7 @@
       call ftpcks(unit,status) 
 !     check for any error, and if so print out error messages           
       if (status .gt. 0)call printerror(lun11,status) 
+!
+      deallocate(tbcol)
 !                                                                       
       END                                           

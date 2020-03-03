@@ -1,4 +1,4 @@
-      subroutine trnfrn(lpri,lun11,                                     &
+      subroutine trnfrn(lpri,lun11,                                  &
      &       nlsvn,ncsvn,ncn2,                                          &
      &       zrems,zremso,elumab,elumabo,elum,elumo)                    
 !                                                                       

@@ -12,7 +12,7 @@
 !     Dependencies: none
 !     Called by:  xstar
 !
-      character*16 knam 
+      character(16) knam 
       if (nint.gt.9) then 
           write (knam(3:4),'(i2)')nint 
         else 

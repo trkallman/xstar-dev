@@ -1,7 +1,7 @@
-      subroutine writespectra(lun11,lpri,nparms,                        &
+      subroutine writespectra(lun11,lpri,nparms,                     &
      &       parname,partype,parval,parcomm,atcredate,                  &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
-     &       np2,nlsvn,                                                 &
+     &       nlsvn,                                                     &
      &       elum,zrems,zremsz,kmodelname,nloopctl)             
 !                                                                       
 !     Name: writespectra.f90  
@@ -25,7 +25,6 @@
 !           epi(ncn):  continuum energy bins (eV)
 !           ncn2:  number of continuum energy bins
 !           dpthc(2,ncn): optical depth in continuum bins 
-!           np2: atomic data parameter, number of records in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
 !           elum(3,nnnl):  line luminosities (erg/s/10^38)
 !           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
@@ -56,47 +55,42 @@
       integer nparms, nloopctl, lun11 
       character(20) parname(55) 
       character(10) partype(55) 
-      real*8 parval(55) 
+      real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real*8 elum(3,nnnl) 
+      real(8) elum(3,nnnl) 
 !     energy bins                                                       
-      real*8 epi(ncn) 
+      real(8) epi(ncn) 
 !     continuum lum                                                     
-      real*8 zrems(5,ncn),zremsz(ncn) 
+      real(8) zrems(5,ncn),zremsz(ncn) 
 !     continuum optical depths                                          
-      real*8 dpthc(2,ncn) 
-!      real*8 zrtmp(6,ncn) 
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: zrtmp
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rtmp
-      integer ilsv(nnnl)
-      integer nlsv
+      real(8) dpthc(2,ncn) 
+      REAL(8), DIMENSION(:,:), ALLOCATABLE :: zrtmp
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rtmp
       character(16) knam,klabs(6),kunits(6),kform(6),kblnk16 
       character(30) extname 
       integer unit,istatus 
       integer nlsvn, ll 
-      integer np2, tbcol(6), nrows, rowlen, kk 
+      integer tbcol(6), nrows, rowlen, kk 
       integer frow, felem, colnum, tfields, status, verbose,mm 
-      real*8 eliml, elimh 
-      real*8 vturbi 
+      real(8) eliml, elimh 
+      real(8) vturbi 
 !     the atomic data creation date                                     
       character(63) atcredate 
 !                                                                       
 ! jg                                                                    
-      real*8 t,xlum 
+      real(8) t,xlum 
                                                                         
       integer lpri, ncn2 
 !                                                                       
 !     Not used                                                          
       integer javi 
 !
+      data kblnk16/'                '/ 
+!                                                                       
       ALLOCATE(rtmp(ncn))
       ALLOCATE(zrtmp(5,ncn))
 !                                                                       
-      data kblnk16/'                '/ 
-!                                                                       
-      javi=np2 
-      np2=javi 
       javi=derivedpointers%npfirst(1) 
       javi=derivedpointers%nplini(1) 
       javi=derivedpointers%npcon(1) 
@@ -109,11 +103,11 @@
 !                                                                       
       verbose=lpri 
       eliml=0.1 
-      elimh=1.e+5 
-      elimh=min(elimh,8.9e+4) 
+      elimh=1.d+5 
+      elimh=min(elimh,8.9d+4) 
 !                                                                       
 !     open and prepare the fits file for spectral data                  
-      if(verbose.gt.0) write (lun11,*)'writespectra: opening header',   &
+      if(verbose.gt.0) write (lun11,*)'writespectra: opening header',&
      &  kmodelname                                                      
       knam='xout_spect1.fits' 
       call fheader(unit,knam,atcredate,kmodelname,istatus) 
@@ -123,7 +117,7 @@
 !     write extension of parameter values                               
       if(verbose.gt.0)                                                  &
      &     write (lun11,*)'writespectra: write parameter list'          
-      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,   &
+      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,&
      &               parcomm,nloopctl,istatus,lun11)                    
       if(istatus.gt.0) call printerror(lun11,istatus) 
       if(verbose.gt.0)                                                  &
@@ -137,7 +131,7 @@
         enddo
       call binemis(lun11,lpri,xlum,                                     &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
-     &       np2,nlsvn,                                                 &      
+     &       nlsvn,                                                     &      
      &       eliml,elimh,elum,zrems,zremsz)
 !                                                                       
 !     write the spectral data to the extension                          
@@ -202,9 +196,9 @@
         colnum=kk 
         do ll=1,nrows 
           if (kk.gt.1) then
-          rtmp(ll)=zrems(kk-1,ll) 
+          rtmp(ll)=sngl(zrems(kk-1,ll))
           else
-          rtmp(ll)=epi(ll) 
+          rtmp(ll)=sngl(epi(ll))
           endif
           enddo 
         if(verbose.gt.0)                                                &
@@ -215,7 +209,7 @@
         enddo 
                                                                         
 !     compute checksums                                                 
-      if(verbose.gt.0) write (lun11,*)'writespectra: writing checksum' 
+      if(verbose.gt.0) write (lun11,*)'writespectra: writingchecksum' 
       status=0 
       call ftpcks(unit,status) 
 !     check for any error, and if so print out error messages           

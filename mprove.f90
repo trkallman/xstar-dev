@@ -1,4 +1,3 @@
-                                                                        
       subroutine mprove(a,alud,n,np,indx,b,x,lun11,lpri) 
 !
 !     Name: mprove.f90

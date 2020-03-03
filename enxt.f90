@@ -1,4 +1,4 @@
-      subroutine enxt(eth,nb1,lpri,epi,ncn2,t,lfast,lun11,              &
+      subroutine enxt(eth,nb1,lpri,epi,ncn2,t,lfast,lun11,           &
      &                  jk,nskp,nphint,lrcalc)                          
 !                                                                       
 !     Name: enxt.f90  
@@ -39,7 +39,7 @@
       data bk/1.38062e-16/ 
 !                                                                       
        if (lpri.gt.2)                                                   &
-     &  write (lun11,*)'in enxt:',eth,nb1,t,lfast,jk,lpri,              &
+     &  write (lun11,*)'in enxt:',eth,nb1,t,lfast,jk,lpri,           &
      &                    epi(1),epi(ncn2),ncn2                         
       tm=t*1.e4 
       bktm=bk*tm/ergsev 
@@ -74,7 +74,7 @@
        numcon3=numcon-numcon2 
        nphint=min(nphint,numcon3) 
        if (lpri.gt.2)                                                   &
-     &  write (lun11,*)'in enxt:',eth,nb1,t,lfast,jk,nskp,              &
+     &  write (lun11,*)'in enxt:',eth,nb1,t,lfast,jk,nskp,           &
      &   nphint,lrcalc                                                  
 !                                                                       
       return 

@@ -1,6 +1,6 @@
       subroutine writespectra4(lun11,lpri,nparms,parname,partype,parval,&
      &       parcomm,atcredate,epi,ncn2,dpthc,abel,                     &
-     &       np2,ncsvn,                                                 &
+     &       np2,                                                       &
      &       elumab,tauc,kmodelname,nloopctl)                   
 !                                                                       
 !     Name: writespectra4.f90  
@@ -23,7 +23,6 @@
 !           ncn2:  number of continuum energy bins
 !           dpthc(2,ncn): optical depth in continuum bins 
 !           np2: atomic data parameter, number of records in atomic database
-!           ncsvn: atomic data parameter, number of lines in atomic database
 !           elumab(2,nnml):  rrc luminosities (erg s^-1)/10^38 
 !           elumabo(2,nnml):  old rrc luminosities (erg s^-1)/10^38 
 !           tauc(2,nnml):  rrc optical depths
@@ -51,16 +50,16 @@
       integer nparms, nloopctl, lun11 
       character(20) parname(55) 
       character(10) partype(55) 
-      real*8 parval(55) 
+      real(8) parval(55) 
       character(30) parcomm(55) 
-      real*8 elumab(2,nnml),tauc(2,nnml) 
+      real(8) elumab(2,nnml),tauc(2,nnml) 
 !     energy bins                                                       
-      real*8 epi(ncn) 
+      real(8) epi(ncn) 
 !     the atomic data creation date                                     
       character(63) atcredate 
 !     continuum optical depths                                          
-      real*8 dpthc(2,ncn) 
-      real*8 abel(nl) 
+      real(8) dpthc(2,ncn) 
+      real(8) abel(nl) 
       character(8) kdtmpi(nnml),kdtmp8 
       character(20) kdtmpl(nnml)
       character(1) kblnk 
@@ -71,21 +70,21 @@
       integer nrdt 
       integer np2, tbcol(8), nrows, rowlen, kk 
       integer frow, felem, colnum, tfields, status, verbose,mm 
-      real*8 eth,xeltp 
+      real(8) eth,xeltp 
       integer lpril,lpri,klel,mlel,jk,mt2,mllel,nnz,jkk,klion,mlion,    &
      &        mlleltp,nlevmx,mltype,mllz,nlev,lk,kkkl,idest1,           &
-     &        kksv,mlpar,mlm,np1k,np1ki,np1i,np1r, ncsvn
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rsv1
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rsv2
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rsv3
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rsv4
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rsv5
+     &        kksv,mlpar,mlm,np1k,np1ki,np1i,np1r
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rsv1
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rsv2
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rsv3
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rsv4
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rsv5
       INTEGER, DIMENSION(:), ALLOCATABLE :: ntptr
-!      real*4 rsv1(nnml),rsv2(nnml),rsv3(nnml),rsv4(nnml),rsv5(nnml) 
+!      real(4) rsv1(nnml),rsv2(nnml),rsv3(nnml),rsv4(nnml),rsv5(nnml) 
 !      integer ntptr(nnml) 
 !                                                                       
 !     Not used                                                          
-      real*8 javir 
+      real(8) javir 
       integer javi 
 !                                                                       
       data kblnk/' '/ 
@@ -117,8 +116,8 @@
       lpril=lpri 
       verbose=lpri 
 !     open and prepare the fits file for spectral data                  
-      if(verbose.gt.0) write (lun11,*)'writespectra4: opening header',  &
-     &  kmodelname                                                      
+      if(verbose.gt.0) write (lun11,*)'writespectra4: opening header'&
+     &  ,kmodelname                                                      
       knam='xout_rrc1.fits' 
       call fheader(unit,knam,atcredate,kmodelname,istatus) 
       if(istatus.gt.0) call printerror(lun11,istatus) 
@@ -126,7 +125,7 @@
 !     write extension of parameter values                               
       if(verbose.gt.0)                                                  &
      &     write (lun11,*)'writespectra4: write parameter list'         
-      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,   &
+      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,&
      &               parcomm,nloopctl,istatus,lun11)                    
       if(istatus.gt.0) call printerror(lun11,istatus) 
       if(verbose.gt.0)                                                  &
@@ -148,7 +147,7 @@
         jk=0 
         do while (mlel.ne.0) 
           jk=jk+1 
-          mt2=mlel-1 
+          mt2=mlel 
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                          &
      &      0,lun11)                                              
@@ -157,9 +156,11 @@
             xeltp=masterdata%rdat1(np1r) 
             xeltp=abel(mllel) 
             nnz=masterdata%idat1(np1i) 
-            if (lpril.ne.0)                                             &
-     &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                  
+            if (lpril.ne.0) then
+              write (lun11,902)jk,mlel,nnz,                             &
+     &          (masterdata%kdat1(np1k-1+mm),mm=1,min(8,nkdt))
+902           format (1x,'  element:',3(i12,1x),8(1a1))
+              endif
 !           ignore if the abundance is small                            
             if (xeltp.lt.1.e-10) then 
                 jkk=jkk+nnz 
@@ -172,7 +173,7 @@
                 do while ((mlion.ne.0).and.(kl.lt.nnz)) 
                   jkk=jkk+1 
 !                 retrieve ion name from kdati                          
-                  mlm=mlion-1 
+                  mlm=mlion 
                   call drd(ltyp,lrtyp,lcon,                             &
      &              nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                &
      &              0,lun11)                                      
@@ -192,7 +193,7 @@
                     mlpar=derivedpointers%npar(ml) 
 !                   step thru records of this type                      
                     do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
-                      mlm=ml-1 
+                      mlm=ml 
                       call drd(ltyp,lrtyp,lcon,                         &
      &                  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,              &
      &                  0,lun11)                                  
@@ -225,7 +226,7 @@
                     mlpar=derivedpointers%npar(ml) 
                     do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
 !                     step thru records of this type                    
-                      mlm=ml-1 
+                      mlm=ml 
                       call drd(ltyp,lrtyp,lcon,                         &
      &                  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,              &
      &                  0,lun11)                                  
@@ -238,11 +239,11 @@
                         eth=leveltemp%rlev(4,idest1)                    &
      &                     -leveltemp%rlev(1,idest1) 
                         ntptr(kksv)=kkkl 
-                        rsv1(kksv)=eth 
-                        rsv2(kksv)=elumab(1,kkkl) 
-                        rsv3(kksv)=elumab(2,kkkl) 
-                        rsv4(kksv)=tauc(1,kkkl) 
-                        rsv5(kksv)=tauc(2,kkkl) 
+                        rsv1(kksv)=sngl(eth) 
+                        rsv2(kksv)=sngl(elumab(1,kkkl)) 
+                        rsv3(kksv)=sngl(elumab(2,kkkl))
+                        rsv4(kksv)=sngl(tauc(1,kkkl))
+                        rsv5(kksv)=sngl(tauc(2,kkkl))
                         do mm=1,nkdti 
                            write (kdtmp8(mm:mm),'(a1)')                 &
      &                           masterdata%kdat1(np1ki-1+mm) 
@@ -429,7 +430,7 @@
         if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     compute checksums                                                 
-      if(verbose.gt.0) write (lun11,*)'writespectra: writing checksum' 
+      if(verbose.gt.0) write (lun11,*)'writespectra: writingchecksum' 
       status=0 
       call ftpcks(unit,status) 
 !     check for any error, and if so print out error messages           

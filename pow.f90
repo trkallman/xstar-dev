@@ -13,6 +13,6 @@
 
       real(8) x,y,expo 
 !      pow=x**y                                                         
-      pow=expo(y*log(max(1.e-34,x))) 
+      pow=expo(y*log(max(1.d-49,x))) 
       return 
       end                                           

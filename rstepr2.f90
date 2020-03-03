@@ -1,4 +1,4 @@
-      subroutine rstepr2(unit,hdunum,radin,radout,rdel,t,prs,           &
+      subroutine rstepr2(unit,hdunum,radin,radout,rdel,t,prs,        &
      &             xcol,xee,xpx,xi,                                     &
      &             rcem,oplin,tau0,                                     &
      &             lun11,lpri,status)                                   

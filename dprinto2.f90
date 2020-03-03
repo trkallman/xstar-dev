@@ -1,4 +1,4 @@
-      subroutine dprinto2(ltyp,lrtyp,lcon,                              &
+      subroutine dprinto2(ltyp,lrtyp,lcon,                           &
      &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
 !     Name: dprinto2.f90  

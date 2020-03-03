@@ -26,7 +26,7 @@
       data nintmx/1000/ 
 !                                                                       
       nint=0 
-      if (lpri.gt.1) write (lun11,*)'in hunt',n,x 
+      if (lpri.gt.1) write (lun11,*)'in hunt3',n,x 
 !      do m=1,n                                                         
 !        write (lun11,*)m,xx(m)                                         
 !        enddo                                                          

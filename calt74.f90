@@ -1,4 +1,4 @@
-    subroutine calt74(temp,np,xse,xss,nddd,np1r,rate,alpha) 
+      subroutine calt74(temp,np,xse,xss,nddd,np1r,rate,alpha) 
 !                                                                       
 !     Name: calt74.f90  
 !     Description:  

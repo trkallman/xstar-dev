@@ -10,7 +10,7 @@
 !           nlen=length of message string
 !           str1(nlen)=string 
 !     Dependencies:  none
-!     Called by: calc_maxwell_rates, exint_n
+!     Called by: calc_maxwell_rates, exintn
 !
       character*(*) str1 
       integer lun11,nlen,ntmp

@@ -1,4 +1,4 @@
-      subroutine dprinto(ltyp,lrtyp,lcon,                               &
+      subroutine dprinto(ltyp,lrtyp,lcon,                            &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)          
 !                                                                       
 !     Name: dprinto.f90  
@@ -19,7 +19,7 @@
 !           np1k=pointer to first element of master char array to be printed
 !           lun11=logical unit number for printout
 !     Dependencies:  none
-!     Called by:  ucalc, pprint, setptrs, func1, writespectra2, deleafnd
+!     Called by:  ucalc, pprint, setptrs, writespectra2, deleafnd
 !                                                                       
       use globaldata
       implicit none 

@@ -1,4 +1,4 @@
-      subroutine dprint(ltyp,lrtyp,lcon,                                &
+      subroutine dprint(ltyp,lrtyp,lcon,                             &
      &  lrdat,rdat,lidat,idat,lkdat,kdat,                               &
      &  np1r,np1i,np1k,np2,                                             &
      &  lpri,lun11)                             

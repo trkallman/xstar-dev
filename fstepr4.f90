@@ -1,6 +1,5 @@
-      subroutine fstepr4(unit,hdunum,radin,radout,rdel,t,prs,abel,      &
+      subroutine fstepr4(unit,hdunum,radin,radout,rdel,t,prs,        &
      &             xcol,xee,xpx,xi,                                     &
-     &             np2,ncsvn,nlsvn,                                     &
      &             epi,ncn2,zrems,dpthc,opakc,rccemis,                  &
      &             lun11,lpri,status)                                   
 !                                                                       
@@ -40,10 +39,9 @@
       integer nptmpdim 
       parameter (nptmpdim=ncn) 
 !                                                                       
-      integer np2,ncsvn,nlsvn
 !     Allocation for passed parameters                                  
       real(4) rtmp 
-      real(8) radin, radout,rdel, t, prs, xcol,xee,xpx,xi 
+      real(8) radin, radout,rdel, t, prs, xcol,xee,xpx,xi
       integer unit,hdunum, nrows, status
 !     energy bins                                                       
       real(8) epi(ncn) 
@@ -54,18 +52,16 @@
 !     continuum emissivities                                            
       real(8) rccemis(2,ncn) 
       real(8) zrems(5,ncn) 
-      real(8) abel(nl) 
       integer ncn2 
                                                                         
-      integer ntptr(nptmpdim) 
-      real(4) rwrk1(nptmpdim) 
+      integer, dimension(:), allocatable :: ntptr
+      real(4), dimension(:), allocatable :: rwrk1
       integer tfields,varidat 
       character(16) ttype(12),tform(12),tunit(12) 
       integer colnum,frow,felem,hdutype,izcol
       integer mm, lun11, lpri 
       integer nlines 
       character(33) extname 
-      character(20) ktmp2 
                                                                         
 !     Database manipulation quantities                                  
       character(1) kblnk
@@ -81,6 +77,9 @@
       data tunit/' ','ev','erg/s','erg/s','erg/s','erg/s',              &
      &   'erg/s','/cm','erg/cm**3/s','erg/cm**3/s',' ',' '/
 !                                                                        
+      allocate(ntptr(nptmpdim))
+      allocate(rwrk1(nptmpdim))
+!
       varidat=0 
 !                                                                       
       if (lpri.ne.0)                                                    &
@@ -132,47 +131,47 @@
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     Write values to 3 decimal places                                  
-      rtmp=radin 
+      rtmp=sngl(radin)
       call ftpkye(unit,'RINNER',rtmp,3,'[cm] Inner shell radius',       &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=radout 
+      rtmp=sngl(radout)
       call ftpkye(unit,'ROUTER',rtmp,3,'[cm] Outer shell radius',       &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=rdel 
+      rtmp=sngl(rdel) 
       call ftpkye(unit,'RDEL',rtmp,3,'[cm] distance from face',         &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=t 
+      rtmp=sngl(t)
       call ftpkye(unit,'TEMPERAT',rtmp,3,'[10**4K] Shell Temperature',  &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=prs 
+      rtmp=sngl(prs)
       call ftpkye(unit,'PRESSURE',rtmp,3,'[dynes/cm**2] Shell Pressure',&
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xcol 
+      rtmp=sngl(xcol)
       call ftpkye(unit,'COLUMN',rtmp,3,'[/cm**2] Column ',              &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=xee 
+      rtmp=sngl(xee)
       call ftpkye(unit,'XEE',rtmp,3,'electron fraction',                &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xpx 
+      rtmp=sngl(xpx)
       call ftpkye(unit,'DENSITY',rtmp,3,'[/cm**3] Density',             &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xi 
+      rtmp=sngl(xi)
       call ftpkye(unit,'LOGXI',rtmp,3,                                  &
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
@@ -199,7 +198,7 @@
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       do mm=1,ncn2 
-        rwrk1(mm)=epi(mm) 
+        rwrk1(mm)=sngl(epi(mm))
         enddo 
 !                                                                       
 !     column  2 energy                                                  
@@ -214,7 +213,7 @@
 !     zrems
       do izcol=1,5
         do mm=1,ncn2 
-          rwrk1(mm)=zrems(izcol,mm) 
+          rwrk1(mm)=sngl(zrems(izcol,mm))
           enddo 
         colnum=2+izcol 
         call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
@@ -222,7 +221,7 @@
 !
 !     column  8 opacity                                                 
       do mm=1,ncn2 
-        rwrk1(mm)=opakc(mm) 
+        rwrk1(mm)=sngl(opakc(mm))
         enddo 
 !                                                                       
       colnum=8 
@@ -234,7 +233,7 @@
                                                                         
 !     column  9 emiss outward
       do mm=1,ncn2 
-        rwrk1(mm)=rccemis(1,mm) 
+        rwrk1(mm)=sngl(rccemis(1,mm)) 
         enddo 
 !                                                                       
       colnum=9 
@@ -246,7 +245,7 @@
                                                                         
 !     column  10 emiss inward
       do mm=1,ncn2 
-        rwrk1(mm)=rccemis(2,mm) 
+        rwrk1(mm)=sngl(rccemis(2,mm))
         enddo 
 !                                                                       
       colnum=10
@@ -258,7 +257,7 @@
                                                                         
 !                                                                       
       do mm=1,ncn2 
-        rwrk1(mm)=dpthc(1,mm) 
+        rwrk1(mm)=sngl(dpthc(1,mm))
         enddo 
 !                                                                       
 !     column  11 depth forward                                           
@@ -271,7 +270,7 @@
                                                                         
 !                                                                       
       do mm=1,ncn2 
-        rwrk1(mm)=dpthc(2,mm) 
+        rwrk1(mm)=sngl(dpthc(2,mm)) 
         enddo 
 !                                                                       
 !     column  12 depth backward                                          
@@ -289,6 +288,9 @@
 !     Compute checksums                                                 
       call ftpcks(unit,status) 
       if (status .gt. 0)call printerror(lun11,status) 
-                                                                        
+!
+      deallocate(ntptr)
+      deallocate(rwrk1)
+!                                                                        
       return 
       end                                           

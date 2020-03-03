@@ -1,7 +1,7 @@
-      subroutine dprints2(ltyp,lrtyp,lcon,                              &
+      subroutine dprints2(mli,ltyp,lrtyp,lcon,                           &
      &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
-!     Name: dprinto.f90  
+!     Name: dprints2.f90  
 !     Description:  
 !     this  routine printe one record of the database 
 !     differs from dprints because data is passed by pointers
@@ -32,7 +32,7 @@
       character(20000) kdtt 
       character(1) kblnk,ktst,kperc,kdtt2(nptmpdim) 
       integer ltyp,lrtyp,lcon,nrdt,nidt,nkdt,lun11,                     &
-     &        nkd,nkd2,ml2,itmp,ml,ll2,ll,mm                            
+     &        nkd,nkd2,ml2,itmp,ml,ll2,ll,mm,mli
       real(8) rtmp 
 !                                                                       
       data kblnk/' '/,kperc/'%'/ 
@@ -99,8 +99,8 @@
          kdtt2(ll2)=ktst 
          enddo 
 !                                                                       
-      write (lun11,911)(kdtt2(mm),mm=1,ll2),kblnk,kperc 
-  911 format (20000a1) 
+      write (lun11,911)mli,(kdtt2(mm),mm=1,ll2),kblnk,kperc 
+  911 format (i8,20000a1) 
 !                                                                       
       return 
       end                                           

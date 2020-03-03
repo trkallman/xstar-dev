@@ -1,4 +1,4 @@
-      subroutine rstepr4(unit,hdunum,radin,radout,rdel,t,prs,           &
+      subroutine rstepr4(unit,hdunum,radin,radout,rdel,t,prs,        &
      &             xcol,xee,xpx,xi,                                     &
      &             zrems,dpthc,opakc,rccemis,                           &
      &             lun11,lpri,status)                                   
@@ -36,8 +36,6 @@
 !                                                                       
       implicit none 
                                                                         
-      integer nptmpdim 
-      parameter (nptmpdim=500000) 
 !                                                                       
       real(4) rtmp 
       real(8) radin, radout,rdel, t, prs, xcol,xee,xpx,xi 

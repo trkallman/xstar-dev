@@ -70,21 +70,25 @@
       use globaldata
       implicit none 
 !                                                                       
+      integer, dimension(:), allocatable :: nptrt
+      integer, dimension(:), allocatable :: npnxt2
+      character(4) karg(20)
       real(8) abcosmic(30)
       real(8) abel(nl) 
-      integer npnxt2(ndat2) 
       integer melpt(nl) 
       integer mlold(ntyp) 
       integer indx, iion, ilev, icon, iline, i, j 
       integer iel2, iel, lpri, lun11, np2, lrtp 
       integer iilev, mltmpn, mlfnd, nclev, mltst 
       integer mltmp, npartmpn, nlsvn, ncsvn 
-      integer lsrt, mml, niter, melptmp, npfirst2 
+      integer lsrt, mml, niter, melptmp, npfirst2, mm
       integer mllo, mlloo, itst, ltyp, lrtyp2, lcon 
       integer nrdt, nidt, nkdt, mll,mlm 
-      integer itmp,np1i,np1r,np1k,ntptmp 
+      integer itmp,np1i,np1r,np1k,mm1,lrtyp,mlel,mlion
 !                                                                       
-                                                                        
+      allocate(nptrt(ndat2))
+      allocate(npnxt2(ndat2))
+!
 !            pointer structure                                          
 !     type    desc         nr  ni  nk      daught  par                  
 !     1       rr, a&p      2   1   0               14                   
@@ -117,20 +121,22 @@
         indx=1 
 !                                                                       
 ! the main data index                                                   
-      go to 9009 
-      if (lpri.ne.0) then 
+!      go to 9009 
+      if (lpri.ge.1) write (lun11,*)'in setptrs'
+!
+      if (lpri.gt.2) then 
 !       first an experimental print                                     
         write (lun11,*)'np2=',np2 
         do itmp=1,np2 
           CALL DRD(ltyp,lrtyp2,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
-     &          itmp-1,0,Lun11)                                   
+     &          itmp,0,Lun11)                                   
           write (lun11,*)'itmp=',itmp 
 !          write (lun11,*)'nkdt=',nkdt,(kdat1(np1k-1+mm),mm=1,nkdt)     
-          call dprinto(ltyp,lrtyp2,lcon,                                &
+          call dprints(ltyp,lrtyp2,lcon,                             &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
           enddo 
         endif 
- 9009   continue 
+! 9009   continue 
                                                                         
 ! the ion index                                                         
       iion=1 
@@ -170,23 +176,25 @@
       do while ((iel2.le.nl).and.(indx.lt.np2)) 
         iel2=iel2+1 
         iel=iel2 
-!        if (abel(iel).lt.1.e-15) then                                  
+        if (abel(iel).lt.1.e-15) then                                  
 !                                                                       
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.1)                                                &
      &     write (lun11,*)'iel=',iel2,iel,abel(iel)                     
 !  pass by elements that has neglectable abundance                      
-!          indx=indx+1                                                  
-!          do while((nptrs(3,indx).ne.11).and.(indx.lt.np2))            
-!            indx=indx+1                                                
-!          enddo                                                        
+          indx=indx+1                                                  
+          do while((masterdata%nptrs(3,indx).ne.11).and.(indx.lt.np2)) 
+            indx=indx+1                                                
+          enddo                                                        
+          iion=iion+iel
 !                                                                       
-!        else                                                           
+        else                                                           
                                                                         
 !  register element record                                              
 !     npfirst,npnxt,npar,mlold                                          
                                                                         
-!          if (lpri.ne.0) write (lun11,*)'npfirst(11):',npfirst(11),    
-!     $          indx,mlold(11)                                         
+          if (lpri.ne.0) write (lun11,*)'npfirst(11):',                 &
+     &       derivedpointers%npfirst(11),                               &
+     &          indx,mlold(11)                                         
           if (derivedpointers%npfirst(11).eq.0) then 
             derivedpointers%npfirst(11)=indx 
           else 
@@ -194,11 +202,11 @@
           endif 
 !                                                                       
           CALL DRD(ltyp,lrtyp2,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
-     &          indx-1,0,Lun11)                                   
+     &          indx,0,Lun11)                                   
           iel=masterdata%idat1(np1i) 
           abcosmic(iel)=masterdata%rdat1(np1r) 
                                                                         
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.1)                                                &
      &     write (lun11,*)'registering element:',iel,abel(iel),indx,    &
      &                         mlold(11),abcosmic(iel)                  
           mlold(11)=indx 
@@ -209,12 +217,12 @@
                                                                         
           ltyp=masterdata%nptrs(2,indx) 
           lrtp=masterdata%nptrs(3,indx) 
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.1)                                                &
      &     write (lun11,*)'lrtp=',lrtp,indx                             
           do while(lrtp.eq.12) 
                                                                         
 !                                                                       
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.1)                                                &
      &     write(lun11,*) iel,iion                                      
                                                                         
 !  register ion record                                                  
@@ -225,7 +233,7 @@
             else 
               derivedpointers%npnxt(mlold(12))=indx 
             endif 
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.1)                                              &
      &       write (lun11,*)'npfirst(12)=',                             &
      &       derivedpointers%npfirst(12),indx             
             mlold(12)=indx 
@@ -243,16 +251,16 @@
               else 
                 derivedpointers%npnxt(mlold(13))=indx 
               endif 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.1)                                            &
      &         write (lun11,*)'filling npilev:'                         
               do while(masterdata%nptrs(3,indx).eq.13) 
                 derivedpointers%npar(indx)=mlold(12) 
                 derivedpointers%npnxt(indx)=indx+1 
                 derivedpointers%npilev(iilev,iion)=ilev 
                 derivedpointers%npilevi(ilev)=iilev 
-                if(derivedpointers%npilev(iilev,iion).eq.0)                 &
+                if(derivedpointers%npilev(iilev,iion).eq.0)             &
      &                print *, 'AJA **** ', iilev,iion 
-                if (lpri.ne.0)                                          &
+                if (lpri.gt.1)                                          &
      &           write (lun11,*)ilev,iilev,indx,iion                    
                 iilev=iilev+1 
                 ilev=ilev+1 
@@ -276,7 +284,7 @@
                 else 
                   derivedpointers%npnxt(mlold(lrtp))=indx 
                 endif 
-                if (lpri.ne.0)                                          &
+                if (lpri.gt.1)                                          &
      &           write (lun11,*)'npconi loop',indx                      
                 do while(masterdata%nptrs(3,indx).eq.lrtp) 
 !                 npcon points from the array of continuum emissivities 
@@ -292,10 +300,10 @@
                   derivedpointers%npar(indx)=mlold(12) 
                   derivedpointers%npnxt(indx)=indx+1 
                   derivedpointers%npcon(icon)=indx 
-                  if (lpri.ne.0)                                        &
+                  if (lpri.gt.1)                                        &
      &             write (lun11,*)'index into continuum  array:',       &
      &                icon                                              
-                  if (lpri.ne.0)                                        &
+                  if (lpri.gt.1)                                        &
      &             write (lun11,*)'index of photoionization element:',  &
      &                indx                                              
 !                 now search for the level that goes with this          
@@ -307,7 +315,7 @@
                   if (nclev.gt.derivedpointers%nlevs(iion))             &
      &                  derivedpointers%nlevs(iion)=nclev 
                   mltst=nclev 
-                  if (lpri.ne.0)                                        &
+                  if (lpri.gt.1)                                        &
      &             write (lun11,*)'searching for level:'                
                   mltmp=mltmpn 
                   if (mltmpn.ne.0) then 
@@ -327,7 +335,7 @@
                       else 
                         npartmpn=0 
                       endif 
-                    if (lpri.ne.0)                                      &
+                    if (lpri.gt.1)                                      &
      &              write (lun11,*)mltmp,mlfnd,mltmpn,npartmpn,         &
      &                      derivedpointers%npar(indx),nclev                   
                     enddo 
@@ -336,7 +344,7 @@
                   if (mltmp.ne.0) then 
                     derivedpointers%npconi(mltmp)=icon 
                     endif 
-                  if (lpri.ne.0)                                        &
+                  if (lpri.gt.1)                                        &
      &             write (lun11,*)indx,derivedpointers%npar(indx),      &
      &             icon,nclev,masterdata%nptrs(3,indx),lrtp,mltmp               
                   indx=indx+1 
@@ -350,7 +358,7 @@
 !  lines data and lines pointers, rate type 4, 9 & 14                   
 !  npfirst,npnxt,npar,mold,npfi,nplin,nplini                            
                                                                         
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.1)                                              &
      &       write (lun11,*)'nplin,nplini,:'                            
             do i=1,3 
               if (i.eq.1) then 
@@ -362,7 +370,7 @@
               else 
                 lrtp=14 
               endif 
-              if (lpri.ne.0) write (lun11,*)' indx=',indx,lrtp,iion 
+              if (lpri.gt.1) write (lun11,*)' indx=',indx,lrtp,iion 
               if (masterdata%nptrs(3,indx).eq.lrtp) then 
                 derivedpointers%npfi(lrtp,iion)=indx 
                 if (derivedpointers%npfirst(lrtp).eq.0) then 
@@ -375,7 +383,7 @@
                   derivedpointers%npnxt(indx)=indx+1 
                   derivedpointers%nplin(iline)=indx 
                   derivedpointers%nplini(indx)=iline 
-                  if (lpri.ne.0)                                        &
+                  if (lpri.gt.1)                                        &
      &             write (lun11,*)indx,iline                            
                   indx=indx+1 
                   iline=iline+1 
@@ -443,14 +451,18 @@
             iion=iion+1 
                                                                         
           enddo 
-!        endif                                                          
+        endif                                                          
       enddo 
                                                                         
       nlsvn=iline-1 
       ncsvn=icon-1 
       write (lun11,*)'number of lines=',nlsvn 
       write (lun11,*)'number of rrcs=',ncsvn 
-!                                                                       
+!
+!      if (lpri.eq.0) return
+!
+!     now do a big print
+
       go to 9000 
 !                                                                       
 !     sort the element abundances                                       
@@ -486,7 +498,7 @@
         mll=derivedpointers%npfirst(11) 
         itst=0 
         do while ((mll.ne.0).and.(itst.ne.melpt(mml))) 
-          mlm=mll-1 
+          mlm=mll
           call drd(ltyp,lrtyp2,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
      &      mlm,0,lun11)                                          
           itst=masterdata%idat1(np1i-1+nidt) 
@@ -512,22 +524,82 @@
 !                                                                       
  9000  continue 
 !                                                                       
-       return 
+!       return 
 !                                                                       
 !     now print stuff sorted                                            
-      ntptmp=11 
-        mll=derivedpointers%npfirst(ntptmp) 
-        write (lun11,*)'ntptmp=',ntptmp 
-        do while (mll.ne.0) 
-          CALL DRD(ltyp,lrtyp2,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
-     &          mll-1,0,Lun11)                                    
-          write (lun11,*)'mll=',mll 
-          call dprinto(ltyp,lrtyp2,lcon,                                &
-     &    nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
-          mll=derivedpointers%npnxt(mll) 
-          enddo 
-!                                                                       
-                                                                        
+!      ntptmp=11 
+!        mll=derivedpointers%npfirst(ntptmp) 
+!        write (lun11,*)'ntptmp=',ntptmp 
+!        do while (mll.ne.0) 
+!          CALL DRD(ltyp,lrtyp2,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
+!     &          mll,0,Lun11)                                    
+!          write (lun11,*)'mll=',mll 
+!          call dprints(ltyp,lrtyp2,lcon,                             &
+!     &    nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
+!          mll=derivedpointers%npnxt(mll) 
+!          enddo 
+!     
+!        write (lun11,*)'in setptrs filling nptrt'
+        mm1=0
+        do mm=1,ndat2
+          iel=0 
+!          write (lun11,*)'mm=',mm 
+          CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
+     &          mm,0,Lun11)                                    
+!          call dprints(ltyp,lrtyp,lcon,                                &
+!     &      nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
+          if (lrtyp.ne.0) then
+            if (lrtyp.ne.11) then
+              mlion=mm
+              if (lrtyp.ne.12) then
+                mlion=derivedpointers%npar(mm)
+                endif
+              if (mlion.ne.0) then
+                mlel=derivedpointers%npar(mlion)
+                if (mlel.ne.0) then
+                  CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,   &
+     &                     np1k,mlel,0,Lun11)                       
+                  endif
+                endif
+              else
+                mlel=mm
+              endif
+            if (mlel.ne.0) then
+              iel=masterdata%idat1(np1i)
+!              write (lun11,*)'mm=',mm,iel,abel(iel)
+              if (iel.eq.0) stop 'iel=0'
+!              if (mm.gt.200000) stop
+              if (abel(iel).gt.1.e-15) then
+                mm1=mm1+1
+                nptrt(mm1)=mm
+!                write (lun11,*)'mm1=',mm1,mm
+!                CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k, &
+!     &            mm,0,Lun11)                                    
+!                call dprints(ltyp,lrtyp,lcon,                           &
+!     &            nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
+                endif
+              endif
+            endif
+          enddo
+        np2=mm1
+!
+      if (lpri.ge.1) write (lun11,*)'done with setptrs'
+!        
+!       print data
+!        call dbwk2(12,abel,np2,nptrt,karg,lpri,lun11,                   &
+!     &  nlsvn,ncsvn)                                             
+!       print pointers
+!        call dbwk2(25,abel,np2,nptrt,karg,lpri,lun11,                   &
+!     &  nlsvn,ncsvn)                                             
+!       set up pointers (again)
+        call dbwk2(7,abel,np2,nptrt,karg,lpri,lun11,                    &
+     &  nlsvn,ncsvn)                                             
+!       print pointers
+!        call dbwk2(25,abel,np2,nptrt,karg,lpri,lun11,                   &
+!     &  nlsvn,ncsvn)                                             
+!
+      deallocate(nptrt)
+      deallocate(npnxt2)
 !                                                                       
       return 
       END                                           

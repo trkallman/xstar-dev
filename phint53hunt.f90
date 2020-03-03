@@ -1,5 +1,5 @@
-      subroutine phint53hunt(stmpp,etmpp,ntmp,ethi,pirt,rrrt,piht,rrcl, &
-     & lpri,epi,ncn2,bremsa,t,swrat,xnx,crit,lfast,lun11)               
+      subroutine phint53hunt(stmpp,etmpp,ntmp,ethi,pirt,rrrt,        &
+     & piht,rrcl,lpri,epi,ncn2,bremsa,t,swrat,xnx,crit,lfast,lun11)               
 !                                                                       
 !                                                                       
 !     Name:  phinthunt.f90
@@ -52,9 +52,9 @@
       real(8) ansar1(ncn),ansar2(ncn) 
       integer luse(ncn) 
       integer lpri,ncn2,lfast,lun11 
-      real(8) ethi,pirt,rrrt,piht,rrcl,                                  &
+      real(8) ethi,pirt,rrrt,piht,rrcl,                                 &
      &     t,swrat,xnx,crit                                             
-      real(8) eth,ergsev,bk,tm,bktm,ener,epii,                           &
+      real(8) eth,ergsev,bk,tm,bktm,ener,epii,                          &
      &     sumr,sumh,sumi,sumc,tempi,enero,                             &
      &     bremtmp,tempr,tempro,deld,sumho,exptst,                      &
      &     tempi1,tempi2,tempio,atmp2,rnist,atmp2o,bbnurj,delt,         &
@@ -79,7 +79,7 @@
       numcon=ncn2 
       numcon2=max(2,ncn2/50) 
       numcon3=numcon-numcon2 
-      if (lpri.ge.1) write (lun11,*)'in phint53:',                      &
+      if (lpri.gt.1) write (lun11,*)'in phint53hunt:',               &
      &      eth,xnx,swrat,t,nb1,                                        &
      &      stmpp(1),etmpp(1),ntmp,lfast                                
       if (nb1.ge.numcon3) return 
@@ -100,7 +100,7 @@
       emaxx=etmpp(ntmp)*(13.605692)+eth 
       nphint=nbinc(emaxx,epi,ncn2) 
       ndelt=nphint-nb1 
-      if (lpri.ge.1) write (lun11,*)'in phint53:',                      &
+      if (lpri.gt.1) write (lun11,*)'in phint53hunt:',               &
      &      eth,rnist,xnx,swrat,t,ndelt,nphint,nb1,                     &
      &      stmpp(1),etmpp(1),etmpp(ntmp),ntmp,lfast                    
       ndelt=max(ndelt,1) 
@@ -117,7 +117,7 @@
         itmp=itmp-1 
         if (itmp.gt.1) go to 1011 
         endif 
-      if (lpri.ge.1) write (lun11,*)'in phint53:',                      &
+      if (lpri.gt.1) write (lun11,*)'in phint53hunt:',               &
      &      eth,rnist,xnx,swrat,t,ndelt,nphint,nb1,                     &
      &      stmpp(1),etmpp(1),ntmp,lfast                                
 !                                                                       
@@ -166,9 +166,10 @@
                 efnd=(ener-eth)/13.605692 
                 lprif=0 
                 if (lpri.gt.1) lprif=1 
-                call find53(stmpp,etmpp,ntmp,efnd,sgtmp,jlo,lun11,lprif) 
+                call find53(stmpp,etmpp,ntmp,efnd,sgtmp,jlo,lun11,   &
+     &                   lprif) 
                 ansar1(kl)=sgtmp 
-                if (lprif.ge.1) write (lun11,*)'after find53:',         &
+                if (lprif.ge.1) write (lun11,*)'after find53:',      &
      &                  jlo,efnd,sgtmp                                  
                 exptst=(epii-eth)/bktm 
                 exptmp=expo(-exptst) 
@@ -194,7 +195,7 @@
           tsti = (tempi+tempio)*deld/2. 
           sumi = sumi + tsti 
           sumc = sumc+(atmp2+atmp2o)*deld/2. 
-          if ((lpri.ge.1).and.(npass.le.1)) then 
+          if ((lpri.gt.1).and.(npass.le.1)) then 
               write (lun11,*)kl,ener,luse(kl),sgtmp,bremtmp,atmp2 
               write (lun11,*)kl,ener,bremtmp,bbnurj 
               write (lun11,*) tempr,tempi,rnist,exptmp,bbnurj 
@@ -209,7 +210,7 @@
         tst1=abs((sumro-sumr)/(sumro+sumr+1.e-24)) 
         tst2=abs((sumho-sumh)/(sumho+sumh+1.e-24)) 
         tst4=abs((sumco-sumc)/(sumco+sumc+1.e-24)) 
-        if (lpri.ge.1) write (lun11,*)'after pass:',npass,              &
+        if (lpri.gt.1) write (lun11,*)'after pass:',npass,              &
      &     sumr,sumh,sumi,sumc,tst1,tst2,tst3,tst4,nskp                 
         enddo 
 !                                                                       
@@ -219,8 +220,8 @@
          rrcl = rrcl + xnx*sumc*ergsev 
 !                                                                       
 !                                                                       
-         if (lpri.ge.1) write (lun11,*)'in phint53:',eth,pirt,rrrt      &
-     &         ,piht,rrcl,npass,sumc,ergsev                             
+         if (lpri.gt.1) write (lun11,*)'in phint53hunt:',eth,pirt,   &
+     &         rrrt,piht,rrcl,npass,sumc,ergsev                             
          lpri=lprisv 
 !                                                                       
       return 

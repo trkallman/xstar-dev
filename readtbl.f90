@@ -1,4 +1,4 @@
-      subroutine readtbl(np1r,np1i,np1k,                                &
+      subroutine readtbl(np1r,np1i,np1k,                             &
      &       np2,                                                       &
      &       filename,credate,lpri,lun11)                           
 !                                                                       
@@ -24,11 +24,12 @@
        implicit none 
 !                                                                       
       integer nidatt 
-      parameter (nidatt=60000000) 
+      parameter (nidatt=nrdat1) 
 !                                                                       
       integer lpri,lun11,np1r,np1i,np1k,np2 
-      real(4) rdat14(nidatt) 
-      integer ntptr(nidatt),mm 
+      real(4), dimension(:), allocatable ::  rdat14
+      integer, dimension(:), allocatable :: ntptr
+      integer mm 
                                                                         
       real(4) nulle 
       integer nullj 
@@ -39,11 +40,14 @@
       integer status,unit,readwrite,blocksize,hdutype 
       integer row,col,j,i,lenact 
                                                                         
+      allocate(rdat14(nidatt))
+      allocate(ntptr(nidatt))
+
       status=0 
       nullstr=' ' 
       nullj=0 
       nulle=0. 
-                                                                        
+              
       if (lpri.ne.0) write (lun11,*)'in readtbl' 
 !                                                                       
 ! get an unused logical unit number and open the fits file              
@@ -126,5 +130,8 @@
 ! check for any error, and if so print out error messages               
       if (status .gt. 0) call printerror(lun11,status) 
                                                                         
+      deallocate(rdat14)
+      deallocate(ntptr)
+
       return 
       END                                           

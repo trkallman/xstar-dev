@@ -1,4 +1,6 @@
 !_______________________________________________________________        
+                                                                        
+!_______________________________________________________________        
       real(8) function calc_sampson_h(om,Z,Te) 
 !                                                                        
 !     Name: calc_sampson_h.f90  
@@ -13,7 +15,7 @@
 !       Te=temperature in kelvin
 !       Output:
 !       calc_sampson_h
-!     Dependencies:  exint_n
+!     Dependencies:  exintn
 !     Called by: calc_maxwell_rates
 !
       real(8) om(7) 
@@ -21,7 +23,7 @@
       real(8) Te 
                                                                         
       real(8) result 
-      real(8) kT, y,exint_n
+      real(8) kT, y,exintn
       real(8) dE, z2s, a, c0,c1,c2,c_sw 
       real(8) a1, a1y, E1y, Ery, Er1y, Zeff2 
       real(8) term 
@@ -42,9 +44,9 @@
       y   = dE/kT 
       a1  = a+1 
       a1y = a1*y 
-      E1y = exint_n(y,-1.d0,1) 
-      Ery = exint_n(a1y,-1.d0,1) 
-      Er1y = exint_n(a1y,Ery,2) 
+      E1y = exintn(y,-1.d0,1) 
+      Ery = exintn(a1y,-1.d0,1) 
+      Er1y = exintn(a1y,Ery,2) 
 !      /* This is E_2(a1y) */                                           
                                                                         
       term = (c1*Ery + c2*Er1y/a1) 

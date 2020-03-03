@@ -1,4 +1,4 @@
-      subroutine fparmlist(unit,hdunum,mdlname,npar,parname,partype,    &
+      subroutine fparmlist(unit,hdunum,mdlname,npar,parname,partype, &
      &                    parval,parcomm,nloopctl,status,lun11)         
 !                                                                       
 !     Name:  fparmlist.f90
@@ -27,8 +27,8 @@
       integer unit, status, hdunum, npar, nloopctl 
       character(20) parname(55) 
       character(10) partype(55) 
-      real*8 parval(55) 
-      real*4 parval4(55) 
+      real(8) parval(55) 
+      real(4) parval4(55) 
       character(30) parcomm(55) 
 !     parameter info                                                    
                                !jg                                      
@@ -49,7 +49,7 @@
       varidat=0 
 !                                                                       
       do mm=1,55 
-        parval4(mm)=parval(mm) 
+        parval4(mm)=sngl(parval(mm))
         enddo 
 !                                                                       
 !     move to the last hdu (hdunum) in the file                         

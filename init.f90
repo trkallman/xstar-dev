@@ -1,5 +1,6 @@
-      subroutine init(lunlog,bremsa,bremsint,tau0,dpthc,dpthcont,tauc,  &
-     &   xii,rrrt,pirt,htt,cll,httot,cltot,                             &
+      subroutine init(lunlog,abel,bremsa,bremsint,tau0,dpthc,           &
+     &     dpthcont,tauc,                                               &
+     &   xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,httot2,cltot2,     &
      &   cllines,clcont,htcomp,clcomp,clbrems,                          &
      &   xilev,rcem,oplin,rccemis,brcems,opakc,opakscatt,               &
      &   cemab,cabab,opakab,elumab,elumabo,elum,elumo,                  &
@@ -102,9 +103,14 @@
       real(8) xii(nni) 
 !     heating/cooling                                                   
       real(8) htt(nni),cll(nni) 
+      real(8) htt2(nni),cll2(nni) 
       real(8) rrrt(nni),pirt(nni) 
       real(8) httot,cltot,cllines,clcont,htcomp,clcomp,clbrems 
+      real(8) httot2,cltot2,xeltp,abel(nl)
       integer i,lunlog 
+      integer nlev,ipmat,klion,jkk_ion,np1i,np1r,np1k,nidt,nrdt,nkdt,   &
+     &  ml_ion,ml_ion_data_type,ml_element_test,ml_element,lrtyp,ltyp,  &
+     &  lcon,ml_element_data_type,lpri,nnz,mllel
 !!                                                                      
 !                                                                       
        do i = 1,nnml 
@@ -121,7 +127,76 @@
          tauc(1,i) = 0. 
          tauc(2,i) =0. 
          enddo 
+!
+      go to 9000
+!     initializing with constant level population
+!     step thru elements                         
+      ipmat=0
+      ml_element_data_type=11 
+      ml_element=derivedpointers%npfirst(ml_element_data_type) 
+      do while (ml_element.ne.0) 
+!
+!       get data for this element
+        call drd(ltyp,lrtyp,lcon,                                       &
+     &     nrdt,np1r,nidt,np1i,nkdt,np1k,ml_element,                    &
+     &     0,lunlog)                                               
+        mllel=masterdata%idat1(np1i+nidt-1) 
+!        xeltp=masterdata%rdat1(np1r) 
+        xeltp=abel(mllel) 
+!        write (lunlog,*)'in init:',mllel,xeltp
+!        if (xeltp.gt.1.d-24) then 
+
+          nnz=masterdata%idat1(np1i) 
+!          call dprinto(ltyp,lrtyp,lcon,                                  &
+!     &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)   
+!         level populations
+          ml_ion_data_type=12
+!         step thru ions
+          ml_ion=derivedpointers%npfirst(ml_ion_data_type)
+          do while (ml_ion.ne.0)
+!
+!           test if element belongs to parent of ion
+            ml_element_test=derivedpointers%npar(ml_ion)
+            if (lpri.gt.1)                                              &
+     &        write (lunlog,*)'ml_element_test=',ml_element_test,       &
+     &                          ml_element
+            if (ml_element_test.eq.ml_element) then
+!
+!             get ion index
+              call drd(ltyp,lrtyp,lcon,                                 &
+     &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_ion,                 &
+     &            0,lunlog)                                        
+              klion=masterdata%idat1(np1i)
+              jkk_ion=masterdata%idat1(np1i+nidt-1)
+!
+!             get level data                                          
+              nlev=derivedpointers%nlevs(jkk_ion)
+              do i=1,nlev
+                xilev(i+ipmat)=0. 
+                if (i.eq.1) xilev(i+ipmat)=1./float(nnz)
+!                write (lunlog,*)'initializing xilev:',i,i+ipmat,        &
+!      &           xilev(i+ipmat)
+                enddo
+              ipmat=ipmat+nlev
 !                                                                       
+!             end of test if element belongs to parent of ion
+              endif
+!
+!           end of loop over ions
+            ml_ion=derivedpointers%npnxt(ml_ion)
+            enddo 
+!
+!        end of test for element abund
+!         endif
+
+!       end of step thru elements
+        if  (ml_element.ne.0)                                           &
+     &          ml_element=derivedpointers%npnxt(ml_element) 
+        enddo 
+9000  continue
+!                                                                       
+      httot2=0. 
+      cltot2=0. 
       httot=0. 
       cltot=0. 
       cllines=0. 
@@ -179,6 +254,8 @@
          xii(i)=0. 
          htt(i)=0. 
          cll(i)=0. 
+         htt2(i)=0. 
+         cll2(i)=0. 
          rrrt(i)=0. 
          pirt(i)=0. 
          enddo 

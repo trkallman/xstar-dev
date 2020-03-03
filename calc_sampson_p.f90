@@ -12,8 +12,8 @@
 !       z=ion charge
 !       Te=temperature in kelvin
 !       Output:
-!       calc_sampson_s
-!     Dependencies:  exint_n
+!       calc_sampson_p
+!     Dependencies:  exintn
 !     Called by: calc_maxwell_rates
 !
       real(8) om(8) 
@@ -21,7 +21,7 @@
       real(8) kT, y 
       real(8) dE, a, z2s, c0, cr, cr1, r, s 
       real(8) Z2gamma, Zeff, a1, a1y, E1y, Ery, Er1y 
-      real(8) term,te,exint_n,pow 
+      real(8) term,te,exintn,pow 
       real(8) kboltz
       data KBOLTZ/8.617385e-8  / 
 ! /*      !< in units of keV/K */                                       
@@ -42,9 +42,9 @@
       a1 = a+1 
       a1y = a1*y 
                                                                         
-      E1y = exint_n(y,-1.d0,1) 
-      Ery = exint_n(a1y,-1.d0,int(r)) 
-      Er1y= exint_n(a1y,-1.d0,int(r+1)) 
+      E1y = exintn(y,-1.d0,1) 
+      Ery = exintn(a1y,-1.d0,int(r)) 
+      Er1y= exintn(a1y,-1.d0,int(r+1)) 
                                                                         
       term = (cr*Ery/pow(a1,r-1) + cr1*Er1y/pow(a1,r)) 
       if (term.gt. 0) then 

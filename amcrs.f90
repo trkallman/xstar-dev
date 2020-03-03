@@ -1,4 +1,4 @@
-      subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,          &
+      subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,       &
      &                 lpri,lun11)                                      
 !                                                                       
 !     Name: amcrs.f90  

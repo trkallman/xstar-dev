@@ -1,4 +1,5 @@
-      subroutine phint53(stmpp,etmpp,ntmp,ethi,pirt,rrrt,piht,rrcl,     &
+      subroutine phint53(stmpp,etmpp,ntmp,ethi,pirt,rrrt,piht,rrcl,  &
+     & piht2,rrcl2,                                                     &
      & abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,                      &
      & opakc,opakcont,rccemis,lpri,epi,ncn2,bremsa,t,swrat,xnx,         &
      & lfast,lun11)                                                     
@@ -54,15 +55,16 @@
       real(8) rccemis(2,ncn),opakc(ncn),opakcont(ncn) 
       real(8) sgbar(ncn)
       integer lpri,ncn2,lfast,lun11 
-      real(8) ethi,pirt,rrrt,piht,rrcl,abund1,abund2,ptmp1,ptmp2,xpx,    &
-     &     opakab,t,swrat,xnx
-      real(8) eth,ergsev,bk,tm,bktm,ener,sgtmp,epii,sgtp,optmp,          &
-     &     sumr,sumh,sumi,sumc,tempi,                                   &
+      real(8) ethi,pirt,rrrt,piht,rrcl,abund1,abund2,ptmp1,ptmp2,xpx,   &
+     &     opakab,t,swrat,xnx,piht2,rrcl2
+      real(8) eth,ergsev,bk,tm,bktm,ener,sgtmp,epii,sgtp,optmp,         &
+     &     sumr,sumh,sumh2,sumi,sumc,sumc2,tempi,                       &
      &     bremtmp,tempr,exptst,                                        &
      &     atmp2,rnist,ethsht,optmp2,                                   &
      &     wwir,wwih,bbnurjp,e2t,e2,e1,e1o,bremtmpp,                    &
      &     epiip,e2o,tempc,tempcp,exptmpp,rctmp2,rctmp1,                &
      &     s2,s2to,s2o,s2t,sgtpp,sum,tempip,temphp,temprp,temph,        &
+     &     temphp2,temph2,tempcp2,tempc2,                               &
      &     wwirp,wwicp,wwic,wwii,wwihp,wwiip,enermx,exptsto,expo        
       integer lprisv,numcon2,nphint,nb1,kl,jk,nbn,klmax,nbinc 
 !                                                                       
@@ -91,7 +93,9 @@
 !                                                                       
       sumr = 0. 
       sumh = 0. 
+      sumh2 = 0. 
       sumc = 0. 
+      sumc2 = 0. 
       sumi=0. 
       ener=eth+etmpp(1)*(13.605692) 
       nb1=nbinc(ener,epi,ncn2) 
@@ -205,15 +209,17 @@
       epiip=epi(nb1) 
       temprp=(12.56)*sgtpp*bremtmpp/epiip 
       temphp=temprp*epiip 
+      temphp2=temprp*(epiip-eth) 
       exptst=(epiip-eth)/bktm 
       exptmpp=expo(-exptst) 
       bbnurjp=(min(2.d+4,epiip))**3*(1.571e+22)*2. 
                                                                         
       tempip=rnist*(bremtmpp+bbnurjp)                                   &
      &  *sgtpp*exptmpp/epiip*(ptmp1+ptmp2)                              
-!      if (lpri.ne.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,     
-!     $ sgtpp,exptmpp,ptmp1,ptmp2,exptst                                
+      if (lpri.ne.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
+     & sgtpp,exptmpp,ptmp1,ptmp2,exptst                                 
       tempcp=tempip*epiip 
+      tempcp2=tempip*(epiip-eth)
 !                                                                       
       kl=nb1 
       epii=epi(kl) 
@@ -243,10 +249,13 @@
 !                                                                       
 !       heat                                                            
         temph=temphp 
-        temphp=temprp*epiip 
+        temph2=temphp2 
+        temphp=temprp*epiip
+        temphp2=temprp*(epiip-eth)
         wwih=wwir 
         wwihp=wwih 
         sumh = sumh + (temph*wwih+temphp*wwihp) 
+        sumh2 = sumh2 + (temph2*wwih+temphp2*wwihp) 
 !                                                                       
 !       rec                                                             
         exptsto=exptst 
@@ -261,16 +270,22 @@
      &        *sgtpp*exptmpp*12.56/epiip                                
           atmp2=tempip*epiip 
           tempip=tempip*(ptmp1+ptmp2) 
+          if (lpri.ge.1)                                                &
+     &       write (lun11,*)'tempip',rnist,bremtmpp,bbnurjp,sgtpp,      &
+     &          exptmpp,epiip,ptmp1,ptmp2
           wwii=wwir 
           wwiip=wwir 
           sumi = sumi + (tempi*wwii+tempip*wwiip) 
 !                                                                       
 !         cool                                                          
           tempc=tempcp 
+          tempc2=tempcp2 
           tempcp=tempip*epiip 
+          tempcp2=tempip*(epiip-eth)
           wwic=wwir 
           wwicp=wwir 
           sumc = sumc+tempc*wwic+tempcp*wwicp 
+          sumc2 = sumc2+tempc2*wwic+tempcp2*wwicp 
 !                                                                       
           rctmp1=abund2*atmp2*ptmp1*xpx/12.56 
           rccemis(1,kl)=rccemis(1,kl)+rctmp1 
@@ -290,7 +305,7 @@
           optmp2=rnist*exptmpp*sgtp*abund2*(ptmp1+ptmp2)*xpx 
           opakab=optmp-optmp2 
 !          if (lpri.ge.1)                                                &
-!     &       write (lun11,*)'otmp,optmp2',optmp,optmp2,exptmpp,      &
+!     &       write (lun11,*)'otmp,optmp2',optmp,optmp2,exptmpp,         &
 !     &       sgtp,abund2,ptmp1,ptmp2,xpx,rnist,exptst                   
           endif 
 !                                                                       
@@ -320,9 +335,11 @@
       pirt = pirt + sumr 
       rrrt = rrrt + sumi 
       piht = piht + sumh*ergsev 
+      piht2 = piht2 + sumh2*ergsev 
       rrcl = rrcl + sumc*ergsev 
+      rrcl2 = rrcl2 + sumc2*ergsev 
                                                                         
-      if (lpri.ge.1) write (lun11,*)'in phint53:',eth,pirt,rrrt         &
+      if (lpri.ge.1) write (lun11,*)'in phint53:',eth,pirt,rrrt      &
      &         ,piht,rrcl                                               
       lpri=lprisv 
 !                                                                       

@@ -1,6 +1,6 @@
-      subroutine fstepr2(unit,hdunum,radin,radout,rdel,temp,pres,abel,  &
+      subroutine fstepr2(unit,hdunum,radin,radout,rdel,temp,pres,    &
      &                xcol,xee,xpx,xi,                                  &
-     &                np2,ncsvn,nlsvn,                                  &
+     &                nlsvn,                                            &
      &                rcem,oplin,tau0,                                  &
      &                lun11,lpri,status)                                
 !                                                                       
@@ -40,17 +40,18 @@
 !     Allocation for passed parameters                                  
       real(8) tau0(2,nnnl), rcem(2,nnnl) 
       real(4) rtmp 
-      real(8) radin, radout,rdel, temp, pres,xcol,xee,xpx,xi 
+      real(8) radin, radout,rdel, temp, pres,xcol,xee,xpx,xi
       integer unit,hdunum, nrows, status
 !     line opacities                                                    
       real(8) oplin(nnnl) 
-      real(8) abel(nl) 
                                                                         
 !     Internal work areas                                               
-      real(4) rwrk1(nptmpdim) 
-      integer ntptr(nptmpdim) 
-      character(10) kion(nptmpdim) 
-      character(20) klevl(nptmpdim),klevu(nptmpdim),kblnk20 
+      real(4), dimension(:), allocatable :: rwrk1
+      integer, dimension(:), allocatable :: ntptr
+      character(10), dimension(:), allocatable :: kion
+      character(20), dimension(:), allocatable :: klevl,klevu
+      real(4), dimension(:), allocatable :: elsv
+      character(20) kblnk20 
       integer tfields,varidat 
       character(16) ttype(10),tform(10),tunit(10) 
       integer colnum,frow,felem,hdutype,ll, ltyp 
@@ -58,10 +59,9 @@
       integer jkk, nlev
       integer nlplmx,ln,lnn,ml,nlpl,                                    &
      &         nlines,nlsvn,                                            &
-     &         nilin,mlm,np2,ncsvn
+     &         nilin,mlm
       integer np1i,np1r,np1k 
       real(8) elin
-      real(8) rniss(nd),rnisse(nd) 
       real(8) aij,ergsev,etst,ener,gglo,ggup
       integer idest1,idest2,ilevlo,ilevup,j,ktt,lk 
       character(33) extname 
@@ -71,7 +71,6 @@
 !     Database manipulation quantities                                  
       integer nkdt 
       character(1) kblnk
-      real(4) elsv(nptmpdim) 
                                                                         
       data kblnk/' '/ 
       data kblnk20/'                    '/ 
@@ -85,7 +84,14 @@
                                                                         
       data tunit/' ','A',' ',' ',' ','erg/cm^3/s',                      &
      & 'erg/cm^3/s','/cm',' ',' '/                                      
-                                                                        
+!                                                                        
+      allocate(rwrk1(nptmpdim))
+      allocate(ntptr(nptmpdim))
+      allocate(kion(nptmpdim))
+      allocate(klevl(nptmpdim))
+      allocate(klevu(nptmpdim))
+      allocate(elsv(nptmpdim))
+!
       varidat=0 
 !                                                                       
                                                                         
@@ -125,7 +131,7 @@
 !         get line data                                                 
           ln=lnn 
           ml=derivedpointers%nplin(ln) 
-          mlm=ml-1 
+          mlm=ml 
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -137,7 +143,7 @@
      &       .and.(abs(elin).lt.9.e+9)) then                            
 !                                                                       
             ergsev=1.602197e-12 
-            ener=ergsev*(12398.41)/max(elin,1.e-24) 
+            ener=ergsev*(12398.41)/max(elin,1.d-49) 
             etst=ener/ergsev 
             idest1=masterdata%idat1(np1i) 
             idest2=masterdata%idat1(np1i+1) 
@@ -147,7 +153,7 @@
 !                                                                       
 !           get ion data                                                
             nilin=derivedpointers%npar(ml) 
-            mlm=nilin-1 
+            mlm=nilin 
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -162,8 +168,8 @@
 !           now find level data                                         
             jkk=masterdata%idat1(np1i+nidt-1) 
             if (lpri.ne.0) write (lun11,*)'ion',kinam1,jkk 
-            call func2l(jkk,lpri,lun11,temp,xee,xpx,                    &
-     &              rniss,rnisse,nlev)
+            call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
+     &              nlev)
                                                                         
             ggup=leveltemp%rlev(2,idest1) 
             gglo=leveltemp%rlev(2,idest2) 
@@ -177,7 +183,7 @@
             nlpl=nlpl+1 
             nlpl=min(nlpl,nlplmx) 
             ntptr(nlpl)=lnn 
-            elsv(nlpl)=elin 
+            elsv(nlpl)=sngl(elin) 
             kion(nlpl)=kinam1 
             klevl(nlpl)=klablo 
             klevu(nlpl)=klabup 
@@ -202,7 +208,6 @@
 !                                                                       
         enddo 
                                                                         
-!      if (nlpl.le.0) return                                            
       nlpl=max(nlpl,1) 
 !                                                                       
                                                                         
@@ -234,51 +239,51 @@
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     Write values to 3 decimal places                                  
-      rtmp=radin 
+      rtmp=sngl(radin)
       call ftpkye(unit,'RINNER',rtmp,3,'[cm] Inner shell radius',       &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=radout 
+      rtmp=sngl(radout)
       call ftpkye(unit,'ROUTER',rtmp,3,'[cm] Outer shell radius',       &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=rdel 
+      rtmp=sngl(rdel)
       call ftpkye(unit,'RDEL',rtmp,3,'[cm] distance from face',         &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=temp 
+      rtmp=sngl(temp)
       call ftpkye(unit,'TEMPERAT',rtmp,3,'[10**4K] Shell Temperature',  &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=pres 
+      rtmp=sngl(pres)
       call ftpkye(unit,'PRESSURE',rtmp,3,'[dynes/cm**2] Shell Pressure',&
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xcol 
+      rtmp=sngl(xcol)
       call ftpkye(unit,'COLUMN',rtmp,3,'[/cm**2] Column ',              &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      rtmp=xee 
+      rtmp=sngl(xee)
       call ftpkye(unit,'XEE',rtmp,3,'electron fraction',                &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xpx 
+      rtmp=sngl(xpx)
       call ftpkye(unit,'DENSITY',rtmp,3,'[/cm**3] Density',             &
      & status)                                                          
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
-      rtmp=xi 
+      rtmp=sngl(xi)
       call ftpkye(unit,'LOGXI',rtmp,3,                                  &
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
-                                                                        
+
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
@@ -336,7 +341,7 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
-     &      rwrk1(ll)=rcem(1,ntptr(ll))                                 
+     &      rwrk1(ll)=sngl(rcem(1,ntptr(ll)))                                 
          if (lpri.ne.0) write (lun11,*)ll,ntptr(ll),rwrk1(ll) 
          enddo 
       if (lpri.ne.0)                                                    &
@@ -349,7 +354,7 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
-     &    rwrk1(ll)=rcem(2,ntptr(ll))                                   
+     &    rwrk1(ll)=sngl(rcem(2,ntptr(ll)))                                   
          enddo 
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
@@ -362,7 +367,7 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
-     &    rwrk1(ll)=oplin(ntptr(ll))                                    
+     &    rwrk1(ll)=sngl(oplin(ntptr(ll)))
          enddo 
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
@@ -375,7 +380,7 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
-     &    rwrk1(ll)=tau0(1,ntptr(ll))                                   
+     &    rwrk1(ll)=sngl(tau0(1,ntptr(ll)))                                   
          enddo 
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
@@ -387,7 +392,7 @@
       do ll=1,nlines 
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
-     &    rwrk1(ll)=tau0(2,ntptr(ll))                                   
+     &    rwrk1(ll)=sngl(tau0(2,ntptr(ll)))                                   
          enddo 
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
@@ -400,7 +405,14 @@
       call ftpcks(unit,status) 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-!                                                                       
+!        
+      deallocate(rwrk1)
+      deallocate(ntptr)
+      deallocate(kion)
+      deallocate(klevl)
+      deallocate(klevu)
+      deallocate(elsv)
+                                                               
 !                                                                       
       return 
       end                                           

@@ -32,7 +32,7 @@
 !      lpri=0                                                           
 !                                                                       
 !      if ((efnd.ge.etmpp(1)).and.(efnd.le.etmpp(ntmp))) then           
-      if (lpri.ne.0) write (lun11,*)'in find53:',efnd,ntmp,             &
+      if (lpri.ne.0) write (lun11,*)'in find53:',efnd,ntmp,          &
      &    etmpp(1),etmpp(ntmp),stmpp(1),stmpp(ntmp)                     
       if ((efnd.ge.0.).and.(efnd.le.etmpp(ntmp))) then 
         call hunt3(etmpp,ntmp,efnd,jlo,0,lun11) 

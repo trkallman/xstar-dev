@@ -1,19 +1,17 @@
-      subroutine heatf(jkk,lpri,lun11,                                  &
-     &       t,r,cfrac,delr,xee,xpx,abel,                               &
-     &       epi,ncn2,bremsa,                                           &
-     &       np2,ncsvn,nlsvn,                                           &
-     &       nlev,                                                      &
-     &       brcems,cmp1,cmp2,httot,cltot,hmctot,                       &
-     &             cllines,clcont,htcomp,clcomp,clbrems)                
+      subroutine heatf(lpri,lun11,                                      &
+     &       t,r,delr,xee,xpx,                                          &
+     &       epi,ncn2,                                                  &
+     &       ncsvn,                                                     &
+     &       brcems,cmp1,cmp2,httot,cltot,httot2,cltot2,hmctot,         &
+     &             htcomp,clcomp,clbrems)                
 !                                                                       
 !     Name: heatf.f90  
 !     Description:  
 !           Adds Compton and brems heating, cooling, 
-!           to total rates from func2..
+!           to total rates from calc_rates_level
 !
 !     List of Parameters:
 !     Input:
-!           jkk:  ion number
 !           lpri: print switch, 1=on, 0=off
 !           lun11: logical unit number for printing
 !           t: temperature in 10^4K
@@ -46,7 +44,7 @@
 !           clbrems: total cooling rate due to bremsstrahlung (erg s^-1 cm^-3) 
 !           
 !        Dependencies:  Calls drd
-!        Called by: func
+!        Called by: calc_hmc_all
 !
 !     this routine calculates heating and cooling.                      
 !     author:  T. Kallman                                               
@@ -56,33 +54,26 @@
 !                                                                       
 !     energy bins                                                       
       real(8) epi(ncn) 
-!     continuum flux                                                    
-      real(8) bremsa(ncn) 
 !     state variables                                                   
       real(8) r,t,xpx,delr,delrl 
 !     heating-cooling variables                                         
 !     input parameters                                                  
       real(8) xee 
       integer ncn2,lpri,lun11 
-      integer nlsvn,ncsvn 
-!     level populations                                                 
-      real(8) abel(nl) 
+      integer ncsvn 
       character(1) kblnk 
       real(8) brcems(ncn)
-      real(8) xeltp,cllines,clcont,cmp1,cmp2,cltot,                      &
-     &     hmctot,htcomp,clcomp,clbrems,etst,ekt,                       &
-     &     fac,optpp,optp2,tautmp,cfrac,                                &
-     &     xnx,httot
-      real(8) ener,ergsev,tmpscat
+      real(8) cmp1,cmp2,cltot,                                          &
+     &     hmctot,htcomp,clcomp,clbrems,ekt,                            &
+     &     fac,                                                         &
+     &     xnx,httot,httot2,cltot2
+      real(8) ergsev
       real(8) tmp2,tmp2o 
       integer lskp 
-      integer jk,klel,kl,                                               &
-     &     klion,mlleltp,mllel,mlel,mlion,mt2,nilin,nnz,numcon,         &
-     &     nblin                                                        
-      integer np1i,np1r,np1k,np1ki 
-      integer nlev,nlevmx,mltype,ml,mllz,jkk,ltyp,                      &
-     &     lrtyp,lcon,nrdt,nkdt,lk,kkkl,                                &
-     &     lprisv,mm,nbinc,mlpar,mlm,np2
+      integer kl,                                                       &
+     &    numcon
+      integer                                                           &
+     &     lprisv
 !                                                                       
 !                                                                       
       data kblnk/' '/ 
@@ -92,7 +83,7 @@
 !                                                                       
       xnx=xpx*xee 
       if (lpri.ge.1) lpri=2 
-      if (lpri.gt.1) write (lun11,*)'in heatt',httot,cltot,delr,r 
+      if (lpri.gt.1) write (lun11,*)'in heatf',httot,cltot,delr,r 
       if (lpri.gt.1) write (lun11,*)ncsvn 
       numcon=ncn2 
 !                                                                       
@@ -115,10 +106,12 @@
       clcomp = ekt*cmp2*xnx*ergsev 
       httot=httot+htcomp 
       cltot=cltot+clcomp+clbrems 
-      if (lpri.ge.1) write (lun11,9953)htcomp,clcomp,cmp1,cmp2,         &
+      httot2=httot2+htcomp 
+      cltot2=cltot2+clcomp+clbrems 
+      if (lpri.gt.1) write (lun11,9953)htcomp,clcomp,cmp1,cmp2,         &
      &   clbrems,httot,cltot                                            
       hmctot=2.*(httot-cltot)/(1.e-37+httot+cltot) 
-      if (lpri.ge.1) write (lun11,*)hmctot 
+      if (lpri.gt.1) write (lun11,*)hmctot 
  9953 format (1h , ' compton heating, cooling=',8e12.4) 
       lpri=lprisv 
 !                                                                       

@@ -1,4 +1,4 @@
-      subroutine rstepr(unit,hdunum,radin,radout,rdel,t,prs,            &
+      subroutine rstepr(unit,hdunum,radin,radout,rdel,t,prs,         &
      &             xcol,xee,xpx,xi,                                     &
      &             xilev,rnist,                                         &
      &             lun11,lpri,status)                                   
@@ -62,12 +62,15 @@
       data tunit/' ','ev','/cm',' ',' '/ 
                                                                         
 !                                                                       
-!                                                                       
       if (lpri.ne.0)                                                    &
-     & write (lun11,*)'in rstepr ',hdunum                               
+     & write (lun11,*)'in rstepr ',hdunum,unit,nhdu
 !                                                                       
-                                                                        
+!       try to open the file, to see if it exists                         
+!        blocksize=1
+!        call ftopen(unit,'xo00_detail.fits',1,blocksize,status) 
+!        write (lun11,*)'after ftopen',unit,status                            
       call FTGHDN(unit, nhdu) 
+                                                                        
       if (lpri.ne.0)                                                    &
      & write (lun11,*)'current hdu ',nhdu                               
       call ftmahd(unit,1,hdutype,status) 
@@ -79,7 +82,7 @@
       mm=hdunum 
 !                                                                       
       if (lpri.ne.0)                                                    &
-     & write(lun11,*)'rstepr2: Moving to extension',mm                  
+     & write(lun11,*)'rstepr: Moving to extension',mm                  
       call ftmahd(unit,mm,hdutype,status) 
       if (lpri.ne.0)                                                    &
      & write (lun11,*)unit,mm,hdutype,status                            

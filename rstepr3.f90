@@ -1,4 +1,4 @@
-      subroutine rstepr3(unit,hdunum,radin,radout,rdel,t,prs,           &
+      subroutine rstepr3(unit,hdunum,radin,radout,rdel,t,prs,        &
      &             xcol,xee,xpx,xi,                                     &
      &             cemab,cabab,opakab,tauc,                             &
      &             lun11,lpri,status)                                   
@@ -36,8 +36,6 @@
 !                                                                       
       implicit none 
                                                                         
-      integer nptmpdim 
-      parameter (nptmpdim=500000) 
 !                                                                       
 !     Allocation for passed parameters                                  
       real(4) rtmp 

@@ -50,6 +50,9 @@
       call ftinit(unit,filename,blocksize,status) 
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
+!     try to open the file, to see if it exists                         
+!      call ftopen(unit,filename,1,blocksize,status) 
+!      write (lun11,*)'after ftopen',unit,status                            
 !      if (status .gt. 0)stop                                           
                                                                         
                                                                         
@@ -67,7 +70,7 @@
                                                                         
 !     now add additional keywords                                       
       call ftpcom(unit,'***********************************',status) 
-      call ftpkys(unit,'CREATOR','XSTAR version 2.53',                 &
+      call ftpkys(unit,'CREATOR','XSTAR version 2.56a',                 &
      & 'Program which generated this file',status)                      
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         

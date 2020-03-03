@@ -1,15 +1,17 @@
       subroutine dsec(lnerr,nlim,                                       &
      &       lpri,lppri,lun11,tinf,vturbi,critf,                        &
-     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
      &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       httot2,cltot2,                                             &
      &       xilev,bilev,rnist,                                         &
-     &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,fline,flinel)                            
+     &       rcem,oplin,brcems,opakc,cemab,                             &
+     &       cabab,opakab)                         
 !                                                                       
 !     Name: dsec.f90  
 !     Description:  
@@ -74,7 +76,8 @@
 !           also uses variables from globaldata
 !           
 !           
-!        Dependencies:  Calls func1,func2,func2i,func2l,istruc,
+!        Dependencies:  Calls calc_ion_rates,calc_rates_level,
+!                   calc_num_level,calc_rates_level_lte,istruc,
 !                   msolvelucy,chisq,comp2,bremem,heatf
 !        Called by: xstar, dsec
 !                                                                       
@@ -85,7 +88,6 @@
       real(8) rcem(2,nnnl) 
 !     line opacities                                                    
       real(8) oplin(nnnl) 
-      real(8) fline(2,nnnl),flinel(ncn) 
 !     line optical depths                                               
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
@@ -93,9 +95,9 @@
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
 !     continuum emissivities                                            
-      real(8) rccemis(2,ncn),brcems(ncn) 
+      real(8) brcems(ncn) 
 !     continuum opacities                                               
-      real(8) opakc(ncn),opakcont(ncn)
+      real(8) opakc(ncn)
 !     level populations                                                 
       real(8) xilev(nnml),bilev(nnml),rnist(nnml)
       real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
@@ -104,17 +106,20 @@
       real(8) xii(nni) 
 !     heating and cooling                                               
       real(8) htt(nni),cll(nni) 
+      real(8) htt2(nni),cll2(nni) 
       real(8) rrrt(nni),pirt(nni) 
 !     element abundances                                                
       real(8) abel(nl) 
+!     limits on ion indeces vs element
+      integer mml(nl),mmu(nl)
 !     state variables                                                   
       real(8) p,r,t,xpx,delr 
 !     heating-cooling variables                                         
       real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,          &
-     &     clcont,hmctot                                                
+     &     clcont,hmctot,httot2,cltot2
 !     input parameters                                                  
       real(8) trad,tinf 
-      real(8) cfrac,critf,vturbi,xee 
+      real(8) cfrac,critf,vturbi,xee,zeta
       integer lcdd,ncn2,lpri,lun11,np2,nlim 
 !     variables associated with thermal equilibrium solution            
       integer ntotit 
@@ -196,16 +201,16 @@
      &   nnt,t,tl,th,hmctot,hmcttl,hmctth                               
         call xwrite(tmpst,10) 
         endif 
-      call func(lpri,lun11,vturbi,critf,                                &
-     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
+      call calc_hmc_all(lpri,lun11,vturbi,critf,                        &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
+     &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
      &       cllines,clcont,htcomp,clcomp,clbrems,                      &
-     &       xilev,bilev,rnist,                                         &
-     &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,fline,flinel)                       
+     &       httot2,cltot2,                                             &
+     &       xilev,bilev,rnist)
       if ( lppri.ne.0 ) then 
         write (lun11,99001)                                             &
      &   nnx,xee,xeel,xeeh,elcter,elctrl,elctrh,                        &
@@ -220,7 +225,7 @@
       nnx = nnx + 1 
       nnxx=nnxx+1 
       if (nnxx.ge.nlimxx) go to 300 
-      tst=abs(elcter)/max(1.e-10,xee) 
+      tst=abs(elcter)/max(1.d-48,xee) 
       if (tst.lt.epsx) go to 300 
       if ( elcter.lt.0 ) then 
             ihx = 1 

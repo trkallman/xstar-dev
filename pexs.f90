@@ -1,5 +1,4 @@
-                                                                        
-      subroutine pexs(nmin,kdim,zc,eion,far,gam,scal,                   &
+      subroutine pexs(nmin,kdim,zc,eion,far,gam,scal,                &
      &                e,axs,ierr,lpri,lun11)                            
 !                                                                       
 !     Name:  pexs.f90
@@ -39,7 +38,7 @@
 !                                                                       
       data x,a/nmax*0.,nmax*0./ 
 !                                                                       
-      if (lpri.ne.0) write (lun11,*)'in pexs',nmin,kdim,zc,             &
+      if (lpri.ne.0) write (lun11,*)'in pexs',nmin,kdim,zc,          &
      &        eion,far,gam,scal                                         
 !                                                                       
       ierr=0 

@@ -16,13 +16,13 @@
 !        par=array of coefficients, length 9
 !        coll_type=interpolation type
 !     Called by:  calc_maxwell_rates
-!     Dependencies: exint_n
+!     Dependencies: exintn
 !
 !             
       real(8) result 
       real(8) dE, kT 
       real(8) A, B, C, D, E, P, Q, X1 
-      real(8) y,exint_n
+      real(8) y,exintn
       real(8) E1y, E1Xy 
       real(8) ups_nr, ups_r 
       real(8) term1, term2, term3 
@@ -53,7 +53,7 @@
       if (coll_type.eq.3) go to 3
     1   continue 
 !        case (1):  /* Simple case (eq 6, in above reference) */        
-          E1y = exint_n(y,-1.d0,1) 
+          E1y = exintn(y,-1.d0,1) 
           term1 = A/y + C + (D/2)*(1-y) 
           term2 = B - C*y + (D/2)*y*y + E/y 
           result = y*(term1 + exp(y)*E1y*term2) 
@@ -61,7 +61,7 @@
                                                                         
     2     continue 
 !        case (2):  /* More complex case (eq 10-12 in above reference) *
-          E1Xy = exint_n(X1*y,-1.d0,1) 
+          E1Xy = exintn(X1*y,-1.d0,1) 
           term3 = exp(y*(1-X1)) 
                                                                         
           term1 = A/y + C/X1 + (D/2)*(1/(X1*X1) - y/X1) + (E/y)*log(X1) 
