@@ -282,7 +282,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-      write (tmpst,*)'xstar version 2.56a' 
+      write (tmpst,*)'xstar version 2.56a test change' 
       call xwrite(tmpst,10) 
 !                                                                       
 !     default parameter values                                          
