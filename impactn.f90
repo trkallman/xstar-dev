@@ -38,7 +38,7 @@
       integer inc,jm,j 
 !                                                                       
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in impactn:',n,m,temp,ic,amn                     
       cmm=0. 
       xm=157888.*float(ic*ic)/temp/float(m*m) 
@@ -61,7 +61,7 @@
       b=10. 
       ev=abs(ecm)/8065.48 
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)xm,tk,ecm,ecm3,psi,po,ev                          
 !                                                                       
 ! strong coupling                                                       
@@ -72,7 +72,7 @@
       call impcfn(b,xsi,phi) 
       w=float(ic)*rm*ev/(b)*sqrt(2.*(xsi)*psi) 
       wi=w+ecm/8065.48/2. 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in 20 loop:',j,b,xsi,phi,w,wi                    
       if(wi/tk.ge.100.) go to 13 
       if(wi.le.0.) go to 20 
@@ -94,7 +94,7 @@
       if(cr.lt.1.e-20) go to 20 
       fi=ff 
       wo=wi 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'weak coupling:',bo,xsw,phw,ff,crinc,cr           
       if((crinc/cr.lt.1.e-5).and.(crinc.gt.1.e-7)) go to 13 
 !                                                                       
@@ -103,7 +103,7 @@
    13     cr=6.900e-5*z1*z1*sqrt(rm/temp)*psi*cr/tk 
       cmm=cr*m*m*exp(xm) 
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'done with impactn:',cr,cmm                       
 !                                                                       
       return 

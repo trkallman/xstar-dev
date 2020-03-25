@@ -2,6 +2,10 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+<<<<<<< HEAD
+     &       leveltemp,                                                 &
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xilevg,bilevg,rnisg,                                   &
@@ -73,6 +77,16 @@
       use globaldata
       implicit none 
 !                                                                       
+<<<<<<< HEAD
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
 !     line opacities                                                    
@@ -108,7 +122,13 @@
       integer ml_element_data_type,ml_element                    
       integer np1ki,nkdti,ml_ion,ml_ion_data_type,ml_element_test
       integer ipmatmax
+<<<<<<< HEAD
+      real(8) sigth,xnx
+!                      
+      data sigth/6.65e-25/                                                 
+=======
 !                                                                       
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !            
       lprisv=lpri 
       if (lpri.ge.1)                                                    &
@@ -132,8 +152,16 @@
        do ll=1,ncn2 
          rccemis(1,ll)=0. 
          rccemis(2,ll)=0. 
+<<<<<<< HEAD
+!         opakc(ll)=0. 
+!         opakcont(ll)=0. 
+!        now include thomson
+         opakc(ll)=xnx*sigth*max(0.d0,1.-cfrac)
+         opakcont(ll)=xnx*sigth*max(0.d0,1.-cfrac)
+=======
          opakc(ll)=0. 
          opakcont(ll)=0. 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
          enddo 
 !
 !
@@ -220,7 +248,11 @@
                   enddo
                 if (lpri.ge.1) then 
                   call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,   &
+<<<<<<< HEAD
+     &                                      leveltemp,nlev)
+=======
      &                                      nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                   write (lun11,*)'jkk=',jkk
                   write (lun11,*)'after calc_rates_level_lte nlev=',nlev
                   write (lun11,*)'nlev,ipmat=',nlev,ipmat
@@ -257,6 +289,10 @@
      &       vturbi,critf,t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,      &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+<<<<<<< HEAD
+     &                   leveltemp,                                     &
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xileve,bileve,rnise,ipmat,                             &

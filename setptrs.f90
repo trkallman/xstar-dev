@@ -192,7 +192,11 @@
 !  register element record                                              
 !     npfirst,npnxt,npar,mlold                                          
                                                                         
+<<<<<<< HEAD
+          if (lpri.gt.0) write (lun11,*)'npfirst(11):',                 &
+=======
           if (lpri.ne.0) write (lun11,*)'npfirst(11):',                 &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       derivedpointers%npfirst(11),                               &
      &          indx,mlold(11)                                         
           if (derivedpointers%npfirst(11).eq.0) then 

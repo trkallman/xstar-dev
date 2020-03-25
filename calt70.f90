@@ -110,7 +110,11 @@
            in=1
           endif
         if (rte.lt.tmin.or.rte.gt.tmax) then 
+<<<<<<< HEAD
+          if (lpri.gt.0) then
+=======
           if (lpri.ne.0) then
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
             write (lun11,*)'TEMPERATURE OUT OF RANGE' 
             write (lun11,*)'z=',ic,' temp=',temp,' Tmin=',10.**tmin,    &
      &     ' Tmax=',10.**tmax                                           

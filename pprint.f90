@@ -216,6 +216,14 @@
       integer nptmpdim 
       parameter (nptmpdim=400000) 
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+!
 !     line luminosities                                                 
       real(8) elum(3,nnnl) 
 !     line emissivities                                                 
@@ -645,7 +653,11 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -976,7 +988,11 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -1493,7 +1509,11 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
           lpri=0
           call deleafnd(jkk,idest2,delea,lfnd,lpri,lun11)           
           delearad=6.6262e-27*aij/6.28/1.602197e-12
@@ -2114,7 +2134,11 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2127,7 +2151,7 @@
           ilevup=idest2 
 !                                                                       
           j=ln 
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,9929)j,elin,kinam1,                          &
      &        (leveltemp%klev(mm,ilevlo),mm=1,20),                      &
      &        (leveltemp%klev(mm,ilevup),mm=1,20),                      &
@@ -2225,7 +2249,11 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2237,7 +2265,7 @@
           ilevlo=idest1 
           ilevup=idest2 
 !                                                                       
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,9929)j,elin,kinam1,                          &
      &        (leveltemp%klev(mm,ilevlo),mm=1,20),                      &
      &        (leveltemp%klev(mm,ilevup),mm=1,20),                      &
@@ -2314,7 +2342,11 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -2527,7 +2559,11 @@
 !               get level data                                          
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 

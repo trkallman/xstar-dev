@@ -1,5 +1,9 @@
       subroutine writespectra4(lun11,lpri,nparms,parname,partype,parval,&
      &       parcomm,atcredate,epi,ncn2,dpthc,abel,                     &
+<<<<<<< HEAD
+     &       leveltemp,                                                 &
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       np2,                                                       &
      &       elumab,tauc,kmodelname,nloopctl)                   
 !                                                                       
@@ -46,6 +50,13 @@
       integer ncn2 
 !                                                                       
 !     passed parameters                                                 
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
       character(30) kmodelname 
       integer nparms, nloopctl, lun11 
       character(20) parname(55) 

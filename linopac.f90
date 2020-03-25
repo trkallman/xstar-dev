@@ -299,7 +299,7 @@
 !                                                                       
 !         norm check                                                    
 !          rnormchk=ewsv(nlsv)/optpp/dele/(1.e-34+delr)                 
-!          if (lpri.ne.0) write (lun11,*)'norm check',nilin,elin,optpp, 
+!          if (lpri.gt.0) write (lun11,*)'norm check',nilin,elin,optpp, 
 !     $          dele,aasmall,ewsv(nlsv),rnormchk                       
 !                                                                       
 !       end of test for fast calculation                                

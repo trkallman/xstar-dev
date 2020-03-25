@@ -101,7 +101,7 @@
       if (status .gt. 0)call printerror(lunlog,status) 
       nlyc=nbinc(13.7d0,epi,ncn2) 
       nry=nlyc+1 
-      if (lpri.ne.0) write (lunlog,*)'in savd',rdel,t,tauc(1,25),       &
+      if (lpri.gt.0) write (lunlog,*)'in savd',rdel,t,tauc(1,25),       &
      &                ldir,dpthc(1,nry),dpthc(2,nry)                    
 !                                                                       
       return 

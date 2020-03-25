@@ -61,7 +61,11 @@
        cii=const*sqrt(tt)*(rn**5)/(rz**4)*an*yy* (                      &
      &   e1/rn-(exp(-yy)-yy*e3)/(3.*rn)+(yy*e2-2.*yy*e1+exp(-yy))*      &
      &   3.*hn/rn/(3.-rrn)+(e1-e2)*3.36*yy)                             
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)'in szirc',nn,t,rz,rno,an,hn,    &
+=======
       if (lpri.ne.0) write (lun11,*)'in szirc',nn,t,rz,rno,an,hn,    &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &  rrn,tt,rn,yy,e1,e2,e3,cii                                       
 !                                                                       
 !       write (lun11,*)YY,1./yy,cii                                     

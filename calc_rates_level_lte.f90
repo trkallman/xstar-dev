@@ -1,5 +1,9 @@
       subroutine calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,         &
+<<<<<<< HEAD:calc_rates_level_lte.f90
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a:calc_rates_level_lte.f90
 !                                                                       
 !     Name: calc_rates_level_lte.f90  
 !     Description:  
@@ -33,6 +37,13 @@
       implicit none 
 !                                                                       
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
       integer np1i,np1r,np1k 
       character(1) kblnk 
 !                                                                       

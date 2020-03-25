@@ -117,7 +117,7 @@
 !                                                                       
       kl=nb1 
       epii=epi(kl) 
-      if (lpri.ne.0) write (lun11,*)'kl=',kl,klmax,sumh,sumho 
+      if (lpri.gt.0) write (lun11,*)'kl=',kl,klmax,sumh,sumho 
       do while ((kl.lt.klmax)                                           &
      &    .and.(abs(sumh/(sumho+1.e-24)-1.).gt.1.e-6))                  
 !                                                                       

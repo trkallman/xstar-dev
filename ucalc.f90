@@ -1,10 +1,15 @@
+<<<<<<< HEAD
+      subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,cfrac,         &
+=======
       subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,cfrac,      &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &   nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,                       &
      &   ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,               &
      &   abund1,abund2,ptmp1,ptmp2,xpx,opakab,                          &
      &   opakc,opakcont,rccemis,lpriu,kdesc2,                           &
      &   rr,delr,t,trad,tsq,xee,xh1,xh0,                                &
      &   epi,ncn2,bremsa,bremsint,                                      &
+     &       leveltemp,                                                 &
      &   rniss,rnisse,nlev,lfast,lun11,                                 &
      &   np2,ncsvn,nlsvn)                
 !                                                                       
@@ -79,6 +84,16 @@
       integer nptmpdim 
       parameter (nptmpdim=max(10000,ncn)) 
 !
+<<<<<<< HEAD
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       character(49) kdesc(ntyp),kdesc2 
       character(29) krdesc(ntyp) 
       real(8) epi(ncn) 
@@ -284,9 +299,6 @@
                                                                         
       javir=trad 
 !      trad=javir                                                       
-      javi=leveltemp%nlpt(1) 
-      javi=leveltemp%iltp(1) 
-!      javik=leveltemp%klev(1,1)                                                  
       javi=nlsvn 
 !      nlsvn=javi                                                       
       javi=derivedpointers%npcon(1) 
@@ -603,8 +615,8 @@
       lprisv=lpri 
       if (lpri.gt.1) write(lun11,*)'ltyp=15',ml,derivedpointers%npar(ml) 
 !      if (lpri.gt.1) write (lun11,*)(rdat1(np1r-1+jj),jj=1,nrdt)       
-!      if (lpri.ne.0) write (lun11,*)(idat1(np1i-1+jj),jj=1,nidt)       
-!      if (lpri.ne.0) write (lun11,*)(kdat1(np1k-1+jj),jj=1,nkdt)       
+!      if (lpri.gt.0) write (lun11,*)(idat1(np1i-1+jj),jj=1,nidt)       
+!      if (lpri.gt.0) write (lun11,*)(kdat1(np1k-1+jj),jj=1,nkdt)       
       if (ml.le.0) go to 9000 
       nilin=derivedpointers%npar(ml) 
       if (nilin.le.0) go to 9000 
@@ -1368,7 +1380,7 @@
 !     $  call linopac(lpri,lun11,opakab,rcem1,rcem2,elin,vturb,t,a,     
 !     $               delea,epi,ncn2,opakc,rccemis,
 !     $               lfasto)                                           
-!      if (lpri.ne.0)                                                   
+!      if (lpri.gt.0)                                                   
 !     $ write (lun11,*)'ltyp=34',idest1,idest2,elin,flin,ggup,gglo,     
 !     $                         a,aij,hij,pi                            
       go to 9000 
@@ -1610,7 +1622,11 @@
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=nlevp+max(0,masterdata%idat1(np1i-1+nidt-3))-1 
       if (indonly.eq.1) return
+<<<<<<< HEAD
+      if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp
+=======
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
@@ -1903,7 +1919,11 @@
       eij=eijry*13.605692 
       elin=12398.41/eij 
       hij=elin*1.d-8 
+<<<<<<< HEAD
+!      if (lpri.gt.0)                                                   
+=======
 !      if (lpri.ne.0)                                                   
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     $ write (lun11,*)'type 51 data:',elin                             
       if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
@@ -2570,7 +2590,7 @@
       go to 60 
 !                                                                       
    63 continue 
-!      if (lpri.ne.0) write (lun11,*) 'type 63 data not implemented'    
+!      if (lpri.gt.0) write (lun11,*) 'type 63 data not implemented'    
 !      go to 9000                                                       
       lpril=0 
 !      if (lpri.ge.1) lpril=2                                           
@@ -3164,7 +3184,7 @@
 !     Autoinization rates (in s^-1) for satellite lvls                  
 !        now including final ion stage                                  
       lpril=0 
-!      if (lpri.ne.0) lpril=2                                           
+!      if (lpri.gt.0) lpril=2                                           
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-2)+nlev-1 
@@ -3431,7 +3451,7 @@
       ekt=0.861707*t 
       delt=wav/ekt 
       lprit=0 
-!      if (lpri.ne.0) lprit=1                                           
+!      if (lpri.gt.0) lprit=1                                           
       temp=t*1.e+4 
 !      temp=max(temp,(1.e+4)*12398.54/elin/(0.861707)/50.)              
       temp=max(temp,2.8777e+6/wav) 
@@ -4364,7 +4384,7 @@
 !     Autoinization rates (in s^-1) for satellite lvls                  
 !        from safranova in kato et al. 1997 atndt 67 225                
       lpril=0 
-!      if (lpri.ne.0) lpril=2                                           
+!      if (lpri.gt.0) lpril=2                                           
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-2)+nlev-1 

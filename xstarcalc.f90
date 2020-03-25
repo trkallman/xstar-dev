@@ -3,6 +3,7 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
@@ -95,6 +96,13 @@
       use globaldata
       implicit none 
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
 !     global xstar data
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
@@ -151,6 +159,7 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
@@ -162,10 +171,15 @@
      &       cabab,opakab)                         
         endif 
 !                                                                       
+<<<<<<< HEAD
+!      lpri2=-1
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       call calc_hmc_all(lpri2,lun11,vturbi,critf,                       &
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
@@ -176,6 +190,7 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xilevg,bilevg,rnisg,                                   &

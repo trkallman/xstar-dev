@@ -44,7 +44,7 @@
       character(1) kdat(nptmpdim) 
 !!                                                                      
       lprisv=lpri 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in dprint, np2=',np2                             
       if (np2.ge.ndat2) then 
           write (6,*) 'data index error' 
@@ -60,7 +60,7 @@
       masterdata%nptrs(8,np2)=np1r 
       masterdata%nptrs(9,np2)=np1i 
       masterdata%nptrs(10,np2)=np1k 
-      if (lpri.ne.0) then 
+      if (lpri.gt.0) then 
         write (lun11,*)'in dprint:',np2,ltyp,lrtyp,lrdat,lidat,lkdat 
         write (lun11,*)'          ',lcon,np1r,np1i,np1k 
         endif 

@@ -30,7 +30,7 @@
       real(8)  z8(30),a8(30),x8(31) 
       integer mm,nnzp1,ill 
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'ion rates:',nnz                                  
       do mm=1,nnz 
           z8(mm)=dble(zeff(mm)) 
@@ -45,7 +45,11 @@
       do mm=1,nnz 
           xitp(mm)=(x8(mm)) 
           xisum=xisum+xitp(mm) 
+<<<<<<< HEAD
+          if (lpri.gt.0)                                                &
+=======
           if (lpri.ne.0)                                                &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &     write (lun11,9901)mm,zeff(mm),alpha(mm),xitp(mm)
  9901     format (1x,i4,3(1pe11.3)) 
           enddo 

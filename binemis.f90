@@ -131,7 +131,7 @@
      &          0,lun11)                                          
         aatmp=masterdata%rdat1(np1r+1) 
         elmmtpp=(elum(2,ln)+elum(1,ln))/2. 
-        if ((lpri.ne.0))                                                &
+        if ((lpri.gt.0))                                                &
      &     write (lun11,*)ln,elin,elmmtpp,nilin,nelin,egam,             &
      &      lup,aatmp,ln,nnnl,eliml,elimh,ltyp                                           
         if (((ln.gt.0).and.(ln.le.nnnl))                                &
@@ -149,7 +149,7 @@
 !          ilsv(nlsv)=ln 
 !          ewsv(nlsv)=-elmmtpp/max(1.e-34,zremsz(nbtmp)) 
 !          elsv(nlsv)=elmmtpp 
-!          if (lpri.ne.0)                                                &
+!          if (lpri.gt.0)                                                &
 !     &      write (lun11,*)'nlsv,ilsv(nlsv),elsv(nlsv):',               &
 !     &                       nlsv,ilsv(nlsv),elsv(nlsv)                 
 !                                                                       
@@ -159,7 +159,7 @@
           call drd(ltyp,lrtyp,lcon,                                     &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp,                    &
      &          0,lun11)                                          
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.0)                                                &
      &      write (lun11,*)'searching for ion'                          
           do while ((masterdata%idat1(np1i-1+nidt).ne.nilin)            &
      &          .and.(iion.lt.nni)) 
@@ -168,14 +168,14 @@
             call drd(ltyp,lrtyp,lcon,                                   &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,nitmp,                    &
      &          0,lun11)                                          
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
     &        write (lun11,*)iion,masterdata%idat1(np1i-1+nidt),         &
     &             nilin,nitmp        
             enddo 
           ndtmp=derivedpointers%npfi(41,iion) 
           delea=0. 
           if (ndtmp.gt.0) then 
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,*)'  found ion',lup,ndtmp                    
             mllz=derivedpointers%npar(ndtmp) 
             call drd(ltyp2,lrtyp2,lcon2,                                &
@@ -189,7 +189,7 @@
      &           nrdt,np1r,nidt,np1i2,nkdt,np1k,ndtmp,                  &
      &          0,lun11)                                          
               iltmp=masterdata%idat1(np1i2+1) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &           write (lun11,*)'   ',iltmp,ndtmp                 
               ndtmp=derivedpointers%npnxt(ndtmp) 
               mlpar=0 
@@ -256,7 +256,11 @@
           ml1min=ncn+1 
           ml1max=0 
           ml2=int(nbtpp/2)
+<<<<<<< HEAD
+          if (lpri.gt.0) write (lun11,*)'ncut=',ncut,deleused,deletpp,  &
+=======
           if (lpri.ne.0) write (lun11,*)'ncut=',ncut,deleused,deletpp,  &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                                    deleepi                       
 !                                                                       
 !         calculate profile at continuum bin closest to line center     

@@ -1,4 +1,5 @@
-      subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,lun11)    
+      subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,             &
+     &     leveltemp,lun11)    
 !                                                                       
 !     Name: levwk.f90  
 !     Description:  
@@ -28,6 +29,13 @@
       implicit none 
 !                                                                       
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
       real(8) rniss(nd),rnisse(nd) 
       real(8) ergsev,bk,t,bktm,q2,rs,ethion,emltlv,                      &
      &     eexlv,ethsht,explev2,bb,expo                                 

@@ -89,7 +89,7 @@
    40  gl(1)=0. 
       gu(1)=2.*log(gu(1))-log(4.)                                       &
      &      -5.*log(1.+r)-2.*log(fn)                                    
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in gull1:',r,fn,gu(1),gu(2),gl(1),gl(2)          
 ! converts results to single precision to give in retudn                
        do l=1,100 

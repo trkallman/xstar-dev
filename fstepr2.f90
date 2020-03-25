@@ -37,6 +37,13 @@
       integer nptmpdim 
       parameter (nptmpdim=500000) 
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
 !     Allocation for passed parameters                                  
       real(8) tau0(2,nnnl), rcem(2,nnnl) 
       real(4) rtmp 
@@ -96,13 +103,13 @@
 !                                                                       
                                                                         
 !     Move to the last HDU (hdunum) in the file                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Moving to end-of-FITS file'              
       call ftmahd(unit,hdunum,hdutype,status) 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     append a new empty extension after the last HDU                   
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Create the new extension'               
       call ftcrhd(unit,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -111,11 +118,11 @@
 !                                                                       
 !     Extracting data from the Atomic Database here                     
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)' '                                               
 !                                                                       
 !     print important lines                                             
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'emission line luminosities (erg/sec/10**38))',   &
      &                 nlsvn                                            
          nlplmx=nptmpdim 
@@ -135,7 +142,7 @@
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
-          if (lpri.ne.0) write (lun11,*)ln,ml,masterdata%rdat1(np1r) 
+          if (lpri.gt.0) write (lun11,*)ln,ml,masterdata%rdat1(np1r) 
 !                                                                       
 !         exclude rate type 14                                          
           elin=abs(masterdata%rdat1(np1r)) 
@@ -148,7 +155,7 @@
             idest1=masterdata%idat1(np1i) 
             idest2=masterdata%idat1(np1i+1) 
             aij=masterdata%rdat1(np1r+2) 
-            if (lpri.ne.0) write (lun11,*)'line data',elin,ener,etst,   &
+            if (lpri.gt.0) write (lun11,*)'line data',elin,ener,etst,   &
      &                       idest1,idest2,aij                          
 !                                                                       
 !           get ion data                                                
@@ -167,9 +174,15 @@
 !                                                                       
 !           now find level data                                         
             jkk=masterdata%idat1(np1i+nidt-1) 
+<<<<<<< HEAD
+            if (lpri.gt.0) write (lun11,*)'ion',kinam1,jkk 
+            call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
+     &              leveltemp,nlev)
+=======
             if (lpri.ne.0) write (lun11,*)'ion',kinam1,jkk 
             call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                                                                         
             ggup=leveltemp%rlev(2,idest1) 
             gglo=leveltemp%rlev(2,idest2) 
@@ -188,7 +201,7 @@
             klevl(nlpl)=klablo 
             klevu(nlpl)=klabup 
             j=ln 
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,9929)j,elin,kinam1,                          &
      &        (leveltemp%klev(mm,ilevlo),mm=1,20),                      &
      &        (leveltemp%klev(mm,ilevup),mm=1,20),                      &
@@ -198,7 +211,7 @@
      &         mm=1,3)
  9929       format (1h ,i9,1pe13.5,1x,a9,1x,2(20a1,1x),6(1pe13.5),      &
      &          6i6)                                                    
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &       write (lun11,*)j,elin,oplin(j),rcem(1,j),                  &
      &                      rcem(2,j)                                   
 !                                                                       
@@ -215,20 +228,20 @@
 !----------------------------------------------------------------       
 !     define parameters for the binary table (see the above data stateme
       nrows=nlpl 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'before header write'                             
       tfields=10 
 !     Build extension name                                              
       extname='XSTAR_RADIAL' 
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Write table headers'                    
 !     write the required header parameters for the binary table         
       call ftphbn(unit,nrows,tfields,ttype,tform,tunit,extname,         &
      &              varidat,status)                                     
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Add some more keywords'                 
                                                                         
 !     Write some model parameters in the extension header               
@@ -284,7 +297,11 @@
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
 
+<<<<<<< HEAD
+      if (lpri.gt.0)                                                    &
+=======
       if (lpri.ne.0)                                                    &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
 !     Step through the columns and write them to the file               
@@ -296,7 +313,7 @@
                                                                         
 !     column  1  (Line number)                                          
       colnum=1 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum,nlpl             
       nlines=nlpl 
       call ftpclj(unit,colnum,frow,felem,nlines,ntptr,status) 
@@ -305,7 +322,7 @@
                                                                         
 !     column  2  (wavelength)                                           
       colnum=2 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,elsv,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -314,7 +331,7 @@
                                                                         
 !     column  3  (Ion)                                                  
       colnum=3 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum                  
       call ftpcls(unit,colnum,frow,felem,nlines,kion,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -322,14 +339,14 @@
                                                                         
 !     column  4 (lower Level Designation)                               
       colnum=4 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
       call ftpcls(unit,colnum,frow,felem,nlines,klevl,status) 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     column  5 (Level Designation)                                     
       colnum=5 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum                  
       call ftpcls(unit,colnum,frow,felem,nlines,klevu,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -342,9 +359,13 @@
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
      &      rwrk1(ll)=sngl(rcem(1,ntptr(ll)))                                 
+<<<<<<< HEAD
+         if (lpri.gt.0) write (lun11,*)ll,ntptr(ll),rwrk1(ll) 
+=======
          if (lpri.ne.0) write (lun11,*)ll,ntptr(ll),rwrk1(ll) 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
          enddo 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -356,7 +377,7 @@
          if (ntptr(ll).ne.0)                                            &
      &    rwrk1(ll)=sngl(rcem(2,ntptr(ll)))                                   
          enddo 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -369,7 +390,7 @@
          if (ntptr(ll).ne.0)                                            &
      &    rwrk1(ll)=sngl(oplin(ntptr(ll)))
          enddo 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -382,7 +403,7 @@
          if (ntptr(ll).ne.0)                                            &
      &    rwrk1(ll)=sngl(tau0(1,ntptr(ll)))                                   
          enddo 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -394,7 +415,7 @@
          if (ntptr(ll).ne.0)                                            &
      &    rwrk1(ll)=sngl(tau0(2,ntptr(ll)))                                   
          enddo 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr2: Writing Column ',colnum                 
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 

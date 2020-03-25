@@ -39,7 +39,11 @@
       real(8) ez 
       integer lpri,lun11 
 !                                                                       
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)'in irc',                        &
+=======
       if (lpri.ne.0) write (lun11,*)'in irc',                        &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & n,t,rc,rno                                                       
                                                  ! mab                  
       if(rc.ne.1.) then 
@@ -79,7 +83,11 @@
       ez=exp(-rn)*(1.+1./zn-ez*(2./zn+1.)) 
       se=se+(bn-an*log(2.*n*n/xo))*(ey-ez) 
       se=se*sqrt(t)*yn*yn*n*n*1.095e-10/xo 
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)'in irc',                        &
+=======
       if (lpri.ne.0) write (lun11,*)'in irc',                        &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & xo,yn,an,bn,rn,zn,ey,ez,se                                       
 !      cii=se*n*n                                                       
 ! mab                                                                   

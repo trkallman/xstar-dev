@@ -82,17 +82,17 @@
 !
       varidat=0 
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in fstepr4 input hdu',hdunum                     
 !                                                                       
 !     Move to the last HDU (hdunum) in the file                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Moving to end-of-FITS file'              
       call ftmahd(unit,hdunum,hdutype,status) 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
 !     append a new empty extension after the last HDU                   
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr4: Create the new extension'               
       call ftcrhd(unit,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -107,20 +107,20 @@
 !----------------------------------------------------------------       
 !     define parameters for the binary table (see the above data stateme
       nrows=ncn2 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'before header write'                             
       tfields=12
 !     Build extension name                                              
       extname='XSTAR_RADIAL' 
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr4: Write table headers'                    
 !     write the required header parameters for the binary table         
       call ftphbn(unit,nrows,tfields,ttype,tform,tunit,extname,         &
      &              varidat,status)                                     
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'fstepr4: Add some more keywords'                 
                                                                         
 !     Write some model parameters in the extension header               
@@ -176,7 +176,7 @@
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
 !     Step through the columns and write them to the file               
@@ -191,7 +191,7 @@
                                                                         
 !     column  1  (continuum index)                                      
       colnum=1 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       nlines=ncn2 
       call ftpclj(unit,colnum,frow,felem,nlines,ntptr,status) 
@@ -203,7 +203,7 @@
 !                                                                       
 !     column  2 energy                                                  
       colnum=2 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -225,7 +225,7 @@
         enddo 
 !                                                                       
       colnum=8 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -237,7 +237,7 @@
         enddo 
 !                                                                       
       colnum=9 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -249,7 +249,7 @@
         enddo 
 !                                                                       
       colnum=10
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -262,7 +262,7 @@
 !                                                                       
 !     column  11 depth forward                                           
       colnum=11 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 
@@ -275,7 +275,7 @@
 !                                                                       
 !     column  12 depth backward                                          
       colnum=12
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr4: Writing Column ',colnum                  
       call ftpcle(unit,colnum,frow,felem,nlines,rwrk1,status) 
       if (status .gt. 0)call printerror(lun11,status) 

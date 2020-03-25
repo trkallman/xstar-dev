@@ -48,7 +48,7 @@
       integer llk,i,lind
       real(8) delr,dpthmx,optpp,dpthtmp,dpthtmpcont
 !                                                                       
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in stpcut:',delr,nlsvn                           
 !                                                                       
       do llk=1,ncn2 
@@ -56,7 +56,11 @@
         enddo 
 !                                                                       
 !     calculate continuum depths                                        
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)'calculating depths in stpcut' 
+=======
       if (lpri.ne.0) write (lun11,*)'calculating depths in stpcut' 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       lind=1 
       if (ldirt.gt.0) lind=2 
       dpthmx=0. 
@@ -66,7 +70,7 @@
          optpp=min(optmp(i),1.e+3/(1.e-24+delr)) 
          dpthtmp=(opakc(i)+optpp)*delr 
          dpthtmpcont=opakcont(i)*delr
-         if (lpri.ne.0) write (lun11,*)i,epi(i),opakc(i),optmp(i),      &
+         if (lpri.gt.0) write (lun11,*)i,epi(i),opakc(i),optmp(i),      &
      &        dpthc(lind,i),dpthtmp                                     
          dpthc(lind,i) = dpthc(lind,i) + dpthtmp 
          dpthcont(lind,i) = dpthcont(lind,i) + dpthtmpcont
@@ -78,16 +82,16 @@
 !     calculate line depths                                             
       do  i = 1,nlsvn 
          tau0(lind,i) = tau0(lind,i) + oplin(i)*delr 
-         if (lpri.ne.0)                                                 &
+         if (lpri.gt.0)                                                 &
      &    write (lun11,*)i,lind,oplin(i),delr,tau0(lind,i)              
          enddo 
 !                                                                       
 !     calculate level depths                                            
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in stpcut:',delr,lind                            
       do i = 1,ncsvn 
          tauc(lind,i) = tauc(lind,i) + opakab(i)*delr 
-         if (lpri.ne.0)                                                 &
+         if (lpri.gt.0)                                                 &
      &    write (lun11,*)i,opakab(i),tauc(lind,i)                       
          enddo 
 !                                                                       

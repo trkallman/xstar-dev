@@ -65,6 +65,16 @@
       use globaldata
       implicit none 
 !
+<<<<<<< HEAD
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
         integer nel(30)                                                         
       integer nion(500)                                                       
       integer, allocatable, dimension(:) :: idat ! integer data
@@ -669,7 +679,11 @@
                 xpx=1. 
                 lpril=0 
                 call calc_rates_level_lte(jkk,lprid,lun11,t,xee,xpx,    &
+<<<<<<< HEAD
+     &              leveltemp,nlev)
+=======
      &              nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 
@@ -1114,7 +1128,11 @@
               derivedpointers%npnxt(ml)=0 
               enddo 
 !          first step through and find all the elements                 
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the element pointers:'                      
            nenxt=0 
            mlo=0 
@@ -1138,14 +1156,22 @@
                     endif 
                  mlo=ml 
                  nemap(nenxt2)=nenxt 
+<<<<<<< HEAD
+                 if (lpri.gt.0)                                         &
+=======
                  if (lpri.ne.0)                                         &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            write (lun11,*)ml,nenxt,mlo                           
                  nel(nenxt)=ml 
                  endif                                                 
                endif 
              enddo 
 !          next step through and put in the ion pointers:               
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the ion pointers:'                          
            ninxt=0 
            do ml=1,np2 
@@ -1168,21 +1194,35 @@
                  nion(ninxt)=ml 
                  nimap(ninxt2)=ninxt 
                  derivedpointers%npar(ml)=nel(netmp) 
+<<<<<<< HEAD
+                 if (lpri.gt.0)                                         &
+=======
                  if (lpri.ne.0)                                         &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            write (lun11,*)ml,ninxt,netmp,nel(netmp)              
                  endif 
                endif 
              enddo 
+<<<<<<< HEAD
+            if (lpri.gt.0) then 
+=======
             if (lpri.ne.0) then 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
               write (lun11,*)'the ion map:' 
               do mm1=1,168 
                  write (lun11,*)mm1,nimap(mm1) 
                  enddo 
               endif 
 !          next step through and put in pointers for others             
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+     &      write (lun11,*)'the other pointers:'                        
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
      &      write (lun11,*)'the other pointers:'                        
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'np2=',np2                                   
            do ml=1,np2 
              lrtyp=masterdata%nptrs(3,ml) 
@@ -1198,7 +1238,11 @@
                    if (nimap(ninxt).gt.0) then 
 !                     write (lun11,*)nion(nimap(ninxt))                 
                      derivedpointers%npar(ml)=nion(nimap(ninxt)) 
+<<<<<<< HEAD
+                     if (lpri.gt.0)                                     &
+=======
                      if (lpri.ne.0)                                     &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                write (lun11,*)ml,ltyp,lrtyp,lidat,ninxt,         &
      &                nion(nimap(ninxt)),derivedpointers%npar(ml)                       
                      endif 
@@ -1207,7 +1251,11 @@
                endif 
              enddo 
 !          now the next pointers                                        
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'filling next pointers'                      
            ml=0 
  1289        ml=ml+1 
@@ -1223,7 +1271,11 @@
              if ((lrtyp.ne.0).and.(derivedpointers%npar(ml).ne.0))      &
      &             then                                                 
                mltyp=mlold(lrtyp) 
+<<<<<<< HEAD
+               if (lpri.gt.0)                                           &
+=======
                if (lpri.ne.0)                                           &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &          write (lun11,*)ml,mlo,lrtyp,mltyp,masterdata%nptrs(4,ml)           
                if (mltyp.ne.0) then 
                  derivedpointers%npnxt(mltyp)=mlo 
@@ -1260,7 +1312,11 @@
              enddo 
  9812        continue 
 !          now the next ion pointers                                    
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the next ion pointers'                      
            jkk=0 
            do jkkl=1,nni 
@@ -1272,7 +1328,11 @@
                 derivedpointers%npfi(kk,jkk)=0 
                 enddo 
              mlion=nion(jkk) 
+<<<<<<< HEAD
+             if (lpri.gt.0)                                             &
+=======
              if (lpri.ne.0)                                             &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &        write (lun11,*)'jkk=',jkk,nimap(jkkl),mlion               
              do  kk=1,ntyp 
                mlold(kk)=0 
@@ -1301,7 +1361,11 @@
                  if (ml.ne.0) go to 2023 
                  endif 
                enddo 
+<<<<<<< HEAD
+               if (lpri.gt.0) then 
+=======
                if (lpri.ne.0) then 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                  do kk=1,ntyp 
                    if (derivedpointers%npfi(kk,jkk).ne.0) then 
                      write (lun11,*)jkk,kk,derivedpointers%npfi(kk,jkk) 
@@ -1320,7 +1384,11 @@
 !          now the line pointers                                        
            jkkl=0 
            jkk=0 
+<<<<<<< HEAD
+          if (lpri.gt.0)                                                &
+=======
           if (lpri.ne.0)                                                &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the line pointers'                          
            do mm=1,nni 
              nlines(mm)=0 
@@ -1342,7 +1410,11 @@
                  ilv=idat(lidat) 
                  if ((ilv.gt.0).and.(ilv.le.nni))                       &
      &             nlines(ilv)=nlines(ilv)+1                              
+<<<<<<< HEAD
+                 if (lpri.gt.0)                                         &
+=======
                  if (lpri.ne.0)                                         &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            write (lun11,*)jkkl,ml                                &
      &            ,derivedpointers%nplin(jkkl),derivedpointers%npar(ml)             
                  endif
@@ -1352,7 +1424,11 @@
 !          now the continuum pointers                                   
 !          note that problems may occur if pi xsections aren't ordered  
 !           the same as levels.                                         
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the continuum pointers'                     
            jkkl=0 
            ml=1 
@@ -1360,7 +1436,11 @@
 !          step thru ions
            do jkk=1,nni 
 !
+<<<<<<< HEAD
+             if (lpri.gt.0) write (lun11,*)'jkk=',jkk
+=======
              if (lpri.ne.0) write (lun11,*)'jkk=',jkk
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !            step thru rate types which have continuum processes
              do jxx=1,2 
 !
@@ -1370,9 +1450,15 @@
                 else 
                  ml=derivedpointers%npfi(1,jkk) 
                 endif 
+<<<<<<< HEAD
+!               if (lpri.gt.0) write (lun11,*)'jxx,ml=',jxx,ml
+!
+!               if (lpri.gt.0)                                           &
+=======
 !               if (lpri.ne.0) write (lun11,*)'jxx,ml=',jxx,ml
 !
 !               if (lpri.ne.0)                                           &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     &           write (lun11,*)jkk,ml,nimap(jkk)                          
 !
 !              test for if npfi is ok
@@ -1380,13 +1466,21 @@
 !
 !                mllz2 points to parent ion of photoionization data record
                  mllz2=derivedpointers%npar(ml) 
+<<<<<<< HEAD
+!                 if (lpri.gt.0) write (lun11,*)'ml,mllz2=',ml,mllz2
+=======
 !                 if (lpri.ne.0) write (lun11,*)'ml,mllz2=',ml,mllz2
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !                loop over pi data
                  do while ((ml.ne.0).and.(ml.le.ndat2))
 !
 !                  test for if parents agree
+<<<<<<< HEAD
+!                   if (lpri.gt.0) write (lun11,*)'ml,npar(ml)=',        &
+=======
 !                   if (lpri.ne.0) write (lun11,*)'ml,npar(ml)=',        &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     &                ml,derivedpointers%npar(ml)
                    if (derivedpointers%npar(ml).eq.mllz2) then
 !
@@ -1395,7 +1489,11 @@
      &                lrdat,rdat,lidat,idat,lkdat,kdat,ml,              &
      &                0,lun11)                      
                      nlvtmp1=idat(lidat-1) 
+<<<<<<< HEAD
+!                     if (lpri.gt.0) write (lun11,*)'nlvtmp1=',nlvtmp1
+=======
 !                     if (lpri.ne.0) write (lun11,*)'nlvtmp1=',nlvtmp1
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                      nlvtmp2=0
 !
 !                    now search the level list
@@ -1406,7 +1504,11 @@
                      if ((mll.ne.0).and.(mll.le.ndat2)) then
 !
                        mllz=derivedpointers%npar(mll) 
+<<<<<<< HEAD
+!                       if (lpri.gt.0) write (lun11,*)'mll,mllz2)=',     &
+=======
 !                       if (lpri.ne.0) write (lun11,*)'mll,mllz2)=',     &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     &                    mll,mllz
                        do while ((derivedpointers%npar(mll).eq.mllz)    &
      &                   .and.(mll.ne.0).and.(nlvtmp1.ne.nlvtmp2))
@@ -1416,7 +1518,11 @@
      &                     0,lun11)                    
                          nlvtmp2=idat(lidat-1) 
 !
+<<<<<<< HEAD
+                         if (lpri.gt.0) write (lun11,*)                 &
+=======
                          if (lpri.ne.0) write (lun11,*)                 &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                       'nlvtmp1,nlvtmp2,mll:',                    &
      &                       nlvtmp1,nlvtmp2,mll                             
 !
@@ -1440,7 +1546,11 @@
                            if ((ilv.gt.0).and.(ilv.le.nni))             &
      &                       derivedpointers%nlevs(jkk)                 &
      &                         =max(derivedpointers%nlevs(jkk),nlvtmp2)                  
+<<<<<<< HEAD
+                           if (lpri.gt.0)                               &
+=======
                            if (lpri.ne.0)                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                       write (lun11,*)jkkl,ml,                    &
      &                       derivedpointers%npcon(jkkl),               &
      &                       derivedpointers%npar(ml),                  &
@@ -1468,7 +1578,11 @@
 !              end of loop over rate types
                enddo
 !
+<<<<<<< HEAD
+             if (lpri.gt.0) write (lun11,*)'jkk=',jkk
+=======
              if (lpri.ne.0) write (lun11,*)'jkk=',jkk
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
              derivedpointers%nlevs(jkk)=0
 !            step thru levels
 !            mll points points to the level data
@@ -1501,7 +1615,11 @@
              enddo 
 !
            ncsvn=jkkl 
+<<<<<<< HEAD
+           if (lpri.gt.0) then 
+=======
            if (lpri.ne.0) then 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
              write (lun11,*)'ion, #lines, #levels' 
              nltot=0 
              nvtot=0 
@@ -1514,14 +1632,22 @@
              write (lun11,*)'totals:',nltot,nvtot 
              endif 
 !          now the ion level pointers                                   
+<<<<<<< HEAD
+           if (lpri.gt.0)                                               &
+=======
            if (lpri.ne.0)                                               &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &      write (lun11,*)'the ion level pointers'                     
            jkkl=0 
            do jkk=1,nni 
              ml=derivedpointers%npfi(13,jkk) 
              if (ml.ne.0) then 
              mlz=derivedpointers%npar(ml) 
+<<<<<<< HEAD
+             if (lpri.gt.0)                                             &
+=======
              if (lpri.ne.0)                                             &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &        write (lun11,*)jkk,ml,nimap(jkk)                          
              kkl=0 
  2235        continue 
@@ -1534,17 +1660,28 @@
      &          0,lun11)                        
                derivedpointers%npilevi(jkkl)=kkl 
                derivedpointers%npilev(kkl,jkk)=jkkl 
+<<<<<<< HEAD
+               if (lpri.gt.0)                                           &
+=======
                if (lpri.ne.0)                                           &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            write (lun11,*)jkkl,ml,idat(nidt-1),kkl,jkk           
                ml=derivedpointers%npnxt(ml) 
                go to 2235 
  2234          continue 
              endif 
              enddo 
+<<<<<<< HEAD
+          if (lpri.gt.0)                                                &
+     &     write (lun11,*)'nlsvn=',nlsvn,', ncsvn=',ncsvn               
+!         print out the pointers                                        
+          if (lpri.gt.0) then 
+=======
           if (lpri.ne.0)                                                &
      &     write (lun11,*)'nlsvn=',nlsvn,', ncsvn=',ncsvn               
 !         print out the pointers                                        
           if (lpri.ne.0) then 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
             write (lun11,*)'the pointers' 
             do ml=1,np2 
                if (masterdata%nptrs(3,ml).ne.0)                         &

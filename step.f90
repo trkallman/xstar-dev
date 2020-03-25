@@ -65,7 +65,7 @@
             if ( tst.lt.delr ) klmn = kl 
             delr = min(delr,tst) 
             endif 
-         if (lpri.ne.0) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
+         if (lpri.gt.0) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
      &          rccemis(1,kl),rccemis(2,kl),fline(1,kl),dell,tst,       &
      &          dpthc(1,kl),delr                                        
          enddo 

@@ -38,7 +38,11 @@
 !                                                                       
       data x,a/nmax*0.,nmax*0./ 
 !                                                                       
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)'in pexs',nmin,kdim,zc,          &
+=======
       if (lpri.ne.0) write (lun11,*)'in pexs',nmin,kdim,zc,          &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &        eion,far,gam,scal                                         
 !                                                                       
       ierr=0 
@@ -65,7 +69,7 @@
         if(del.gt.res) nres=n 
        endif 
                                                                         
-        if (lpri.ne.0) write (lun11,*)n,x(n),a(n),del,res 
+        if (lpri.gt.0) write (lun11,*)n,x(n),a(n),del,res 
                                                                         
    10 continue 
 !                                                                       
@@ -88,7 +92,7 @@
      &    jmax=i-1                                                      
    20 continue 
       if(jmin.eq.jmax) jmax=jmin+1 
-      if (lpri.ne.0) write (lun11,*)'jmin,jres:',jmin,jres,             &
+      if (lpri.gt.0) write (lun11,*)'jmin,jres:',jmin,jres,             &
      &              jmax,nmin,nmax                                      
       do 30 ii=nmin,nmax 
        do 3000 jj=jmin,jres 
@@ -103,7 +107,7 @@
 !   near-threshold pill-up (oscill. strength conservation)              
 !                                                                       
         axs(jj)=axs(jj)+axtp 
-      if ((lpri.ne.0).and.(axs(jj).gt.1.d-24))                          &
+      if ((lpri.gt.0).and.(axs(jj).gt.1.d-24))                          &
      &  write (lun11,*)'30 loop',jj,e(jj),axtp,axs(jj)                  
 3000  continue 
    30 continue 
@@ -112,7 +116,7 @@
 !                                                                       
       do ij=jres+1,jmax 
         axs(ij)=axs(jres) 
-        if (lpri.ne.0) write (lun11,*)ij,axs(ij) 
+        if (lpri.gt.0) write (lun11,*)ij,axs(ij) 
       enddo 
 !                                                                       
 !   scaling of the xs ...                                               
@@ -123,7 +127,7 @@
 !   return to the "usual" energy grid ...                               
 !                                                                       
        e(kk)=e(kk)+eion 
-       if ((lpri.ne.0).and.(axs(kk).gt.1.d-24))                         &
+       if ((lpri.gt.0).and.(axs(kk).gt.1.d-24))                         &
      &  write (lun11,*)kk,e(kk),axs(kk)                                 
    40 continue 
 !                                                                       

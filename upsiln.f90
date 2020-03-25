@@ -42,8 +42,8 @@
       if (k.eq.5) ups=sups/(kte) 
       if (k.eq.6) ups=10.**sups 
        upsiln=ups 
-      if (lpri.ne.0) write (lun11,*)'k=',k,xt 
-      if (lpri.ne.0) write (lun11,*)'in upsiln:',t,kte,cc,xt,sups,ups 
+      if (lpri.gt.0) write (lun11,*)'k=',k,xt 
+      if (lpri.gt.0) write (lun11,*)'in upsiln:',t,kte,cc,xt,sups,ups 
 !                                                                       
       return 
       END                                           

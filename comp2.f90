@@ -75,7 +75,7 @@
       cmp2=(-cohc+hfake)/ekt 
                                                                         
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'cmp1,cmp2:',cmp1,cmp2,cfake,hfake                
 !                                                                       
       lpri=lprisv 

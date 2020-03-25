@@ -70,7 +70,11 @@
                                                                         
 !     now add additional keywords                                       
       call ftpcom(unit,'***********************************',status) 
+<<<<<<< HEAD
+      call ftpkys(unit,'CREATOR','XSTAR version 2.56c',                 &
+=======
       call ftpkys(unit,'CREATOR','XSTAR version 2.56a',                 &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & 'Program which generated this file',status)                      
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         

@@ -143,7 +143,7 @@
       done=.false. 
       do while (.not.done) 
 !       step through where jk grid is finer                             
-!        if (lpri.ne.0) write (lun11,*)'mapping loop:',jk,kl,e2,e1      
+!        if (lpri.gt.0) write (lun11,*)'mapping loop:',jk,kl,e2,e1      
         do while ((e2.lt.e1).and.(jk.lt.(ntmp-1))) 
           jk=jk+1 
           e2o=e2 
@@ -151,7 +151,7 @@
           e2=eth+etmpp(jk)*(13.605692) 
           s2=stmpp(jk) 
           sum=sum+(s2+s2o)*(e2-e2o)/2. 
-!          if (lpri.ne.0) write (lun11,*)'jk loop',jk,e2,s2,e2o,s2o,sum 
+!          if (lpri.gt.0) write (lun11,*)'jk loop',jk,e2,s2,e2o,s2o,sum 
           enddo 
 !       kl bin exceeds jk bin, subtract off extra                       
         sum=sum-(s2+s2o)*(e2-e2o)/2. 
@@ -171,7 +171,7 @@
           else 
             sgbar(kl)=0. 
           endif 
-!        if (lpri.ne.0) write (lun11,*)'saving:',kl,e1,sgbar(kl),sum,s2t
+!        if (lpri.gt.0) write (lun11,*)'saving:',kl,e1,sgbar(kl),sum,s2t
         e1o=e1 
 !       increment kl                                                    
         kl=kl+1 
@@ -187,7 +187,7 @@
           s2to=s2t 
           sum=(s2t+s2to)*(e1-e1o)/2. 
           sgbar(kl)=sum/(e1-e1o) 
-!          if (lpri.ne.0) write (lun11,*)'kl loop',kl,e1,               
+!          if (lpri.gt.0) write (lun11,*)'kl loop',kl,e1,               
 !     $                                   sgbar(kl),sum,s2t             
           e1o=e1 
           kl=kl+1 
@@ -195,7 +195,7 @@
           enddo 
 !       update sum for remaining bit                                    
         sum=(s2+s2t)*(e2-e2t)/2. 
-!        if (lpri.ne.0) write (lun11,*)'testing for done:',kl,nphint,   
+!        if (lpri.gt.0) write (lun11,*)'testing for done:',kl,nphint,   
 !     $                                                    jk,ntmp      
         if ((kl.gt.nphint-1).or.(jk.ge.ntmp-1))                         &
      &       done=.true.                                                
@@ -216,17 +216,21 @@
                                                                         
       tempip=rnist*(bremtmpp+bbnurjp)                                   &
      &  *sgtpp*exptmpp/epiip*(ptmp1+ptmp2)                              
+<<<<<<< HEAD
+      if (lpri.gt.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
+=======
       if (lpri.ne.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & sgtpp,exptmpp,ptmp1,ptmp2,exptst                                 
       tempcp=tempip*epiip 
       tempcp2=tempip*(epiip-eth)
 !                                                                       
       kl=nb1 
       epii=epi(kl) 
-!      if (lpri.ne.0) write (lun11,*)'kl=',kl,klmax,sumh
+!      if (lpri.gt.0) write (lun11,*)'kl=',kl,klmax,sumh
       rctmp1=0. 
       rctmp2=0. 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      &  write (lun11,*)'  jk,kl,epi(kl),sgtp,bremtmp,tempr,sumr,exptsto,&
      & tempi,sumi,tempip,wwir,,opakab,optmp,optmp2rctmp1,rccemis(1,kl)'
       do while (kl.lt.klmax) 

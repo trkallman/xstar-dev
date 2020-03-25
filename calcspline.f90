@@ -52,7 +52,11 @@
       b=(x-xa(klo))/h 
       result=a*ya(klo)+b*ya(khi)                                        &
      & +((a*a*a-a)*y2a(klo)+(b*b*b-b)*y2a(khi))*(h*h)/6.0               
+<<<<<<< HEAD:calcspline.f90
+      if (lpri.gt.0)                                                    &
+=======
       if (lpri.ne.0)                                                    &
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a:calcspline.f90
      & write (lun11,*)'in calcspline',x,n,result,khi,klo,n,          &
      &      ya(khi),ya(klo)                                             
                                                                         

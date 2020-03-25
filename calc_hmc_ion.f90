@@ -1,6 +1,10 @@
       subroutine calc_hmc_ion(ml_ion,lpri,lun11,                        &
      &                   vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,    &
      &                   epi,ncn2,bremsa,bremsint,                      &
+<<<<<<< HEAD
+     &                   leveltemp,                                     &
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirti,rrrti,                                   &
@@ -61,6 +65,16 @@
       use globaldata
       implicit none 
 !                                                                       
+<<<<<<< HEAD
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -89,12 +103,19 @@
 !                                                                       
       character(1) kblnk 
       real(8) rnisi(nd)
+<<<<<<< HEAD
+=======
       real(8) xilevi(nd)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       real(8) rnisse(nd) 
       real(8) ajisi(2,ndb),cjisi(ndb),cjisi2(ndb) 
       integer indbi(2,ndb) 
       real(8) tau1,tau2,airtmp,e1,e2,pescl,pescv,ptmp
+<<<<<<< HEAD
+      real(8) pirti,rrrti,eth
+=======
       real(8) pirti,rrrti
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       integer np1i,np1r,np1k 
       integer nlev,ml,lpriu,mm,lprisv,                                  &
      &        llo,lup,ltyp,jkk_ion,                                     &
@@ -127,17 +148,31 @@
      &               (masterdata%kdat1(np1k+mm-1),mm=1,nkdt)
 903             format (1x,'      ion:',2(i12,1x),8(1a1))
 !
+<<<<<<< HEAD
+      call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
+     &      leveltemp,nlev)
+=======
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,nlev)
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       nlev=derivedpointers%nlevs(jkk_ion)
       if (lpri.ge.1) then 
         write (lun11,*)'      nlev=',nlev
         write (lun11,*)'  index level             energy',              &
+<<<<<<< HEAD
+     &              '  stat.wt.               LTE ' 
+        do mm=1,nlev 
+          write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
+     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
+     &        rnisi(mm),rnisse(mm)                                   
+ 9022     format (2x,i4,1x,20a1,2(1pe10.3),10x,2(1pe10.3))  
+=======
      &              '  stat.wt. population   LTE ' 
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
      &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
      &        xilevi(mm),rnisi(mm),rnisse(mm)                                   
  9022     format (2x,i4,1x,20a1,5(1pe10.3)) 
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
           enddo 
         endif
 !
@@ -200,6 +235,11 @@
      &                  +2.*pescv(tau1+tau2)*cfrac                      
                  endif
                endif
+<<<<<<< HEAD
+           if (lpri.gt.1) write (lun11,*)'kkkl,tau1,ptmp1:',         &
+     &               kkkl,tau1,ptmp1,tau2,ptmp2
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
             ptmp=(ptmp1+ptmp2) 
 !           note that radiative rates and emissivities will     
 !           have the escape probabilities in them             
@@ -211,6 +251,10 @@
      &                opakc,opakcont,rccemis,lpriu,kdesc2,              &
      &                r,delr,t,trad,tsq,xee,xh1,xh0,                    &
      &                epi,ncn2,bremsa,bremsint,                         &
+<<<<<<< HEAD
+     &                leveltemp,                                        &
+=======
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                rnisi,rnisse,nlev,lfpi,lun11,                     &
      &                np2,ncsvn,nlsvn)               
 !           this Statement prevents double counting of PI from  
@@ -223,7 +267,11 @@
 !               endif 
             if ((lrtyp.eq.7).or.(lrtyp.eq.1)) then
                if (idest1.eq.1) pirti=pirti+ans1
+<<<<<<< HEAD
+               if (idest2.le.nlev) rrrti=rrrti+ans2
+=======
                rrrti=rrrti+ans2
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                endif
             llo=idest1 
             lup=idest2 
@@ -295,12 +343,21 @@
                        ajisi(1,nindbi),ajisi(2,nindbi),cjisi(nindbi)  
               if ((lpri.ge.1))                                          &
      &           write (lun11,9044)jkk_ion,lrtyp,ltyp,idest1,           &
+<<<<<<< HEAD
+!     &                  idest2,llo,lup,ml_data,ans1,ans2,ans3,ans4
+     &                  idest2,llo,lup,ml_data,ans1,ans2,ans3,ans4,     &
+     &                    ans5,ans6,eth,kkkl,                           &
+     &                    ptmp1,ptmp2,tau1,tau2                              
+ 9044            format(7x,7i6,i8,' level',7(1pe10.3),i6,7(1pe10.3))                                  
+! 9044            format(7x,7i6,i12,' level',4(1pe10.3))
+=======
      &                  idest2,llo,lup,ml_data,ans1,ans2,ans3,ans4
 !     &                  idest2,llo,lup,ml_data,ans1,ans2,ans3,ans4,     &
 !     &                    ans5,ans6,eth,kkkl,                           &
 !     &                    ptmp1,ptmp2                              
 ! 9004            format(7x,7i6,i8,' level',7(1pe10.3),i6,7(1pe10.3))                                  
  9044            format(7x,7i6,i12,' level',4(1pe10.3))
+>>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
               endif 
             endif
 !

@@ -28,12 +28,6 @@
         integer, allocatable, dimension(:) :: nlevs
       END TYPE derived_pointers
       TYPE(derived_pointers) :: derivedpointers
-      TYPE :: level_temp
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
-      END TYPE level_temp
-      TYPE(level_temp) :: leveltemp
 !     compton heating data                                              
       real(8) decomp(ncomp,ncomp),ecomp(ncomp),sxcomp(ncomp) 
       end module globaldata
