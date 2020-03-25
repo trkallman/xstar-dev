@@ -1,4 +1,4 @@
-      subroutine ispecg(eptmp,zrtmp,nret,epi,ncn2,zremsz,xlum,          &
+      subroutine ispecg(eptmp,zrtmp,nret,epi,ncn2,zremsz,xlum,       &
      &                  lpri,lun11)                                     
 !                                                                       
 !     Name: ispecg.f90
@@ -28,16 +28,19 @@
 !                                                                       
       integer nret 
       real(8) zremsz(ncn),epi(ncn) 
+      real(8) eptmp(nret),zrtmp(nret) 
       integer ncn2,lpri,lun11 
       real(8) ergsev,const,xlum 
       real(8) sum,tmp,tmpo, exp10 
       integer numcon 
       integer jlo,kl 
-      real(8) zremsi(ncn),eptmp(nret),zrtmp(nret) 
+      real(8), dimension(:), allocatable :: zremsi
       real(8) x,epmx,epmn,zr1,zr2,ep1,ep2,alx,aly,y 
       integer jk ,ll
-!                                                                       
+!
       data ergsev/1.602197e-12/ 
+!                                                                       
+      allocate(zremsi(ncn))
 !                                                                       
 !        linear interpolation in log                                    
       jlo = 0 
@@ -53,14 +56,14 @@
          if ( (x.le.epmx) .and. (x.ge.epmn) ) then 
             call hunt3(eptmp,nret,x,jlo,lpri,lun11) 
             jlo = max0(jlo,1) 
-            zr1 = log10(max(zrtmp(jlo+1),1.e-24)) 
-            zr2 = log10(max(zrtmp(jlo),1.e-24)) 
-            ep1 = log10(max(eptmp(jlo+1),1.e-24)) 
-            ep2 = log10(max(eptmp(jlo),1.e-24)) 
+            zr1 = log10(max(zrtmp(jlo+1),1.d-49)) 
+            zr2 = log10(max(zrtmp(jlo),1.d-49)) 
+            ep1 = log10(max(eptmp(jlo+1),1.d-49)) 
+            ep2 = log10(max(eptmp(jlo),1.d-49)) 
             alx = log10(x) 
             alx = max(alx,ep2) 
             alx = min(alx,ep1) 
-            aly = (zr1-zr2)*(alx-ep2)/(ep1-ep2+1.e-24) + zr2 
+            aly = (zr1-zr2)*(alx-ep2)/(ep1-ep2+1.d-49) + zr2 
             y = exp10(aly) 
             zremsi(kl) = y 
             if ( lpri.gt.2 ) write (lun11,*) kl,x,jlo,zr1,zr2,          &
@@ -86,6 +89,8 @@
      &                                zremsi(jk)                        
          zremsz(jk) = zremsz(jk) + zremsi(jk)*const 
          enddo 
+!
+      deallocate(zremsi)
 !                                                                       
       return 
       end                                           

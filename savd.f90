@@ -1,6 +1,6 @@
-      subroutine savd(jkstep,ldir,                                      &
+      subroutine savd(jkstep,ldir,                                   &
      &       lpri,iunit,iunit2,iunit3,iunit4,                           &
-     &       np2,ncsvn,nlsvn,                                           &
+     &       np2,nlsvn,                                                 &
      &       t,p,r,rdel,delr,xcol,xee,xpx,zeta,abel,                    &
      &       xilev,rnist,                                               &
      &       rcem,oplin,tau0,                                           &
@@ -53,9 +53,9 @@
       implicit none 
 !                                                                       
 !                                                                       
-      real(8) r,delr,rdel, t, p, xcol,xee,xpx,zeta 
+      real(8) r,delr,rdel, t, p, xcol,xee,xpx,zeta
       integer iunit,iunit2,iunit3,iunit4 
-      integer nlsvn,ncsvn,np2
+      integer nlsvn,np2
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum opacities                                               
@@ -80,30 +80,28 @@
 !                                                                       
       if (lpri.ge.1)                                                    &
      & write (lunlog,*)'in savd',jkstep,iunit,iunit2,iunit3,iunit4      
-      call fstepr(iunit,jkstep,r,delr,rdel,t,p,abel,                    &
+      call fstepr(iunit,jkstep,r,delr,rdel,t,p,                         &
      &          xcol,xee,xpx,zeta,                                      &
-     &          np2,ncsvn,nlsvn,                                        &
      &          xilev,rnist,                                            &
      &          lunlog,lpri,status)                                     
-      call fstepr2(iunit2,jkstep,r,delr,rdel,t,p,abel,                  &
+      call fstepr2(iunit2,jkstep,r,delr,rdel,t,p,                       &
      &          xcol,xee,xpx,zeta,                                      &
-     &          np2,ncsvn,nlsvn,                                        &
+     &          nlsvn,                                                  &
      &          rcem,oplin,tau0,                                        &
      &          lunlog,lpri,status)                                     
       call fstepr3(iunit3,jkstep,r,delr,rdel,t,p,abel,                  &
      &          xcol,xee,xpx,zeta,                                      &
-     &          np2,ncsvn,nlsvn,                                        &
-     &          rnist,cemab,cabab,opakab,tauc,                          &
+     &          np2,                                                    &
+     &          cemab,cabab,opakab,tauc,                                &
      &          lunlog,lpri,status)                                     
-      call fstepr4(iunit4,jkstep,r,delr,rdel,t,p,abel,                  &
+      call fstepr4(iunit4,jkstep,r,delr,rdel,t,p,                       &
      &          xcol,xee,xpx,zeta,                                      &
-     &          np2,ncsvn,nlsvn,                                        &
      &          epi,ncn2,zrems,dpthc,opakc,rccemis,                     &
      &          lunlog,lpri,status)                                     
       if (status .gt. 0)call printerror(lunlog,status) 
       nlyc=nbinc(13.7d0,epi,ncn2) 
       nry=nlyc+1 
-      if (lpri.ne.0) write (lunlog,*)'in savd',rdel,t,tauc(1,25),       &
+      if (lpri.gt.0) write (lunlog,*)'in savd',rdel,t,tauc(1,25),       &
      &                ldir,dpthc(1,nry),dpthc(2,nry)                    
 !                                                                       
       return 

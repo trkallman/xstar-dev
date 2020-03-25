@@ -53,8 +53,8 @@
         else 
                cmpfnc = 4.*sxx - ee 
         endif 
-!      if (lpri.ne.0)                                                   
-!     $ write (lun11,*)'in cmpfnc',ee,sxx,ll,mm,cmpfn!                  
+!      if (lpri.gt.0)                                                   
+!     $ write (lun11,*)'in cmpfnc',ee,sxx,ll,mm,cmpfnc
 !                                                                       
       return 
       end                                           

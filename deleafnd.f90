@@ -1,4 +1,4 @@
-      subroutine deleafnd(jkk,lup,                                      &
+      subroutine deleafnd(jkk,lup,                                   &
      &   delea,lfnd,lpri,lun11)                           
 !                                                                       
 !     Name: deleafnd.f90  
@@ -25,6 +25,7 @@
      &   lpri,lun11,nitmp,iion,mlm,ndtmp                    
       real(8) delea 
 !                                                                       
+!
 !     find associated type 86 data                                      
 !                                                                       
 !     this is not needed                                                
@@ -32,7 +33,7 @@
       iion=0 
 !      nilin=npar(ml)                                                   
       nilin=derivedpointers%npfirst(13) 
-      mlm=nilin-1 
+      mlm=nilin 
       call drd(ltyp,lrtyp,lcon,                                         &
      &           nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                     &
      &           0,lun11)                                         
@@ -43,7 +44,7 @@
      &     .and.(iion.lt.nni))                                          
         iion=iion+1 
         nitmp=derivedpointers%npfi(13,iion) 
-        mlm=nitmp-1 
+        mlm=nitmp 
         call drd(ltyp,lrtyp,lcon,                                       &
      &           nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                     &
      &           0,lun11)                                         
@@ -63,19 +64,19 @@
           if (lpri.gt.1)                                                &
      &    write (lun11,*)'  found ion',lup,ndtmp                        
           mllz=derivedpointers%npar(ndtmp) 
-          mlm=ndtmp-1 
+          mlm=ndtmp 
           call drd(ltyp,lrtyp,lcon,                                     &
      &           nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                     &
      &           0,lun11)                                         
           iltmp=masterdata%idat1(np1i+1) 
           do while ((ndtmp.ne.0).and.(lup.ne.iltmp)                     &
      &            .and.(derivedpointers%npar(ndtmp).eq.mllz))                  
-            mlm=ndtmp-1 
+            mlm=ndtmp 
             call drd(ltyp,lrtyp,lcon,                                   &
      &             nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                   &
      &             0,lun11)                                       
             if (lpri.ge.2)                                              &
-     &        call dprinto(ltyp,lrtyp,lcon,                             &
+     &        call dprinto(ltyp,lrtyp,lcon,                          &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)      
             iltmp=masterdata%idat1(np1i+1) 
             if (lpri.gt.1)                                              &

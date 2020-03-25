@@ -1,5 +1,5 @@
-      subroutine writespectra3(lun11,lpri,nparms,parname,partype,parval,&
-     &       parcomm,atcredate,epi,ncn2,dpthc,dpthcont,                 &
+      subroutine writespectra3(lun11,lpri,nparms,parname,partype,    &
+     &       parval,parcomm,atcredate,epi,ncn2,dpthc,dpthcont,          &
      &       np2,                                                       &
      &       elum,zrems,zremsz,kmodelname,nloopctl)             
                                                                         
@@ -52,24 +52,21 @@
       integer nparms, nloopctl, lun11 
       character(20) parname(55) 
       character(10) partype(55) 
-      real*8 parval(55) 
+      real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real*8 elum(3,nnnl) 
+      real(8) elum(3,nnnl) 
 !     energy bins                                                       
-      real*8 epi(ncn) 
+      real(8) epi(ncn) 
 !     the atomic data creation date                                     
       character(63) atcredate 
 !     continuum lum                                                     
-      real*8 zrems(5,ncn),zremsz(ncn) 
+      real(8) zrems(5,ncn),zremsz(ncn) 
 !     continuum optical depths                                          
-      real*8 dpthc(2,ncn),dpthcont(2,ncn)
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: zrtmp
-!      real*8 zrtmp(5,ncn) 
-      REAL*4, DIMENSION(:), ALLOCATABLE :: rtmp
-!      real*4 rtmp(ncn) 
+      real(8) dpthc(2,ncn),dpthcont(2,ncn)
+      REAL(8), DIMENSION(:,:), ALLOCATABLE :: zrtmp
+      REAL(4), DIMENSION(:), ALLOCATABLE :: rtmp
       character(16) knam,klabs(5),kunits(5),kform(5),kblnk16 
-!      character(30) ktmp2                                              
       character(30) extname 
       integer unit,istatus, kl,lpri 
       integer ll, numcon
@@ -77,7 +74,7 @@
       integer frow, felem, colnum, tfields, status, verbose,mm 
 !                                                                       
 !     Not used                                                          
-      real*8 javir 
+      real(8) javir 
       integer javi 
 !      character(80) javik                                              
 !                                                                       
@@ -115,8 +112,8 @@
       verbose=lpri 
 !                                                                       
 !     open and prepare the fits file for spectral data                  
-      if(verbose.gt.0) write (lun11,*)'writespectra3: opening header',  &
-     &  kmodelname                                                      
+      if(verbose.gt.0) write (lun11,*)'writespectra3: opening header'&
+     &  ,kmodelname                                                      
       knam='xout_cont1.fits' 
       call fheader(unit,knam,atcredate,kmodelname,istatus) 
       if(istatus.gt.0) call printerror(lun11,istatus) 
@@ -124,7 +121,7 @@
 !     write extension of parameter values                               
       if(verbose.gt.0)                                                  &
      &  write (lun11,*)'writespectra: write parameter list'             
-      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,   &
+      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,&
      &               parcomm,nloopctl,istatus,lun11)                    
       if(istatus.gt.0) call printerror(lun11,istatus) 
       if(verbose.gt.0)                                                  &
@@ -206,7 +203,7 @@
         felem=1 
         colnum=kk 
         do ll=1,nrows 
-          rtmp(ll)=zrtmp(kk,ll) 
+          rtmp(ll)=sngl(zrtmp(kk,ll))
           enddo 
         if(verbose.gt.0)                                                &
      &    write (lun11,*)'writespectra: writing column ',kk             
@@ -216,7 +213,7 @@
         enddo 
                                                                         
 !     compute checksums                                                 
-      if(verbose.gt.0) write (lun11,*)'writespectra: writing checksum' 
+      if(verbose.gt.0) write (lun11,*)'writespectra:writingchecksum' 
       call ftpcks(unit,status) 
 !     check for any error, and if so print out error messages           
       if (status .gt. 0)call printerror(lun11,status) 

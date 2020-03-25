@@ -1,4 +1,3 @@
-!-----------------------------------------------------------------------
       subroutine freef(lpri,lun11,epi,ncn2,t,xpx,xee,opakc) 
 !                                                                       
 !     Name: freef.f90

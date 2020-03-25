@@ -1,4 +1,4 @@
-      subroutine phintfo(sigc,ethi,pirt,rrrt,piht,rrcl,                 &
+      subroutine phintfo(sigc,ethi,pirt,rrrt,piht,rrcl,piht2,rrcl2,  &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lpri,epi,ncn2,bremsa,t,swrat,xnx,lfast,lun11)  
 !                                                                       
@@ -45,13 +45,13 @@
       real(8) opakc(ncn),opakcont(ncn) 
       real(8) sigc(ncn) 
       integer lpri,ncn2,lfast,lun11 
-      real(8) ethi,pirt,rrrt,piht,rrcl,abund1,abund2,xpx,                &
-     &     opakab,t,swrat,xnx                                           
-      real(8) eth,ergsev,bk,tm,bktm,ener,sgtmp,epii,ansar1,optmp,        &
-     &     sumr,sumh,sumi,sumc,tempi,enero,                             &
+      real(8) ethi,pirt,rrrt,piht,rrcl,abund1,abund2,xpx,               &
+     &     opakab,t,swrat,xnx,piht2,rrcl2                                           
+      real(8) eth,ergsev,bk,tm,bktm,ener,sgtmp,epii,ansar1,optmp,       &
+     &     sumr,sumh,sumi,sumc,tempi,enero,sumh2,sumc2,                 &
      &     bremtmp,tempr,tempro,exptst,                                 &
      &     tempi1,tempi2,tempio,atmp2,rnist,tsq,ethsht,                 &
-     &     atmp2o,bbnurj,exptmp,deld,tsti,                              &
+     &     atmp2o,bbnurj,exptmp,deld,tsti,atmp22,atmp22o,               &
      &     bbnu,htmpo,htmp,tmpp,sigth,htsum,eps,tst,expo                
       integer lprisv,nphint,nb1,kl,                                     &
      &     lprie,nskp,nbinc,lrcalc,numcon2                              
@@ -85,7 +85,9 @@
       tempr = 0. 
       sumr = 0. 
       sumh = 0. 
+      sumh2 = 0. 
       sumc = 0. 
+      sumc2 = 0. 
       tempio = 0. 
       tempi=0. 
       sumi=0. 
@@ -103,6 +105,7 @@
       bbnu=0. 
       kl=nb1 
       atmp2=0. 
+      atmp22=0. 
       tst=1.e+10 
       do while ((kl.le.nphint).and.                                     &
      &            ((lfast.le.2).or.(tst.gt.eps)))                       
@@ -119,6 +122,8 @@
             ansar1=sgtmp 
             sumr = sumr + tst 
             sumh=sumh+(tempr*ener+tempro*enero)*deld*ergsev/2. 
+            sumh2=sumh2+(tempr*(ener-eth)+tempro*(enero-eth))           &
+     &               *deld*ergsev/2. 
             exptst=max(1.d-36,(epii-eth)/bktm) 
             exptmp=expo(-exptst) 
             bbnurj=(min(epii,2.d+4))**3*(1.571e+22) 
@@ -127,9 +132,12 @@
             tempi=tempi1+tempi2 
             atmp2o=atmp2 
             atmp2=tempi1*epii 
+            atmp22o=atmp22 
+            atmp22=tempi1*(epii-eth)
             tsti = (tempi+tempio)*deld/2. 
             sumi = sumi + tsti 
             sumc = sumc+(atmp2+atmp2o)*deld*ergsev/2. 
+            sumc2 = sumc2+(atmp22+atmp22o)*deld*ergsev/2. 
 !            rctmp1=abund2*ansar2*ptmp1*xpx*xnx                         
 !            rctmp2=abund2*ansar2*ptmp2*xpx*xnx                         
 !            rccemis(1,kl)=rccemis(1,kl)+rctmp1                         
@@ -153,7 +161,7 @@
             enero = ener 
             tst=1. 
             lprie=0 
-            call enxt(ethi,nb1,lprie,epi,ncn2,t,lfast,lun11,            &
+            call enxt(ethi,nb1,lprie,epi,ncn2,t,lfast,lun11,         &
      &                  kl,nskp,nphint,lrcalc)                          
             kl=kl+nskp 
             enddo 
@@ -162,6 +170,8 @@
          rrrt = rrrt + xnx*sumi 
          piht = piht + sumh 
          rrcl = rrcl + xnx*sumc 
+         piht2 = piht2 + sumh2 
+         rrcl2 = rrcl2 + xnx*sumc2 
                                                                         
          if (lpri.ge.1)                                                 &
      &    write (lun11,*)'in phintf:',eth,sigth,                        &

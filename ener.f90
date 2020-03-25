@@ -1,6 +1,6 @@
       subroutine ener(epi,ncn2) 
 !                                                                       
-!     Name: dprinto.f90  
+!     Name: ener.f90  
 !     Description:  
 !     This routine sets up the energy grid
 !     Grid is logarithmic with two subranges:  0.1eV-40 keV, 40keV-1MeV.
@@ -32,7 +32,7 @@
       ebnd2o=ebnd2 
       dele=(ebnd2/ebnd1)**(1./float(numcon3-1)) 
       epi(1)=ebnd1 
-!      write (6,*)'in ener',ncn2,numcon,numcon2,numcon3                 
+!      write (lun11,*)'in ener',ncn2,numcon,numcon2,numcon3                 
       do ll=2,numcon3 
         epi(ll)=epi(ll-1)*dele 
         enddo 

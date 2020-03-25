@@ -32,8 +32,8 @@
 !                                                                       
       real(8) bremsa(ncn),epi(ncn),cmp1,cmp2 
       integer lpri,lun11,ncn2,lprisv,numcon,i
-      real(8) sigth,ery,alpha,beta,fac1,fac3,delt,fac4,ebar,c1,c2,fac2,  &
-     &  tmp1,tmp2
+      real(8) sigth,fac1,fac3,delt,fac4,ebar,c1,c2,fac2,tmp1,tmp2
+
       
 !                                                                       
 !                                                                       

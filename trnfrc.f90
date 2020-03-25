@@ -1,4 +1,4 @@
-      subroutine trnfrc(lpri,lun11,ldir,                                &
+      subroutine trnfrc(lpri,lun11,ldir,                             &
      &      r,xpxcol,xpx,                                               &
      &      epi,ncn2,zremsz,dpthc,opakc,                                &
      &      zrems,bremsa,bremsint)                               
@@ -50,7 +50,7 @@
       bremsint(ncn2)=0. 
       bremsint(ncnm)=0. 
       rmax=xpxcol/xpx 
-      if (lpri.ne.0) write (lun11,*)'in trnfrc:',rmax,xpxcol,xpx 
+      if (lpri.gt.0) write (lun11,*)'in trnfrc:',rmax,xpxcol,xpx 
       do 1 jkp=1,ncnm 
          jk=ncnm+1-jkp 
 !                                                                       
@@ -64,7 +64,7 @@
            endif 
          sumtmp=(bremsa(jk)+bremsa(jk+1))*(epi(jk+1)-epi(jk))/2. 
          bremsint(jk)=bremsint(jk+1)+sumtmp*(1.602197e-12) 
-         if (lpri.ne.0) write (lun11,*)jk,epi(jk),dpthc(1,jk),          &
+         if (lpri.gt.0) write (lun11,*)jk,epi(jk),dpthc(1,jk),          &
      &       zremsz(jk),opakc(jk),                                      &
      &       zremsz(jk)*exp(-dpthc(1,jk))/fpr2,bremsa(jk)               &
      &       ,bremsint(jk)                                              

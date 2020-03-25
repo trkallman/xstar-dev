@@ -1,6 +1,7 @@
+!                                                                       
       subroutine bremem(lpri,lun11,xee,xpx,t,epi,ncn2,brcems,opakc) 
 !                                                                       
-!     Name: pprint.f90  
+!     Name: bremem.f90  
 !     Description:  
 !     this routine computes emissivities due to thermal bremsstrahlung. 
 !     nb currently uses gaunt factor=1.  needs to be fixed!
@@ -43,7 +44,7 @@
       t6 = t/100. 
 !                                                                       
       lprisv=lpri 
-      if (lpri.gt.0) write (lun11,*)'in bremem',t 
+      if (lpri.gt.1) write (lun11,*)'in bremem',t 
 !                    
 !                                                   
       numcon=ncn2 
@@ -66,12 +67,12 @@
 !           bbee=2.*(epi(kk)/3.99836e-8)**3/(exp(temp)-1.+1.e-24)       
 !           opakc(kk)=opakc(kk)+brtmp/(1.e-24+bbee)                     
 !           endif                                                       
-         if ( lpri.gt.0 ) write (lun11,99001) kk,                       &
+         if ( lpri.gt.1 ) write (lun11,99001) kk,epi(kk),               &
      &                zz,enz2,gam,temp,gau,brtmp,bbee,opakc(kk)         
          enddo 
 !                                                                       
       lpri=lprisv 
 !                                                                       
       return 
-99001 format (' ',i6,8e12.4) 
+99001 format (' ',i6,9e12.4) 
       END                                           

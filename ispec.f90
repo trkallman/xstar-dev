@@ -26,12 +26,15 @@
 !                                                                       
       real(8) zremsz(ncn),epi(ncn) 
       integer ncn2,lpri,lun11 
-      real(8) zremsi(ncn),ergsev,const,xlum 
+      real(8), dimension(:), allocatable :: zremsi
+      real(8) ergsev,const,xlum 
       real(8) sum,ekt,tp 
       integer i,numcon,lprisv 
       real(8) expo 
-!                                                                       
+!
       data ergsev/1.602197e-12/ 
+!                                                                       
+      allocate(zremsi(ncn))
 !                                                                       
       numcon=ncn2 
       ekt=1000.*(0.861707)*tp 
@@ -53,6 +56,8 @@
      &        write (lun11,*)i,epi(i),zremsi(i),const,zremsz(i)         
          enddo 
       lpri=lprisv 
+!
+      deallocate(zremsi)
 !                                                                       
       return 
       end                                           

@@ -1,9 +1,10 @@
       subroutine heatt(lpri,lun11,                                      &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
-     &       np2,ncsvn,nlsvn,                                           &
+     &       leveltemp,                                                 &
+     &       ncsvn,nlsvn,                                               &
      &       zrems,zremso,elumab,elumabo,elum,elumo,                    &
-     &       rcem,oplin,rccemis,opakc,opakcont,cemab,fline,flinel,      &
+     &       rcem,rccemis,opakc,opakcont,cemab,flinel,                  &
      &       brcems)
 !                                                                       
 !     Name: heatt.f90  
@@ -30,7 +31,6 @@
 !           nlsvn: atomic data parameter, number of lines in atomic database
 !           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
 !                  inward and outward
-!           oplin(nnnl):  line opacities  (cm^-1)
 !           rccemis(2,ncn): continuum emissivities (erg cm^-3 s^-1 erg^-1) 
 !                   /10^38
 !                  inward and outward
@@ -63,10 +63,15 @@
       use globaldata
       implicit none 
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
-!     line opacities                                                    
-      real(8) oplin(nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -82,7 +87,7 @@
       real(8) xee 
       integer ncn2,lpri,lun11 
       integer nlsvn,ncsvn 
-      real(8) fline(2,nnnl),flinel(ncn) 
+      real(8) flinel(ncn) 
 !     level populations                                                 
       real(8) abel(nl) 
       real(8) cemab(2,nnml) 
@@ -100,12 +105,11 @@
       real(8) tmp2,tmp2o 
       integer lskp 
       integer idest1,jk,klel,kl,                                        &
-     &     klion,mlleltp,mllel,mlel,mlion,mt2,nilin,nnz,numcon,         &
-     &     np2
+     &     klion,mlleltp,mllel,mlel,mlion,mt2,nilin,nnz,numcon
       integer np1i,np1r,np1k,np1ki 
       integer nlev,nlevmx,mltype,ml,mllz,jkk,ltyp,                      &
      &     lrtyp,lcon,nrdt,nidt,nkdt,lk,kkkl,                           &
-     &     lprisv,mm,nbinc,mlpar,mlm                                    
+     &     lprisv,mm,mlpar,mlm                                    
 !                                                                       
 !                                                                       
       data kblnk/' '/ 
@@ -115,12 +119,13 @@
       lprisv=lpri 
 !                                                                       
       xnx=xpx*xee 
-      if (lpri.ge.1) lpri=2 
+!      if (lpri.ge.1) lpri=2 
       fpr2=12.56*r19*r19 
-      if (lpri.gt.1) write (lun11,*)'in heatt',httot,cltot,delr,r,fpr2
+      if (lpri.gt.1) write (lun11,*)'in heatt',httot,cltot,delr,r,   &
+     &                       fpr2
       if (lpri.gt.1) write (lun11,*)ncsvn,ncn2
       numcon=ncn2 
-      r19=r*(1.e-19) 
+      r19=r*(1.d-19) 
 !                                                                       
 
 !     comment these out to implement scattering                         
@@ -147,7 +152,7 @@
         tmph=0. 
         do kl=1,numcon 
           optpp=opakc(kl) 
-          optp2=max(1.e-34,optpp) 
+          optp2=max(1.d-49,optpp) 
 !         for outward only                                              
           epiio=epii 
           epii=epi(kl) 
@@ -170,7 +175,7 @@
 !         testing lte                                                   
 !          zrems(1,kl)=12.56*(tmpc1+tmpc2)*fpr2/(1.e-34+optp2)          
 !         this is the good expression                                   
-          zrems(1,kl)=max(0.,zremso(1,kl)                               &
+          zrems(1,kl)=max(0.d0,zremso(1,kl)                             &
      &         -(tmph-12.56*(tmpc1+tmpc2)-flinel(kl))*fac*delrl*fpr2    &
      &        )                                                         
           zrems(2,kl)=zremso(2,kl)+12.56*tmpc1*fac*delrl*fpr2 
@@ -183,14 +188,14 @@
             endif 
           httot=(hmctot+hpctot)/2. 
           cltot=(-hmctot+hpctot)/2. 
-          if (lpri.ge.1) write (lun11,9009)kl,epii,optpp,               &
+          if (lpri.gt.1) write (lun11,9009)kl,epii,optpp,               &
      &     bremsa(kl),tmph,tmpc,flinel(kl),httot,cltot                  &
      &       ,rccemis(1,kl)+rccemis(2,kl),hmctot,tautmp,fac             &
      &       ,brcems(kl),zrems(2,kl),zremso(2,kl)
  9009     format (1x,i6,15(1pe12.5)) 
 !         an afterthought:  continuum only
           optpp=opakcont(kl) 
-          optp2=max(1.e-34,optpp) 
+          optp2=max(1.d-49,optpp) 
           tautmp=optp2*delrl 
           fac=1. 
           if (tautmp.gt.0.01)                                           &
@@ -198,14 +203,14 @@
           zrems(4,kl)=zremso(4,kl)+12.56*tmpc1*fac*delrl*fpr2 
           zrems(5,kl)=zremso(5,kl)+12.56*tmpc2*fac*delrl*fpr2 
           enddo 
-        if (lpri.ge.1)                                                  &
+        if (lpri.gt.1)                                                  &
      &   write (lun11,*)'continuum heating, cooling:',                  &
      &       hmctot,hpctot,(hmctot+hpctot)/2.,-(hmctot-hpctot)/2.       
         clcont=cltot 
         do jkk=1,nlsvn 
           jk=jkk 
           ml=derivedpointers%nplin(jk) 
-          mlm=ml-1 
+          mlm=ml
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -213,7 +218,7 @@
           if ((elin.lt.1.e+8).and.(elin.gt.1.)                          &
      &      .and.(ml.ne.0).and.(lrtyp.eq.4)) then                       
             nilin=derivedpointers%npar(ml) 
-            ener=ergsev*(12398.41)/max(elin,1.e-24) 
+            ener=ergsev*(12398.41)/max(elin,1.d-49) 
             tmph=elumo(1,jk)*optp2/fpr2 
             tmpc1=rcem(1,jk) 
             tmpc2=rcem(2,jk) 
@@ -231,10 +236,13 @@
             hmctot=hmctot-tmpc*fac 
             hpctot=hpctot+tmpc*fac 
             cltot=cltot+tmpc 
-            elum(1,jk)=max(0.,elumo(1,jk)+(-tmph+tmpc1)*fac*delrl*fpr2) 
+            elum(1,jk)=max(0.d0,                                        &
+     &        elumo(1,jk)+(-tmph+tmpc1)*fac*delrl*fpr2) 
             tmph=elumo(2,jk)*optp2/fpr2 
-            elum(2,jk)=max(0.,elumo(2,jk)+(-tmph+tmpc2)*fac*delrl*fpr2) 
-            if ((elum(1,jk).gt.1.e-49).and.(lpri.ge.1))                 &
+            elum(2,jk)=max(0.d0,                                        &
+     &        elumo(2,jk)+(-tmph+tmpc2)*fac*delrl*fpr2) 
+!            if ((elum(1,jk).gt.1.d-49).and.(lpri.gt.1))                 &
+            if (lpri.gt.1)                                              &
      &       write (lun11,9019)jk,nilin,etst,                           &
      &        rcem(1,jk),rcem(2,jk),delrl,fpr2,cltot,                   &
      &        elumo(2,jk),elum(2,jk),optp2,tmph                         
@@ -255,7 +263,7 @@
           jkk=0 
           do while (mlel.ne.0) 
             jk=jk+1 
-            mt2=mlel-1 
+            mt2=mlel
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
      &        0,lun11)                                            
@@ -264,10 +272,12 @@
               xeltp=masterdata%rdat1(np1r) 
               xeltp=abel(mllel) 
               nnz=masterdata%idat1(np1i) 
-              if (lpri.ge.2)                                            &
-     &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &          (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                    
-!           ignore if the abundance is small                            
+!              if (lpri.ge.2)  then
+!                write (lun11,902)jk,mlel,nnz,                           &
+!     &          (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)
+!902             format (1x,'  element:',3i6,1x,8a1)
+!                endif
+!!           ignore if the abundance is small                            
             if (xeltp.lt.1.e-10) then 
                 jkk=jkk+nnz 
               else 
@@ -279,7 +289,7 @@
                 do while ((mlion.ne.0).and.(kl.lt.nnz)) 
                   jkk=jkk+1 
 !                 retrieve ion name from kdati                          
-                  mlm=mlion-1 
+                  mlm=mlion
                   call drd(ltyp,lrtyp,lcon,                             &
      &              nrdt,np1r,nidt,np1i,nkdt,np1ki,mlm,                 &
      &              0,lun11)                                      
@@ -301,7 +311,7 @@
                     mlpar=0 
                     if (ml.ne.0) mlpar=derivedpointers%npar(ml) 
                     do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
-                      mlm=ml-1 
+                      mlm=ml
                       call drd(ltyp,lrtyp,lcon,                         &
      &                  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,              &
      &                  0,lun11)                                  
@@ -336,24 +346,24 @@
                     if (ml.ne.0) mlpar=derivedpointers%npar(ml) 
                     do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
 !                     step thru records of this type                    
-                      mlm=ml-1 
+                      mlm=ml
                       call drd(ltyp,lrtyp,lcon,                         &
      &                  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,              &
      &                  0,lun11)                                  
                       kkkl=derivedpointers%npconi2(ml) 
                       idest1=masterdata%idat1(np1i+nidt-2) 
                       if ((kkkl.gt.0).and.(kkkl.le.ndat2)               &
-     &                .and.((cemab(1,kkkl).gt.1.e-36)                   &
-     &                .or.(cemab(2,kkkl).gt.1.e-36))) then              
+     &                .and.((cemab(1,kkkl).gt.1.d-49)                   &
+     &                .or.(cemab(2,kkkl).gt.1.d-49))) then              
                         eth=leveltemp%rlev(4,idest1)                    &
      &                      -leveltemp%rlev(1,idest1) 
                         tmpc=(cemab(1,kkkl)+cemab(2,kkkl)) 
                         optp2=0. 
                         fac=delrl 
                         tmph=elumabo(1,kkkl)*optp2/fpr2 
-                        elumab(1,kkkl)=max(0.,elumabo(1,kkkl)           &
+                        elumab(1,kkkl)=max(0.d0,elumabo(1,kkkl)         &
      &                            +(-tmph+tmpc)*fac*fpr2/2.)            
-                        elumab(2,kkkl)=max(0.,elumabo(2,kkkl)           &
+                        elumab(2,kkkl)=max(0.d0,elumabo(2,kkkl)         &
      &                            +(-tmph+tmpc)*fac*fpr2/2.)            
                         if (lpri.ge.2)                                  &
      &                  write (lun11,981)kkkl,eth,idest1,               &
@@ -374,7 +384,7 @@
 !           Go to next element                                          
             enddo 
         cllines=cltot-clcont 
-        if (lpri.ge.1)                                                  &
+        if (lpri.gt.1)                                                  &
      &   write (lun11,*)'line cooling',cltot,cllines                    
 !                                                                       
 !                                                                       
@@ -392,10 +402,10 @@
       httot=httot+htcomp 
 !      cltot=cltot+clcomp+clbrems                                       
       cltot=cltot+clcomp 
-      if (lpri.ge.1) write (lun11,9953)htcomp,clcomp,cmp1,cmp2,         &
+      if (lpri.gt.1) write (lun11,9953)htcomp,clcomp,cmp1,cmp2,         &
      &   clbrems,(hmctot+hpctot)/2.,-(hmctot-hpctot)/2.                 
-      hmctot=2.*hmctot/(1.e-37+hpctot) 
-      if (lpri.ge.1) write (lun11,*)hmctot 
+      hmctot=2.*hmctot/(1.d-49+hpctot) 
+      if (lpri.gt.1) write (lun11,*)hmctot 
  9953 format (1h , ' compton heating, cooling=',8e12.4) 
       lpri=lprisv 
 !                                                                       

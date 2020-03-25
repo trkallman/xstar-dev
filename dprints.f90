@@ -1,37 +1,19 @@
-      subroutine dprints(ltyp,lrtyp,lcon,                               &
-     &  nrdt,rdat,nidt,idat,nkdt,kdat,lun11)                            
 !                                                                       
-!     Name: dprinto.f90  
-!     Description:  
-!     this  routine printe one record of the database, just the first two 
-!     values for each type 
-!     differs from dprints2 because data is passed directrly
+      subroutine dprints(ltyp,lrtyp,lcon,                            &
+     &  nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)                            
+!                                                                       
+!     this  routine prints one element of the database                  
 !     author:  T. Kallman                                               
-!     List of Parameters:
-!           Input:
-!           ltyp=data type
-!           lrtyp=rate type
-!           lcon=continuation switch
-!           nrdt=number of reals
-!           rdat=array of real data
-!           nidt=number of integers
-!           idat=array of int data
-!           nkdt=number of chars
-!           kdat=array of char data
-!           lun11=logical unit number for printout
-!     Dependencies:  none
-!     Called by:  not called by current xstar routines.  Included for reference.
 !                                                                       
+      use globaldata
       implicit none 
       integer nptmpdim 
       parameter (nptmpdim=200000) 
-      real(8) rdat(nptmpdim) 
-      integer idat(nptmpdim) 
-      character(1) kdat(nptmpdim) 
       character(20000) kdtt 
       character(1) kblnk,ktst,kperc,kdtt2(nptmpdim) 
       integer ltyp,lrtyp,lcon,nrdt,nidt,nkdt,lun11,                     &
      &        nkd,nkd2,ml2,itmp,ml,ll2,ll,mm                            
+      integer np1i,np1r,np1k
       real(8) rtmp 
 !                                                                       
       data kblnk/' '/,kperc/'%'/ 
@@ -44,14 +26,13 @@
 !                                                                       
       nkd=38 
       nkd2=37 
-      rtmp=rdat(1) 
+      rtmp=masterdata%rdat1(np1r) 
       if (1.gt.nrdt) rtmp=0. 
       ml2=nkd2 
       write (kdtt(ml2:ml2+12),'(1pe13.5)')rtmp 
       ml2=nkd+13 
       write (kdtt(ml2-1:ml2-1),'(a1)')kblnk 
-      rtmp=rdat(2) 
-!      rtmp=rdat(nrdt)                                                  
+      rtmp=masterdata%rdat1(np1r+1) 
       if (2.gt.nrdt) rtmp=0. 
       write (kdtt(ml2:ml2+12),'(1pe13.5)')rtmp 
       nkd2=nkd+2*13 
@@ -60,21 +41,20 @@
       write (kdtt(nkd:nkd),'(a1)')kblnk 
       nkd=nkd2+1 
       ml2=nkd 
-      itmp=idat(1) 
+      itmp=masterdata%idat1(np1i) 
       if (1.gt.nidt) itmp=0 
       ml2=nkd2 
-      write (kdtt(ml2:ml2+5),'(i6)') itmp 
-      ml2=ml2+6 
+      write (kdtt(ml2:ml2+9),'(i10)') itmp 
+      ml2=ml2+10
       itmp=0 
-      if (nidt.gt.1) itmp=idat(nidt-1) 
-      write (kdtt(ml2:ml2+5),'(i6)') itmp 
-      ml2=ml2+6 
-      itmp=idat(nidt) 
+      if (nidt.gt.1) itmp=masterdata%idat1(np1i+nidt-2) 
+      write (kdtt(ml2:ml2+9),'(i10)') itmp 
+      ml2=ml2+10 
+      if (nidt.gt.1) itmp=masterdata%idat1(np1i+nidt-1) 
       if (1.gt.nidt) itmp=0 
-      write (kdtt(ml2:ml2+5),'(i6)') itmp 
-      nkd2=nkd+3*6-1 
-        write (kdtt(nkd:nkd),'(a1)')kblnk 
-      nkd=nkd2 
+      write (kdtt(ml2:ml2+9),'(i10)') itmp 
+      nkd2=nkd+3*10-1 
+      write (kdtt(nkd:nkd),'(a1)')kblnk 
 !                                                                       
       nkd=nkd2 
       ml2=nkd 
@@ -85,8 +65,8 @@
 !        write (lun11,*)nkd,nkdt,nkd2,(kdat(mm),mm=1,nkdt)              
         do  ml=1,nkdt 
           ml2=nkd+ml-1 
-          write (kdtt(ml2:ml2),'(a1)')kdat(ml) 
-           ml2=ml2+1 
+          write (kdtt(ml2:ml2),'(a1)')masterdata%kdat1(ml+np1k-1) 
+          ml2=ml2+1 
           enddo 
         endif 
  9823    format (4i6) 
@@ -109,4 +89,4 @@
 !                                                                       
 !                                                                       
       return 
-      end                                           
+      END                                           

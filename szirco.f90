@@ -66,7 +66,7 @@
        term3=(e1-e2)*3.36*yy 
        cii=const*sqrt(tt)*(rn**5)/(rz**4)*an*yy* (                      &
      &   term1+term2+term3)                                             
-!       write (lun11,*)'in szirc:',nn,t,an,hn,rrn,rn,yy,e1,e2,e3,term1, 
+!       write (lun11,*)'in szirco:',nn,t,an,hn,rrn,rn,yy,e1,e2,e3,term1, 
 !     $    term2,term3,cii                                              
 !      give result                                                      
 !                                                                       

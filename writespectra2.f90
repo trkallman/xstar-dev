@@ -1,5 +1,5 @@
-      subroutine writespectra2(lun11,lpri,nparms,parname,partype,parval,&
-     &       parcomm,atcredate,epi,ncn2,dpthc,                          &
+      subroutine writespectra2(lun11,lpri,nparms,parname,partype,    &
+     &       parval,parcomm,atcredate,epi,ncn2,dpthc,                   &
      &       np2,nlsvn,                                                 &
      &       elum,tau0,kmodelname,nloopctl)                     
                                                                         
@@ -52,52 +52,45 @@
       integer nparms, nloopctl, lun11 
       character(20) parname(55) 
       character(10) partype(55) 
-      real*8 parval(55) 
+      real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real*8 elum(3,nnnl) 
+      real(8) elum(3,nnnl) 
 !     energy bins                                                       
-      real*8 epi(ncn) 
+      real(8) epi(ncn) 
 !     the atomic data creation date                                     
       character(63) atcredate 
 !     continuum optical depths                                          
-      real*8 dpthc(2,ncn) 
+      real(8) dpthc(2,ncn) 
 !     line optical depths                                               
-      real*8 tau0(2,nnnl) 
-      real*4 rtmp
+      real(8) tau0(2,nnnl) 
+      real(4) rtmp
       character(16) knam,klabs(9),kunits(9),kform(9),kblnk16 
       character(30) extname 
       integer unit,istatus, nilin, nkdt,nidt,lcon,lrtyp,ltyp,ml,status 
-      integer nlsvn, ln, ll, lnn, nrdt,mllz
+      integer nlsvn, ln, lnn, nrdt,mllz
       integer tbcol(9), nrows, rowlen 
       integer np2, kk 
       integer frow, felem, colnum, tfields, verbose,mm 
-      real*8 eliml, elimh, elmmtpp,elin 
-!     Internal work areas                                               
-!      INTEGER, DIMENSION(:), ALLOCATABLE :: ntptr
+      real(8) eliml, elimh, elmmtpp,elin 
       integer ntptr
       character(10) kion
-!      character(10) kion(nnnl)
-!      CHARACTER(LEN=:),ALLOCATABLE :: kion(:)      
-!      character(20) klevl(nnnl),klevu(nnnl) 
       character(20) klevl,klevu
-!      CHARACTER(LEN=:),ALLOCATABLE :: klevl(:)      
-!      CHARACTER(LEN=:),ALLOCATABLE :: klevu(:)      
       integer lpri,lpril 
       integer jkk, nlev 
       integer nlplmx,nilin2,nlpl,lmm,kltmpn,kltmpo,                     &
      &         llo,lup,llofnd,lupfnd,kk4,                               &
      &         k,kl2,lm,kk2,mlpar,mlm,np1i,np1k,np1r                    
-      real*8 elcomp 
+      real(8) elcomp 
       character(20) ktmp2,kblnk20 
 !     Database manipulation quantities                                  
       character(1) kblnk,kdtmp(200) 
       integer kltmp(1000) 
-      real*4 elsv
+      real(4) elsv
       logical done 
 !                                                                       
 !     Not used                                                          
-      real*8 javir 
+      real(8) javir 
       integer javi 
 !                                                                       
       data kblnk/' '/ 
@@ -119,18 +112,13 @@
       javi=derivedpointers%npilevi(1) 
       javi=derivedpointers%npconi2(1) 
 !                                                                       
-!      ALLOCATE(ntptr(nnnl))
-!      ALLOCATE(CHARACTER(10)::kion(nnnl))
-!      ALLOCATE(CHARACTER(20)::klevl(nnnl))
-!      ALLOCATE(CHARACTER(20)::klevu(nnnl))
-                                                                        
       verbose=lpri 
       eliml=0.1 
       elimh=1.0e10 
 !                                                                       
 !     open and prepare the fits file for spectral data                  
-      if(verbose.gt.0) write (lun11,*)'writespectra2: opening header',  &
-     &  kmodelname                                                      
+      if(verbose.gt.0) write (lun11,*)'writespectra2: opening header'&
+     &  ,kmodelname                                                      
       knam='xout_lines1.fits' 
       call fheader(unit,knam,atcredate,kmodelname,istatus) 
       if(istatus.gt.0) call printerror(lun11,istatus) 
@@ -138,7 +126,7 @@
 !     write extension of parameter values                               
       if(verbose.gt.0)                                                  &
      & write (lun11,*)'writespectra2: write parameter list'             
-      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,   &
+      call fparmlist(unit,1,kmodelname,nparms,parname,partype,parval,&
      &               parcomm,nloopctl,istatus,lun11)                    
       if(istatus.gt.0) call printerror(lun11,istatus) 
       if(verbose.gt.0)                                                  &
@@ -161,14 +149,14 @@
       do lnn=1,nlsvn 
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml 
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
         elin=abs(masterdata%rdat1(np1r)) 
         if ((lrtyp.ne.14).and.(lrtyp.ne.9)) then 
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -289,15 +277,15 @@
           if (ml.ne.0) then 
             if (verbose.gt.0)                                           &
      &        write (lun11,*)'   ',ln,ml                                
-            mlm=ml-1 
+            mlm=ml 
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
             llo=masterdata%idat1(np1i) 
             lup=masterdata%idat1(np1i+1) 
-            elsv=abs(masterdata%rdat1(np1r)) 
+            elsv=sngl(abs(masterdata%rdat1(np1r)))
             nilin=derivedpointers%npar(ml) 
-            mlm=nilin-1 
+            mlm=nilin
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -307,7 +295,6 @@
             do mm=nkdt+1,10 
               kdtmp(mm)=kblnk 
               enddo 
-!            nilin=idat(nidt)                                           
             write(kion,'(10a1)')(kdtmp(mm),mm=1,10) 
             done=.false. 
             jkk=1 
@@ -327,15 +314,15 @@
               llofnd=0 
               do while ((ml.ne.0).and.(mlpar.eq.mllz)                   &
      &           .and.((llofnd.ne.1).or.(lupfnd.ne.1)))                 
-                mlm=ml-1 
+                mlm=ml 
                 call drd(ltyp,lrtyp,lcon,                               &
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                    &
      &            0,lun11)                                        
                 nlev=masterdata%idat1(np1i+nidt-2) 
-                if (lpri.ne.0)                                          &
-     &            call dprinto(ltyp,lrtyp,lcon,                         &
+                if (lpri.gt.0)                                          &
+     &            call dprinto(ltyp,lrtyp,lcon,                      &
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)
-                if (lpri.ne.0)                                          &
+                if (lpri.gt.0)                                          &
      &            write (lun11,*)nlev,llo,lup,llofnd,lupfnd             
                 if (nlev.eq.llo) then 
                   do mm=1,20 
@@ -375,59 +362,59 @@
               colnum=kk4
               call ftpclj(unit,colnum,frow,felem,nrows,ntptr,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,ntptr,status
               kk4=2 
               colnum=kk4 
               call ftpcls(unit,colnum,frow,felem,nrows,kion,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,kion,status
               kk4=3 
               colnum=kk4 
               call ftpcls(unit,colnum,frow,felem,nrows,klevl,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,klevl,status
               kk4=4 
               colnum=kk4 
               call ftpcls(unit,colnum,frow,felem,nrows,klevu,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,klevu,status
               kk4=5 
               colnum=kk4
               call ftpcle(unit,colnum,frow,felem,nrows,elsv,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,elsv,status
               kk4=6 
               colnum=kk4 
-              rtmp=elum(1,ntptr) 
+              rtmp=sngl(elum(1,ntptr))
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,rtmp,status
               kk4=7 
               colnum=kk4 
-              rtmp=elum(2,ntptr) 
+              rtmp=sngl(elum(2,ntptr)) 
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,rtmp,status
               kk4=8 
               colnum=kk4
-              rtmp=tau0(1,ntptr) 
+              rtmp=sngl(tau0(1,ntptr))
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,rtmp,status
               kk4=9 
               colnum=kk4
-              rtmp=tau0(2,ntptr) 
+              rtmp=sngl(tau0(2,ntptr))
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
-              if (lpri.ne.0)                                            &
+              if (lpri.gt.0)                                            &
      &         write (lun11,*)unit,colnum,frow,felem,nrows,rtmp,status
               if (verbose.gt.0) then 
                 write (lun11,*)ml,nilin,derivedpointers%npar(ml) 
@@ -449,7 +436,7 @@
                                                                         
                                                                         
 !     compute checksums                                                 
-      if(verbose.gt.0) write (lun11,*)'writespectra2: writing checksum' 
+      if(verbose.gt.0) write (lun11,*)'writespectra2:writingchecksum' 
       status=0 
       call ftpcks(unit,status) 
 !     check for any error, and if so print out error messages           
@@ -458,10 +445,6 @@
       if(verbose.gt.0) write (lun11,*)'writespectra2: closing file' 
       call fitsclose(lun11,unit,istatus) 
 !                                                                       
-!      DEALLOCATE(ntptr)
-!      DEALLOCATE(kion)
-!      DEALLOCATE(klevl)
-!      DEALLOCATE(klevu)
 !                                                                       
       return 
       end                                           

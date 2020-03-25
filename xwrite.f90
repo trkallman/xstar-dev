@@ -14,7 +14,7 @@
 !
       implicit none 
       integer ll 
-      character*120 string 
+      character(120) string 
 !                                                                       
 !     Not used                                                          
       integer javi 

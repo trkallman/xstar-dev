@@ -1,4 +1,6 @@
-      subroutine pprint(jj,jkstep,                                      &
+                                                                        
+!-----------------------------------------------------------------------
+      subroutine pprint(jj,jkstep,                                   &
      & tp,xlum,lwri,lpri,r,t,xpx,p,lcdd,numrec,npass,                   &
      & nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,zremsz,epi,ncn2,            &
      & abel,cfrac,emult,taumax,xeemin,spectype,specfile,specunit,       &
@@ -8,11 +10,14 @@
      & bremsa,bremsint,tau0,dpthc,tauc,                                 &
      & ncsvn,nlsvn,                                                     &
      & ntotit,lnerrd,                                                   &
-     & xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,                        &
+     & xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,              &
      & cllines,clcont,htcomp,clcomp,clbrems,                            &
+     &       httot2,cltot2,                                             &
      & xilev,bilev,rnist,                                               &
      & rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,           &
-     & cabab,elumab,elum,zrems)                                         
+     & cabab,elumab,elum,zrems,                                         &
+     & zrtmp,zrtmpcol,zrtmph,zrtmpc)
+!                                                                       
 !                                                                       
 !     Name: pprint.f90  
 !     Description:  
@@ -97,7 +102,7 @@
 !           htcomp:  compton heating rate (erg s^-1 cm^-3) 
 !           clcomp:  compton cooling rate (erg s^-1 cm^-3) 
 !           clbrems:  bremsstrahlung cooling rate (erg s^-1 cm^-3) 
-!           xilev(nnml):  level populations (relative to parent element)
+!           xilev(nnml):  level populations (relative to all elements)
 !           bilev(nnml):  level departure coefficients
 !           rnist(nnml):  lte level populations (relative to parent element)
 !           rcem(2,nnnl):  line emissivities  (erg cm^-3 s^-1) /10^38
@@ -123,7 +128,7 @@
 !           zrems(5,ncn):  radiation field in continuum bins 
 !                          (erg/s/erg)/10^38
 !     Output:  none
-!     Dependencies: drd, func2l, xwrite
+!     Dependencies: drd, calc_rates_level_lte, xwrite
 !     Called by:  xstar, xstarsetup
 !
 !
@@ -204,11 +209,21 @@
 !                       Inserted '_' in spaces for ion names in call #11
 !                                                                       
       use globaldata
+      use times
       implicit none 
+!                                                                       
 !                                                                       
       integer nptmpdim 
       parameter (nptmpdim=400000) 
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
+!
 !     line luminosities                                                 
       real(8) elum(3,nnnl) 
 !     line emissivities                                                 
@@ -240,18 +255,18 @@
       real(8) xii(nni) 
 !     heating/cooling                                                   
       real(8) htt(nni),cll(nni) 
+      real(8) htt2(nni),cll2(nni) 
 !     the atomic data creation date                                     
       character(63) atcredate 
       real(8) rrrt(nni),pirt(nni) 
-      real(8) rniss(nd),rnisse(nd)
       real(8) abel(nl),ababs(nl) 
       real(8) xcoltmp(nni) 
       integer kltmp(5000) 
       real(8) zrtmp(999,3999)
-      real(8) zrtmpcol(999,1)
-      real(8) zrtmpc(999,3999)
-      real(8) zrtmph(999,3999)                              
-!      real(8) epi2(ncn),zrems2(3,ncn)                                   
+      real(8)  zrtmpcol(999,1)
+      real(8)  zrtmpc(999,3999)
+      real(8)  zrtmph(999,3999)                              
+
 !                                                                       
 !      common /ewout/newout,lnewo(nnnl),kdewo(8,nnnl),                  
 !     $  kdewol(20,nnnl),kdewou(20,nnnl),aijewo(nnnl),flinewo(nnnl),    
@@ -303,6 +318,11 @@
 !      integer nilino, jkktmp, lup, lnewo, lupfnd, llofnd               
 !      integer newout                                                   
 !                                                                       
+      character(1), dimension(:), allocatable :: kdat
+      real(8), dimension(:), allocatable ::  elsv
+      integer, dimension(:), allocatable :: jpnt
+      character(16), dimension(:), allocatable :: klabs,kunits,kform
+      character(16) knam,ktmp,kblnk16                                             
       character(20) parname(55) 
       character(10) partype(55) 
       real(8) parms(55) 
@@ -315,12 +335,7 @@
       character(20) ktmp20,klevu,klevl,kblnk20 
       character(9) kinam1 
       character(133) tmpst 
-      character(16) knam,klabs(3999),kunits(3999),kform(3999),ktmp,     &
-     &              kblnk16                                             
-      character(1) kdat(nptmpdim) 
       integer klen, unit, status 
-      real(8)  elsv(nnnl) 
-      integer jpnt(nnnl) 
 ! jg                                                                    
       real(8) xnx, xpx, xee, eliml, elimh 
       real(8) elmmtpp, elcomp, xeltp
@@ -332,7 +347,8 @@
       real(8) sumtmp1, sumtmp2, r19, tmp1, tmp2, tmp1o 
       real(8) tmp2o, err, sum1, sum2, sum3, sum4 
       real(8) r, ener, etst, aij, gglo, ggup, flin 
-      real(8) httot, cltot, htcomp, clcont, cllines 
+      real(8) httot, cltot, htcomp, clcont, cllines,                    &
+     &       httot2,cltot2
       real(8) clcomp, clbrems, uu1, enlum, alguu1 
       real(8) skse, ecc, ekt, sksec, zetac, enn0 
       real(8) egam, rdel, hmctot,  expo 
@@ -343,7 +359,11 @@
       real(8) uux, alguux, eth, abundel 
       real(8)  xi, delr, elin, flux1, flux2 
       real(8) rmax, tinf, rdum, dep, rss, bbe, rocc 
+      real(8) flux,ab12
+      real(8) vtherm,t1,deleth,aasmall,delea,a,delearad
+      real(8) ttmpi
                                                                         
+      integer lfnd
       integer jj, lun11, lpril, kltmpo, nlplmx, lm 
       integer nlpl, lnn, nlsvn, ln, ml, ltyp, lrtyp 
       integer lcon, nrdt, nidt, nkdt, nilin 
@@ -362,7 +382,7 @@
       integer    mlcu, mm2, mmtmp, ll 
       integer ntotit, nb1, nb10 
       integer lnerrd, nbinc 
-      integer nnmax, ncsvn,mlm 
+      integer nnmax, ncsvn,mlm,nnzel
       integer np1i,np1r,np1k,np1i2,np1r2,np1k2,np1ki 
 !                                                                       
       logical done 
@@ -371,8 +391,6 @@
       real(8) javir 
       integer javi 
       character(20) javik                                              
-!                                                                       
-      save zrtmpc,zrtmph,zrtmp 
 !                                                                       
       data kblnk20/'                    '/ 
       data kblnk/' '/,kblnk16/'                '/ 
@@ -384,6 +402,13 @@
      &               'Caabund=','Scabund=','Tiabund=','V abund=',       &
      &               'Crabund=','Mnabund=','Feabund=','Coabund=',       &
      &               'Niabund=','Cuabund=','Znabund='/                  
+!                                                                       
+      allocate(kdat(nptmpdim))
+      allocate(elsv(nnnl))
+      allocate(jpnt(nnnl))
+      allocate(klabs(3999))
+      allocate(kunits(3999))
+      allocate(kform(3999))
 !                                                                       
 !                                                                       
       javi=nnmax 
@@ -411,7 +436,7 @@
       if ((jj.ne.9).and.(jj.ne.12))                                     &
      & write (lun11,9211)jj                                             
  9211 format (1x, 'print option:',i2) 
-      if ((jj.le.0).or.(jj.gt.27)) return 
+      if ((jj.le.0).or.(jj.gt.27)) go to 9000
 !                                                                       
       goto (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,   &
      &23,24,25,26,27),                                                  &
@@ -440,7 +465,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
@@ -451,7 +476,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -516,7 +541,7 @@
           if (ml.ne.0) then 
             if (lpril.ne.0)                                             &
      &      write (lun11,*)'   ',ln,ml                                  
-            mlm=ml-1 
+            mlm=ml
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -524,7 +549,7 @@
 !                                                                       
 !           get ion data                                                
             nilin=derivedpointers%npar(ml) 
-            mlm=nilin-1 
+            mlm=nilin
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -534,7 +559,7 @@
             do mm=nkdt+1,9 
               kdtmp(mm)=kblnk 
               enddo 
-!            nilin=idat1(np1i+2)                                        
+!            nilin=masterdata%idat1(np1i+2)                                        
             if (lpril.ne.0)                                             &
      &      write (lun11,*)ml,nilin,derivedpointers%npar(ml)                   
 !                                                                       
@@ -551,7 +576,7 @@
 !                                                                       
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    19 continue 
@@ -583,7 +608,7 @@
 !                                                                       
 !       get element data                                                
         jk=jk+1 
-        mt2=mlel-1 
+        mt2=mlel
         call drd(ltyp,lrtyp,lcon,                                       &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
      &        0,lun11)                                            
@@ -591,9 +616,11 @@
         xeltp=masterdata%rdat1(np1r) 
         xeltp=abel(mllel) 
         nnz=masterdata%idat1(np1i) 
-        if (lpril.ge.1)                                                 &
-     &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                    
+        if (lpril.ge.1) then
+              write (lun11,902)jk,mlel,nnz,                             &
+     &          (masterdata%kdat1(np1k-1+mm),mm=1,min(8,nkdt))
+902           format (1x,'  element:',3(i12,1x),8(1a1))
+           endif
 !                                                                       
 !       ignore if the abundance is small                                
         if (xeltp.lt.1.e-10) then 
@@ -609,7 +636,7 @@
               jkk=jkk+1 
 !                                                                       
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
@@ -624,8 +651,9 @@
      &                (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
 !                                                                       
 !               now find level data                                     
-                call func2l(jkk,lpril,lun11,t,xee,xpx,                  &
-     &              rniss,rnisse,nlev)
+                jkk=masterdata%idat1(nidt+np1i-1)
+                call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+     &              leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -647,7 +675,7 @@
      &                .or.(elumab(2,kkkl).gt.1.d-49))) then             
 !                                                                       
 !                   get rrc  data                                       
-                    mlm=ml-1 
+                    mlm=ml
                     call drd(ltyp,lrtyp,lcon,                           &
      &                nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                &
      &                0,lun11)                                    
@@ -694,7 +722,7 @@
                       do while ((ndtmp.ne.0).and.                       &
      &                    (iltmp.ne.(idest2-nlevp+1)).and.              &
      &                    (derivedpointers%npar(ndtmp).eq.mllz))               
-                        mlm=ndtmp-1 
+                        mlm=ndtmp
                         call drd(ltyp2,lrtyp2,lcon2,                    &
      &                    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,      &
      &                    0,lun11)                                
@@ -747,7 +775,7 @@
 !                                                                       
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    23 continue 
@@ -771,7 +799,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
@@ -782,7 +810,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -847,7 +875,7 @@
           if (ml.ne.0) then 
             if (lpril.ne.0)                                             &
      &      write (lun11,*)'   ',ln,ml                                  
-            mlm=ml-1 
+            mlm=ml
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -855,7 +883,7 @@
 !                                                                       
 !           get ion data                                                
             nilin=derivedpointers%npar(ml) 
-            mlm=nilin-1 
+            mlm=nilin
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -865,7 +893,7 @@
             do mm=nkdt+1,9 
               kdtmp(mm)=kblnk 
               enddo 
-!            nilin=idat1(np1i+2)                                        
+!            nilin=masterdata%idat1(np1i+2)     
             if (lpril.ne.0)                                             &
      &      write (lun11,*)ml,nilin,derivedpointers%npar(ml)                   
 !                                                                       
@@ -881,7 +909,7 @@
 !                                                                       
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    24 continue 
@@ -912,7 +940,7 @@
 !                                                                       
 !       get element data                                                
         jk=jk+1 
-        mt2=mlel-1 
+        mt2=mlel
         call drd(ltyp,lrtyp,lcon,                                       &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
      &        0,lun11)                                            
@@ -920,9 +948,10 @@
         xeltp=masterdata%rdat1(np1r) 
         xeltp=abel(mllel) 
         nnz=masterdata%idat1(np1i) 
-        if (lpril.ge.1)                                                 &
-     &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &          (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                    
+        if (lpril.ge.1) then
+             write (lun11,902)jk,mlel,nnz,                              &
+     &          (masterdata%kdat1(np1k-1+mm),mm=1,nkdt),xeltp                    
+          endif
 !                                                                       
 !       ignore if the abundance is small                                
         if (xeltp.lt.1.e-10) then 
@@ -938,7 +967,7 @@
               jkk=jkk+1 
 !                                                                       
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
@@ -953,8 +982,9 @@
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
 !                                                                       
 !               now find level data                                     
-                call func2l(jkk,lpril,lun11,t,xee,xpx,                  &
-     &              rniss,rnisse,nlev)
+                jkk=masterdata%idat1(nidt+np1i-1)
+                call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+     &              leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -972,11 +1002,11 @@
 !                                                                       
 !                 test for non-zero rrc data                            
                   if ((kkkl.gt.0).and.(kkkl.le.ndat2)                   &
-     &                .and.((elumab(1,kkkl).gt.1.d-49)                  &
-     &                .or.(elumab(2,kkkl).gt.1.d-49))) then             
+     &                .and.((tauc(1,kkkl).gt.1.d-49)                    &
+     &                .or.(tauc(2,kkkl).gt.1.d-49))) then             
 !                                                                       
 !                   get rrc  data                                       
-                    mlm=ml-1 
+                    mlm=ml
                     call drd(ltyp,lrtyp,lcon,                           &
      &                nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                &
      &                0,lun11)                                    
@@ -1023,7 +1053,7 @@
                       do while ((ndtmp.ne.0).and.                       &
      &                    (iltmp.ne.(idest2-nlevp+1)).and.              &
      &                    (derivedpointers%npar(ndtmp).eq.mllz))               
-                        mlm=ndtmp-1 
+                        mlm=ndtmp
                         call drd(ltyp2,lrtyp2,lcon2,                    &
      &                    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,      &
      &                    0,lun11)                                
@@ -1075,7 +1105,7 @@
 !       Go to next element                                              
         enddo 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
     2 continue 
@@ -1087,20 +1117,27 @@
 !                                                                       
       write (lun11,'(1x)') 
       write (lun11,*)'input parameters:' 
-      write (lun11,*)'covering fraction=',cfrac 
-      write (lun11,*)'temperature (/10**4K)=',t 
+      write (lun11,'(a22,1pe11.3)')'covering fraction=    ',cfrac 
+      write (lun11,'(a22,1pe11.3)')'temperature (/10**4K)=',t 
       write (lun11,*)'constant pressure switch (1=yes, 0=no)=',1-lcdd 
-      write (lun11,*)'pressure (dyne/cm**2)=',p 
-      write (lun11,*)'density (cm**-3)=',xpx 
+      write (lun11,'(a22,1pe11.3)')'pressure (dyne/cm**2)=',p 
+      write (lun11,'(a22,1pe11.3)')'density (cm**-3)=     ',xpx 
       write (lun11,*)'spectrum type=',spectype 
       write (lun11,*)'spectrum file=',specfile 
       write (lun11,*)'spectrum units? (0=energy, 1=photons)',specunit 
-      write (lun11,*)'radiation temperature or alpha=',tp 
-      write (lun11,*)'luminosity (/10**38 erg/s)=',xlum 
-      write (lun11,*)'column density (cm**-2)=',xpxcol 
-      write (lun11,*)'log(ionization parameter)=',zeta 
+      write (lun11,'(a31,1pe11.3)')'radiation temperature or alpha=',tp 
+      write (lun11,'(a27,1pe11.3)')'luminosity (/10**38 erg/s)=',xlum 
+      write (lun11,'(a22,1pe11.3)')'column density (cm**-2)=',xpxcol 
+      write (lun11,'(a26,1pe11.3)')'log(ionization parameter)=',zeta 
+      r19=r/1.e+19
+      flux=xlum/12.56/r19/r19
+      write (lun11,'(a22,1pe11.3)')'flux=                 ',flux
+      write (lun11,*)'abundances:'
+      write (lun11,*)'element,   rel.to cosmic,     rel. to H,     H=12'
       do j=1,nl 
-         write (lun11,*)kabstring(j),abel(j) 
+         ab12=12.+log10(max(1.d-12,ababs(j))/max(1.d-48,ababs(1)))
+         write (lun11,9322)kabstring(j),abel(j),ababs(j),ab12 
+9322     format (1x,a8,3(1pe11.3))
          enddo 
       write (lun11,*)'model name=',kmodelname 
       write (lun11,*)'number of steps=',numrec 
@@ -1119,9 +1156,9 @@
       write (lun11,*)'radexp=',radexp 
       write (lun11,'(1x)') 
       write (lun11,993) 
-      return 
+      go to 9000
                                                                         
-!      r19=r*(1.e-19)                                                   
+!      r19=r*(1.d-97)                                                   
 !      uu1=enlum/(12.56*xpx*r19*r19)/3.e+10                             
 !      alguu1=log10(max(1.e-24,uu1))                                    
 !      skse=xlum/(xpx*r19*r19)                                          
@@ -1196,7 +1233,7 @@
       parcomm(17+nl+7)=kmodelname 
       parms(17+nl+8)=nloopctl 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
     4 continue 
@@ -1268,7 +1305,7 @@
       write (lun11,*)'rosseland mean opacity=',t,rssmn 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
     5 continue 
 !                                                                       
@@ -1278,7 +1315,7 @@
       do jlk=1,nlsvn 
          ln=jlk 
          ml=derivedpointers%nplin(ln) 
-         mlm=ml-1 
+         mlm=ml
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -1290,7 +1327,7 @@
       sumtmp1=0. 
       sumtmp2=0. 
       ergsev=1.602197e-12 
-      r19=r*1.e-19 
+      r19=r*1.e-19
       tmp1=zremsz(1)*(1.-exp(-dpthc(1,1))) 
       tmp2=zrems(3,1)+zrems(2,1) 
       do jk=2,ncn2 
@@ -1308,7 +1345,7 @@
 !      write (lun11,*),httot,cltot,fpr2dr,httot/(sumtmp1+1.e-24),       
 !     $  cltot/(elsum+sumtmp2+1.e-24)                                   
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
 6     continue
@@ -1388,7 +1425,7 @@
       write (lun11,993)
 !
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
     8 continue 
@@ -1397,8 +1434,9 @@
       lpril=0 
       write (lun11,*)'line list' 
       write (lun11,9943) 
- 9943 format (1x,'     wave          element  ion  glo          gup   ' &
-     & ,'      fij')                                                    
+ 9943 format (1x,'           wave (A)   ion        Aul        fij       &
+     &   glo         gup        level_lo             level_up           &
+     &   DE_aug      DE_th       a_damp')
 !                                                                       
 !     step through lines                                                
       nlpl=1 
@@ -1407,16 +1445,49 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
         elin=abs(masterdata%rdat1(np1r)) 
 !                                                                       
+!       get ion data                                                  
+        nilin=derivedpointers%npar(ml) 
+        mlm=nilin
+        call drd(ltyp,lrtyp,lcon,                                       &
+     &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
+     &      0,lun11)                                              
+        do ktt=1,min(8,nkdt) 
+          write (kinam1(ktt:ktt),'(a1)')masterdata%kdat1(np1k-1+ktt) 
+          enddo 
+        do ktt=nkdt+1,9 
+          write (kinam1(ktt:ktt),'(a1)')kblnk 
+          enddo 
 !                                                                       
+!          if (lpri.ge.1)                                               
+!     $      write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,              
+!     $          (kdat1(np1ki+mm-1),mm=1,nkdti)                         
+!                                                                       
+        nelin=derivedpointers%npar(nilin) 
+        mlm=nelin
+        call drd(ltyp,lrtyp,lcon,                                       &
+     &      nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                       &
+     &      0,lun11)                                                  
+        nnzel=masterdata%idat1(np1i2)
+        a=masterdata%rdat1(np1r2+1) 
+!
 !       exclude rate type 14                                            
         if ((lrtyp.ne.14).and.(abs(elin).gt.0.1).and.(lrtyp.ne.9)       &
-     &       .and.(abs(elin).lt.9.e+9)) then                            
+     &       .and.(abs(elin).lt.9.e+9)) then
+!                                                                       
+!         get line data                                                   
+          ln=lnn 
+          ml=derivedpointers%nplin(ln) 
+          mlm=ml
+          call drd(ltyp,lrtyp,lcon,                                     &
+     &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
+     &    0,lun11)                                                
+          elin=abs(masterdata%rdat1(np1r)) 
 !                                                                       
           ergsev=1.602197e-12 
           ener=ergsev*(12398.41)/max(elin,1.d-24) 
@@ -1426,44 +1497,36 @@
           aij=masterdata%rdat1(np1r+2) 
           if (ltyp.eq.82) aij=masterdata%rdat1(np1r+3) 
 !                                                                       
-!         get ion data                                                  
-          nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
-          call drd(ltyp,lrtyp,lcon,                                     &
-     &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
-     &      0,lun11)                                              
-          do ktt=1,min(8,nkdt) 
-            write (kinam1(ktt:ktt),'(a1)')masterdata%kdat1(np1k-1+ktt) 
-            enddo 
-          do ktt=nkdt+1,9 
-            write (kinam1(ktt:ktt),'(a1)')kblnk 
-            enddo 
-!                                                                       
-!          if (lpri.ge.1)                                               
-!     $      write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,              
-!     $          (kdat1(np1ki+mm-1),mm=1,nkdti)                         
 !                                                                       
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
-          call func2l(jkk,lpril,lun11,t,xee,xpx,                        &
-     &              rniss,rnisse,nlev)
+          call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+     &              leveltemp,nlev)
+          lpri=0
+          call deleafnd(jkk,idest2,delea,lfnd,lpri,lun11)           
+          delearad=6.6262e-27*aij/6.28/1.602197e-12
+          t1=1.        
+          vtherm=1.29e+6/sqrt(a/t1)
+          deleth=etst*vtherm/3.e+10 
+          aasmall=(delea+delearad)/(1.E-24+deleth)/12.56 
                                                                         
-          ggup=leveltemp%rlev(2,idest1) 
-          gglo=leveltemp%rlev(2,idest2) 
+          ggup=leveltemp%rlev(2,idest2) 
+          gglo=leveltemp%rlev(2,idest1) 
           do lk=1,20 
             klablo(lk)=leveltemp%klev(lk,idest1) 
             klabup(lk)=leveltemp%klev(lk,idest2) 
             enddo 
           flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
           write (lun11,9944)lnn,elin,kinam1,aij,flin,gglo,ggup,         &
-     &             klablo,klabup                                        
- 9944     format (1h ,i9,e12.4,1x,a9,4(1pe12.4),1x,20a1,1x,20a1) 
+     &             klablo,klabup,delea,deleth,aasmall 
+ 9944     format (1h ,i9,e12.4,1x,a9,4(1pe12.4),1x,20a1,1x,20a1,        &
+     &        3(1pe12.4)) 
 !                                                                       
           endif 
         enddo 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    10 continue 
@@ -1481,7 +1544,7 @@
 !        get ion data                                                   
          lk=lk+1 
          ltyp=klion 
-         mlm=mlion-1 
+         mlm=mlion
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -1494,7 +1557,7 @@
 !                                                                       
 !        get element data                                               
          nell=derivedpointers%npar(mlion) 
-         mlm=nell-1 
+         mlm=nell
          call drd(ltyp,lrtyp,lcon,                                      &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1527,7 +1590,7 @@
 !                                                                       
 !        get element data                                               
          ltyp=klel 
-         mlm=mlel-1 
+         mlm=mlel
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -1545,7 +1608,8 @@
 !                                                                       
            abundel=ababs(masterdata%idat1(np1i+nidt-1))                  
            if (abundel.gt.1.d-36)                                       &
-     &      write (lun11,9046)lk,(kdtmp(mm),mm=1,9),htt(lk),cll(lk) 
+     &      write (lun11,9046)lk,(kdtmp(mm),mm=1,9),htt(lk),cll(lk),    &
+     &          htt2(lk),cll2(lk)
 !                                                                       
            endif 
 !                                                                       
@@ -1558,10 +1622,13 @@
      &            httot-htcomp,htcomp                                   
       write (lun11,*)'partial cooling rates: rec,lines,brems,compton',  &
      &            clcont,cllines,clcomp,clbrems                         
+      write (lun11,*)'total heating, cooling, electron point of view:', &
+     &            httot2,cltot2                                           
       write (lun11,993) 
 !                                                                       
 !                                                                       
-      return 
+      go to 9000
+!
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!        
 !                                                                       
 !     Write FITS file with summary of ion abundances                    
@@ -1613,7 +1680,7 @@
       do while (mlion.ne.0) 
            lk=lk+1 
            ltyp=klion 
-           mlm=mlion-1 
+           mlm=mlion
            call drd(ltyp,lrtyp,lcon,                                    &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1621,7 +1688,7 @@
 !          get element abundance                                        
            nelin=derivedpointers%npar(mlion) 
            ml=nelin 
-           mlm=ml-1 
+           mlm=ml
            call drd(ltyp,lrtyp,lcon,                                    &
      &       nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                         &
      &       0,lun11)                                             
@@ -1629,7 +1696,7 @@
            xeltp=ababs(mllel) 
 !                                                                       
 !          go back to ion data                                          
-           mlm=mlion-1 
+           mlm=mlion
            call drd(ltyp,lrtyp,lcon,                                    &
      &       nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                         &
      &       0,lun11)                                             
@@ -1675,7 +1742,7 @@
            mlion=derivedpointers%npnxt(mlion) 
            enddo 
 !                                                                       
-      call fwrtascii(unit,'ABUNDANCES',zrtmp,8+lk,                      &
+      call fwrtascii(unit,'ABUNDANCES',zrtmp,8+lk,                   &
      &                  numrec,klabs,kform,kunits,lun11)                
 !                                                                       
 !     calculate columns                                                 
@@ -1687,7 +1754,7 @@
         zrtmpcol(lkk,1)=0. 
         enddo 
 !                                                                       
-      call fwrtascii(unit,'COLUMNS                                    ',&
+      call fwrtascii(unit,'COLUMNS                                 ',&
      & zrtmpcol,8+lk,1,klabs,kform,kunits,lun11)                
 !                                                                       
       klel=11 
@@ -1696,7 +1763,7 @@
       do while (mlel.ne.0) 
            lk=lk+1 
            ltyp=klel 
-           mlm=mlel-1 
+           mlm=mlel
            call drd(ltyp,lrtyp,lcon,                                    &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1736,7 +1803,7 @@
       klabs(8+lk+2)='total' 
       kform(8+lk+2)='E11.3' 
       kunits(8+lk+2)=' ' 
-      call fwrtascii(unit,'HEATING                                   ', &
+      call fwrtascii(unit,'HEATING                                ', &
      & zrtmph,8+lk+2,numrec,klabs,kform,kunits,lun11)                   
 !                                                                       
       klabs(8+lk+1)='compton' 
@@ -1748,12 +1815,12 @@
       klabs(8+lk+3)='total' 
       kform(8+lk+3)='E11.3' 
       kunits(8+lk+3)=' ' 
-      call fwrtascii(unit,'COOLING                                    ',&
+      call fwrtascii(unit,'COOLING                                 ',&
      & zrtmpc,8+lk+3,numrec,klabs,kform,kunits,lun11)                   
 !                                                                       
       call fitsclose(lun11,unit,status) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    12 continue 
@@ -1764,7 +1831,7 @@
 !     Modifies zrtmp                                                    
 !                                                                       
       ergsev=1.602197e-12 
-      r19=r*(1.e-19) 
+      r19=r*(1.e-19)
 !      write (lun11,*)enlum,xpx,r,xlum,jkstep                           
       uu1=enlum/(12.56*xpx*r19*r19)/3.e+10 
 !      write (lun11,*)uu1                                               
@@ -1782,7 +1849,7 @@
       egam=zremsz(nry)/(2.*12.56*enn0*ecc*r19*r19+1.e-24) 
       nry=nbinc(13.6d0,epi,ncn2)+1 
 !     Copy the values for radial zone jkstep                            
-      if (jkstep.gt.3999) return 
+      if (jkstep.gt.3999) go to 9000
       zrtmp(1,jkstep)=r 
       zrtmp(2,jkstep)=rdel 
       zrtmp(3,jkstep)=zeta 
@@ -1808,8 +1875,8 @@
       lk=0 
       do while (mlel.ne.0) 
         lk=lk+1 
-        zrtmpc(8+lk,jkstep)=htt(lk) 
-        zrtmph(8+lk,jkstep)=cll(lk) 
+        zrtmpc(8+lk,jkstep)=cll(lk) 
+        zrtmph(8+lk,jkstep)=htt(lk) 
         mlel=derivedpointers%npnxt(mlel) 
         enddo 
       zrtmph(8+lk+1,jkstep)=htcomp 
@@ -1818,7 +1885,8 @@
       zrtmpc(8+lk+2,jkstep)=clbrems 
       zrtmpc(8+lk+3,jkstep)=cltot 
 !                                                                       
-      return 
+      go to 9000
+!
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!      
 !                                                                       
 !                                                                       
@@ -1826,7 +1894,7 @@
 !                                                                       
   993 format (1h ) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    14 continue 
@@ -1846,7 +1914,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
@@ -1854,7 +1922,7 @@
 
 !       get ion data                                                  
         nilin=derivedpointers%npar(ml) 
-        mlm=nilin-1 
+        mlm=nilin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1862,7 +1930,7 @@
 
 !       get element data                                                  
         nelin=derivedpointers%npar(nilin) 
-        mlm=nelin-1 
+        mlm=nelin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1881,7 +1949,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1901,7 +1969,7 @@
         enddo 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    15 continue 
@@ -1917,7 +1985,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt2,np1k2,mlm,                          &
      &    0,lun11)                                                
@@ -1927,7 +1995,7 @@
 
 !       get ion data                                                  
         nilin=derivedpointers%npar(ml) 
-        mlm=nilin-1 
+        mlm=nilin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1935,7 +2003,7 @@
 
 !       get element data                                                  
         nelin=derivedpointers%npar(nilin) 
-        mlm=nelin-1 
+        mlm=nelin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1954,7 +2022,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -1977,7 +2045,7 @@
         enddo 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    18 continue 
@@ -1991,7 +2059,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
@@ -1999,7 +2067,7 @@
 !                                                                       
 !       get ion data                                                  
         nilin=derivedpointers%npar(ml) 
-        mlm=nilin-1 
+        mlm=nilin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2007,7 +2075,7 @@
 
 !       get element data                                                  
         nelin=derivedpointers%npar(nilin) 
-        mlm=nelin-1 
+        mlm=nelin
         call drd(ltyp,lrtyp,lcon,                                       &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2018,6 +2086,15 @@
         if ((lrtyp.ne.14).and.(lrtyp.ne.9).and.(abs(elin).gt.0.1)       &
      &       .and.(abs(elin).lt.9.e+9).and.(xeltp.gt.1.d-36)) then             
 !                                                                       
+!         get line data                                                   
+          ln=lnn 
+          ml=derivedpointers%nplin(ln) 
+          mlm=ml
+          call drd(ltyp,lrtyp,lcon,                                     &
+     &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
+     &    0,lun11)                                                
+          elin=abs(masterdata%rdat1(np1r)) 
+!                                                                       
           ergsev=1.602197e-12 
           ener=ergsev*(12398.41)/max(elin,1.d-24) 
           etst=ener/ergsev 
@@ -2027,7 +2104,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2044,8 +2121,8 @@
 !                                                                       
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
-          call func2l(jkk,lpril,lun11,t,xee,xpx,                        &
-     &              rniss,rnisse,nlev)
+          call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+     &              leveltemp,nlev)
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2058,7 +2135,7 @@
           ilevup=idest2 
 !                                                                       
           j=ln 
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,9929)j,elin,kinam1,                          &
      &        (leveltemp%klev(mm,ilevlo),mm=1,20),                      &
      &        (leveltemp%klev(mm,ilevup),mm=1,20),                      &
@@ -2073,7 +2150,7 @@
         enddo 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    20 continue 
@@ -2083,7 +2160,7 @@
       do jlk=1,nlsvn 
          j=jlk 
          ml=derivedpointers%nplin(j) 
-         mlm=ml-1 
+         mlm=ml
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -2119,7 +2196,7 @@
 !       get line data                                                   
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
@@ -2138,7 +2215,7 @@
 !                                                                       
 !         get ion data                                                  
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2155,8 +2232,8 @@
 !                                                                       
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
-          call func2l(jkk,lpril,lun11,t,xee,xpx,                        &
-     &              rniss,rnisse,nlev)
+          call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
+     &              leveltemp,nlev)
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2168,7 +2245,7 @@
           ilevlo=idest1 
           ilevup=idest2 
 !                                                                       
-            if (lpri.ne.0)                                              &
+            if (lpri.gt.0)                                              &
      &        write (lun11,9929)j,elin,kinam1,                          &
      &        (leveltemp%klev(mm,ilevlo),mm=1,20),                      &
      &        (leveltemp%klev(mm,ilevup),mm=1,20),                      &
@@ -2180,7 +2257,7 @@
          enddo 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
    21 continue 
 !                                                                       
@@ -2201,7 +2278,7 @@
 !                                                                       
 !       get element data                                                
         jk=jk+1 
-        mt2=mlel-1 
+        mt2=mlel
         call drd(ltyp,lrtyp,lcon,                                       &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
      &        0,lun11)                                            
@@ -2209,9 +2286,10 @@
         xeltp=masterdata%rdat1(np1r) 
         xeltp=abel(mllel) 
         nnz=masterdata%idat1(np1i) 
-        if (lpril.ge.1)                                                 &
-     &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                    
+        if (lpril.ge.1) then
+             write (lun11,902)jk,mlel,nnz,                              &
+     &          (masterdata%kdat1(np1k-1+mm),mm=1,nkdt),xeltp                    
+          endif
 !                                                                       
 !       ignore if the abundance is small                                
         if (xeltp.lt.1.e-10) then 
@@ -2227,7 +2305,7 @@
               jkk=jkk+1 
 !                                                                       
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
@@ -2242,8 +2320,9 @@
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
 !                                                                       
 !               now find level data                                     
-                call func2l(jkk,lpril,lun11,t,xee,xpx,                  &
-     &              rniss,rnisse,nlev)
+                jkk=masterdata%idat1(nidt+np1i-1)
+                call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+     &              leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -2261,11 +2340,13 @@
 !                                                                       
 !                 test for non-zero rrc data                            
                   if ((kkkl.gt.0).and.(kkkl.le.ndat2)                   &
-     &                .and.((elumab(1,kkkl).gt.1.d-49)                  &
-     &                .or.(elumab(2,kkkl).gt.1.d-49))) then             
+     &                .and.((opakab(kkkl).gt.1.d-49)                    &
+     &                .or.(cabab(kkkl).gt.1.d-49)                       &
+     &                .or.(cemab(1,kkkl).gt.1.d-49)                     &
+     &                .or.(cemab(2,kkkl).gt.1.d-49))) then             
 !                                                                       
 !                   get rrc  data                                       
-                    mlm=ml-1 
+                    mlm=ml
                     call drd(ltyp,lrtyp,lcon,                           &
      &                nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                &
      &                0,lun11)                                    
@@ -2312,7 +2393,7 @@
                       do while ((ndtmp.ne.0).and.                       &
      &                    (iltmp.ne.(idest2-nlevp+1)).and.              &
      &                    (derivedpointers%npar(ndtmp).eq.mllz))               
-                        mlm=ndtmp-1 
+                        mlm=ndtmp
                         call drd(ltyp2,lrtyp2,lcon2,                    &
      &                    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,      &
      &                    0,lun11)                                
@@ -2370,7 +2451,7 @@
 !                                                                       
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
     7 continue 
@@ -2385,12 +2466,12 @@
      &,' e_exc population')                                             
                                                                         
 !     lpril is flag for printing debug information                      
-      lpril=0 
+      lpril=0
       if (lpril.ne.0) then 
         write (lun11,*)'raw data' 
         do j=1,nnml 
-          if (xilev(j).gt.1.e-37)                                       &
-     &     write (lun11,*)j,xilev(j),elumab(1,j)                        
+!          if (xilev(j).gt.1.e-37)                                       &
+          write (lun11,*)j,xilev(j),bilev(j),rnist(j),elumab(1,j)                        
           enddo 
         endif 
 !                                                                       
@@ -2404,7 +2485,7 @@
 !                                                                       
 !       get element data                                                
         jk=jk+1 
-        mt2=mlel-1 
+        mt2=mlel
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                            &
      &    0,lun11)                                                
@@ -2430,7 +2511,7 @@
 !                                                                       
               jkk=jkk+1 
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                  &
      &            0,lun11)                                        
@@ -2444,7 +2525,7 @@
      &            write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,         &
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
                 do ktt=1,min(8,nkdti) 
-                   write (kinam1(ktt:ktt),'(a1)')                        &
+                   write (kinam1(ktt:ktt),'(a1)')                       &
      &                   masterdata%kdat1(np1ki-1+ktt) 
                   enddo 
                 do ktt=nkdti+1,9 
@@ -2452,8 +2533,9 @@
                   enddo 
 !                                                                       
 !               get level data                                          
-                call func2l(jkk,lpril,lun11,t,xee,xpx,                  &
-     &              rniss,rnisse,nlev)
+                jkk=masterdata%idat1(nidt+np1i-1)
+                call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
+     &              leveltemp,nlev)
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 
@@ -2472,7 +2554,7 @@
                       dep=xilev(kkkl)/(rnist(kkkl)+1.d-36) 
                       write (lun11,9296)kkkl,kinam1,                    &
      &                   (leveltemp%klev(lk,mm2),lk=1,20),              &
-     &                   eth,xilev(kkkl),rnist(kkkl),dep                                
+     &                   eth,xilev(kkkl),rnist(kkkl),dep,bilev(kkkl)                                
  9296                 format (1x,i6,1x,a8,1x,(20a1),7(1pe13.5)) 
 !                                                                       
                                                                         
@@ -2503,7 +2585,7 @@
       write (lun11,993) 
 !                                                                       
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!   
 !                                                                       
@@ -2516,7 +2598,7 @@
       do jlk=1,nlsvn 
          ln=jlk 
          ml=derivedpointers%nplin(ln) 
-         mlm=ml-1 
+         mlm=ml 
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -2528,7 +2610,7 @@
       sumtmp1=0. 
       sumtmp2=0. 
       ergsev=1.602197e-12 
-      r19=r*1.e-19 
+      r19=r*1.e-19
       tmp1=zremsz(1) 
       tmp2=zrems(1,1) 
       do jk=2,ncn2 
@@ -2573,25 +2655,25 @@
  9889  format (1x,11(1x,f6.2),2i3) 
       call xwrite(tmpst,10) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    16 continue 
 !                                                                       
 !     times                                                             
-!      write (lun11,*)'times:',tread,tloop,tfunc,trates1,thcor,trates2, 
-!     $          theat                                                  
+      write (lun11,*)'times:',tread,tloop,tfunc,trates1,thcor,trates2,  &
+     &          theat                                                  
       ttot=0. 
       do ll=1,ntyp 
-!        ttmpi=tucalc(ll)/max(1,ncall(ll))   !jg                        
-!        ttot=ttot+tucalc(ll)   !jg                                     
-!        write (lun11,9892)ll,ncall(ll),tucalc(ll),ttmpi   !jg          
-! 9892   format (1x,2i8,2(1pe11.3))                                     
+        ttmpi=tucalc(ll)/max(1,ncall(ll))   !jg                        
+        ttot=ttot+tucalc(ll)   !jg                                     
+        write (lun11,9892)ll,ncall(ll),tucalc(ll),ttmpi   !jg          
+ 9892   format (1x,2i8,2(1pe11.3))                                     
         enddo 
       write (lun11,*)'total ucalc=',ttot 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    17 continue 
@@ -2628,7 +2710,7 @@
       call xwrite(tmpst,10) 
  9989 format (3x,11a7) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !                                                                       
    22 continue 
@@ -2637,7 +2719,7 @@
       rdum=delr 
       delr=rdum 
       ergsev=1.602197e-12 
-      r19=r*(1.e-19) 
+      r19=r*(1.e-19)
 !      write (lun11,*)enlum,xpx,r,xlum                                  
       uu1=enlum/(12.56*xpx*r19*r19)/3.e+10 
 !      write (lun11,*)uu1                                               
@@ -2676,7 +2758,7 @@
       write(lun11,9968)zetac,alguu1,alguux,egam,rdel 
       write (lun11,993) 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
    25 continue 
 !                                                                       
@@ -2793,11 +2875,11 @@
 !          enddo                                                        
 !      call commonprint(lun11)                                          
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
    26 continue 
 !                                                                       
-      return 
+      go to 9000
 !                                                                       
 !     ferland print                                                     
       lpril=0 
@@ -2815,14 +2897,14 @@
       do lnn=1,nlsvn 
         ln=lnn 
         ml=derivedpointers%nplin(ln) 
-        mlm=ml-1 
+        mlm=ml 
         call drd(ltyp,lrtyp,lcon,                                       &
      &    nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                            &
      &    0,lun11)                                                
         elin=abs(masterdata%rdat1(np1r)) 
         if ((lrtyp.ne.14).and.(lrtyp.ne.9)) then 
           nilin=derivedpointers%npar(ml) 
-          mlm=nilin-1 
+          mlm=nilin
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2866,7 +2948,7 @@
 !      nlpl=nlpl-1                                                      
       write (lun11,9599) 
  9599 format (1x,'index, ion, wavelength, reflected, transmitted,total') 
-      r19=r*1.e-19 
+      r19=r*1.e-19
       do  kk=1,nlpl 
         if (lpril.ne.0)                                                 &
      &    write (lun11,*)'kk=',kk                                       
@@ -2876,13 +2958,13 @@
           if (ml.ne.0) then 
             if (lpril.ne.0)                                             &
      &      write (lun11,*)'   ',ln,ml                                  
-            mlm=ml-1 
+            mlm=ml 
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
             elin=abs(masterdata%rdat1(np1r)) 
             nilin=derivedpointers%npar(ml) 
-            mlm=nilin-1 
+            mlm=nilin
             call drd(ltyp,lrtyp,lcon,                                   &
      &        nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                        &
      &        0,lun11)                                            
@@ -2904,7 +2986,7 @@
           endif 
         enddo 
       write (lun11,993) 
-      return 
+      go to 9000
 !                                                                       
                                                                         
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC!        
@@ -2931,7 +3013,7 @@
 !        get ion data                                                   
          lk=lk+1 
          ltyp=klion 
-         mlm=mlion-1 
+         mlm=mlion
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               
@@ -2944,7 +3026,7 @@
 !                                                                       
 !        get element data                                               
          nell=derivedpointers%npar(mlion) 
-         mlm=nell-1 
+         mlm=nell
          call drd(ltyp,lrtyp,lcon,                                      &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                          &
      &      0,lun11)                                              
@@ -2974,6 +3056,14 @@
 !                                                                       
          mlion=derivedpointers%npnxt(mlion) 
          enddo 
+!       
+9000  continue
+      deallocate(kdat)
+      deallocate(elsv)
+      deallocate(jpnt)
+      deallocate(klabs)
+      deallocate(kunits)
+      deallocate(kform)
 !                                                                       
 !                                                                       
       return 

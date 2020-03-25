@@ -1,6 +1,6 @@
       subroutine erc(n,m,t,ic,se,sd,a,lun11,lpri) 
 !                                                                       
-!     Name: impact.f90  
+!     Name: erc.f90  
 !     Description:  
 !       erc calculates the excitation rate, se [cm**3/s],  for atomic         
 !       transitions between lower state n and upper state m in hydrogen       
@@ -47,11 +47,11 @@
          return 
         endif 
         if (lpri.gt.1)                                                  &
-     &   write (lun11,*)'before impactn:',                              &
+     &   write (lun11,*)'before impactn:',                           &
      &       n,m,t,ic,a,sm                                              
         call impactn(n,m,t,ic,a,sm,lun11,lpri) 
         if (lpri.gt.1)                                                  &
-     &   write (lun11,*)'after impactn:',                               &
+     &   write (lun11,*)'after impactn:',                            &
      &       n,m,t,ic,a,sm                                              
         ym=157803.*ric*ric/t/(rm*rm) 
         xn=(1./(rn*rn)-1./(rm*rm)) 
@@ -67,7 +67,7 @@
      &    write (lun11,*)ym,xn,yn,s,sd,se                               
        else 
         if (lpri.gt.1)                                                  &
-     &   write (lun11,*)'calling szcoll:',                              &
+     &   write (lun11,*)'calling szcoll:',                           &
      &       n,m,t,se,ic                                                
         call szcoll(n,m,t,se,ic) 
         ym=157803.*ric*ric/t/(rm*rm) 
@@ -75,7 +75,7 @@
         yn=157803.*ric*ric*xn/t 
         sd=se*exp(min(50.d0,yn))*(rn*rn)/(rm*rm) 
         if (lpri.gt.1)                                                  &
-     &   write (lun11,*)'after szcoll:',                                &
+     &   write (lun11,*)'after szcoll:',                             &
      &       ym,xn,yn,sd,ric,rm,xn,rn,t                                 
        endif 
       else 

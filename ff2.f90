@@ -31,7 +31,7 @@
      &       4.9776e+11,0./                                             
 !                                                                       
       xprod=1. 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'in ff2:',x                                       
       pp=0. 
       qq=0. 
@@ -41,7 +41,7 @@
           pp=pp+p(j)/xprod 
           qq=qq+q(j)/xprod 
           xprod=xprod*x 
-          if (lpri.ne.0)                                                &
+          if (lpri.gt.0)                                                &
      &     write (lun11,*)j,xprod,pp,qq,ptst                            
           endif 
         enddo 

@@ -34,7 +34,7 @@
         endif 
       jlo=max(1,jlo) 
       jlo=min(n,jlo) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      &  write (lun11,*)'in huntf',n,xx(1),xx(n),jlo,xx(jlo),x           
 !                                                                       
       return 

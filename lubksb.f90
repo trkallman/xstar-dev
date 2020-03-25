@@ -1,6 +1,6 @@
       subroutine lubksb(a,n,np,indx,b,lun11,lpri) 
 !                                                                       
-!     Name: leqt2f.f90
+!     Name: lubksb.f90
 !     Description:
 !       routine to solve system by back substitution
 !       from numerical recipes

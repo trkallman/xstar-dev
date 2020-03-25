@@ -13,7 +13,7 @@
 !       Te=temperature in kelvin
 !       Output:
 !       calc_sampson_s
-!     Dependencies:  exint_n
+!     Dependencies:  exintn
 !     Called by: calc_maxwell_rates
 
       real(8) om(14) 
@@ -28,7 +28,7 @@
       real(8) a1, a1y, E1y, Ery, Er1y 
       real(8) Zeff, Zeff_e, term 
       integer re 
-      real(8) Z2gamma, Z2gamma_e,exint_n,pow 
+      real(8) Z2gamma, Z2gamma_e,exintn,pow 
       real(8) KBOLTZ,fre,frem 
       data KBOLTZ/8.617385e-8/ 
 !      /* kB = (keV/K) */                                               
@@ -55,9 +55,9 @@
                                                                         
       a1 = a2+1.0 
       a1y = a1*y 
-      E1y = exint_n(y,-1.d0,1) 
-      Ery = exint_n(a1y,-1.d0,1) 
-      Er1y= exint_n(a1y,Ery,2) 
+      E1y = exintn(y,-1.d0,1) 
+      Ery = exintn(a1y,-1.d0,1) 
+      Er1y= exintn(a1y,Ery,2) 
                                                                         
       term = (c1*Ery + c2*Er1y/a1) 
       if ((a1_gam .ne.0.0).and.(term.gt.0)) then 
@@ -69,8 +69,8 @@
                                                                         
       a1 = a2e+1 
       a1y = a1*y 
-      Ery = exint_n(a1y,-1.d0,re) 
-      Er1y = exint_n(a1y,-1.d0,re+1) 
+      Ery = exintn(a1y,-1.d0,re) 
+      Er1y = exintn(a1y,-1.d0,re+1) 
                                                                         
       fre=re 
       frem=re-1 

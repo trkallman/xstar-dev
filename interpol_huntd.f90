@@ -1,4 +1,3 @@
-!_______________________________________________________________        
       real(8) function interpol_huntd(n,x,y,z,jl,ju,lpri,lun11) 
 
 !     Name: interpol_huntd.f90  
@@ -40,7 +39,7 @@
       if (( inc .and.((z .lt. x(1)) .or. (z .gt. x(n-1)))) .or.         &
      & (.not.(inc).and.(z .gt. x(1) .or. z .lt. x(n-1)))) then          
        if (lpri.gt.1) then 
-         write (lun11,*)"interpol_huntd: Asking for, min is, max is",z, &
+         write (lun11,*)"interpol_huntd: Asking for, min is,max is",z,&
      &        x(1),x(n-1)                                               
          write (lun11,*)"interpol_huntd: Cannot extrapolate" 
          endif 
@@ -69,7 +68,7 @@
       endif 
       interpol_huntd=f 
       if (lpri.gt.1)                                                    &
-     &   write (lun11,*)"in interpol_huntd:",z,                         &
+     &   write (lun11,*)"in interpol_huntd:",z,                       &
      &   x(1),x(n-1),jm,ju,jl,y(ju),y(jl),x(ju),x(jl),grad,d1,f         
       return 
       END                                           

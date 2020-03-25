@@ -34,15 +34,15 @@
 !        r=sqrt(en)                                                     
         r=sqrt(en) 
         rk=r/float(ic*ic) 
-        if (lpri.ne.0)                                                  &
+        if (lpri.gt.0)                                                  &
      &   write (lun11,*)'before call gull1:',nq,rk,r,en                 
         call gull1(nq,rk*rk,gu,gl,lpri,lun11) 
 !        call gull1(nq,rk,gu,gl,lun11)                                  
        do lm=0,nq-1 
         theta1=(1.+nq*nq*rk*rk)*exp(gu(lm+1)) 
         theta2=(1.+nq*nq*rk*rk)*exp(gl(lm+1)) 
-        if (lpri.ne.0)                                                  &
-     &   write (lun11,*)'after call gull1:',lm,gu(lm+1),gl(lm+1),       &
+        if (lpri.gt.0)                                                  &
+     &   write (lun11,*)'after call gull1:',lm,gu(lm+1),gl(lm+1),    &
      &           theta1,theta2                                          
         xsec(lm+1)=cons*((lm+1)*theta1+lm*theta2)/(2.*lm+1.) 
         xsec(lm+1)=float(nq*nq)/float(ic*ic)*xsec(lm+1) 

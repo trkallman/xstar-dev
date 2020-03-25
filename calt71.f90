@@ -1,4 +1,4 @@
-      subroutine calt71(temp,den,ic,m,np1r,np1i,wav,aij,                 &
+      subroutine calt71(temp,den,ic,m,np1r,np1i,wav,aij,              &
      &                  lun11,lpri)                                     
 !                                                                       
 !     Name: calt71.f90  

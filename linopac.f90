@@ -1,4 +1,4 @@
-      subroutine linopac(lprie,lun11,optpp,ans2,sigvtherm,vtherm,bremsa,&
+      subroutine linopac(lprie,lun11,optpp,                          &
      &                   rcem1,rcem2,elin,vturbi,t,aatmp,delea,epi,ncn2,&
      &                   opakc,rccemis,lfast)           
 !                                                                       
@@ -12,10 +12,6 @@
 !         lprie:
 !         lun11:
 !         optpp:  line center opacity from ucalc (cm^-1)
-!         ans2:   photoexcitation rate
-!         sigvtherm:  line center cross section
-!         vtherm:  ion thermal speed (km/s)
-!         bremsa(ncn):  continuum flux
 !         rcem1:  line emissivity outward (erg/s/cm^3)
 !         rcem2:  line emissivity inward (erg/s/cm^3)
 !         elin: line wavelength (A)
@@ -47,35 +43,32 @@
       integer nbtpp 
       parameter (nbtpp=20000) 
 !                                                                       
-      real(8) epi(ncn),opakc(ncn),dpthc(2,ncn),                          &
-     &       bremsa(ncn)                                               
+      real(8) epi(ncn),opakc(ncn)
       integer ldon(2) 
       real(8)  rccemis(2,ncn)
 !                                                                       
-      real(8)  prftmp,sum,rcem1,rcem2,ans2,sigvtherm,vtherm 
+      real(8)  prftmp,sum,rcem1,rcem2
 !                                                                       
-      real(8) vturbi,delr,t,                                             &
+      real(8) vturbi,t,                                                 &
      &  dpcrit,bbb,optpp,delea,aatmp,elin,etmp,vth,                     &
      &  vturb,deleturb,deleth,dele,aasmall,                             &
-     &  deleused,deleepi,delet,deletpp,e00,dpthmx,                      &
-     &  dpthtmp,e0,tst,opsum,optmpo,profile,optp2,                      &
-     &  tmpopmx,tmpopo,etptst,opsv4,sum2,optmp2,optmp2o                 
-      integer ldirt,lpri,lun11,                                         &
-     &  ncn2,llk,lnn,ln,ml,lup,nilin,nelin,                             &
-     &  nbtmp,iion,nitmp,ndtmp,mllz,                                    &
-     &  iltmp,i,ij,lind,                                                &
-     &  lcon,ldir,mlm,ml1m,ltyp,lrtyp,ml1,ml2,ml1min,                   &
+     &  deleused,deleepi,delet,deletpp,e00,                             &
+     &  e0,tst,opsum,optmpo,profile,optp2,                              &
+     &  tmpopmx,tmpopo,etptst,opsv4
+      integer lpri,lun11,                                               &
+     &  ncn2,                                                           &
+     &  ij,                                                             &
+     &  ldir,mlm,ml1m,ml1,ml2,ml1min,                                   &
      &  ml1max,mlc,mlmin,mlmax,ncut,                                    &
-     &  nkdt,nrdt,np2,ncsvn,lprie                                       
-      integer nbinc,mlpar,lfast 
+     &  lprie                                       
+      integer nbinc,lfast 
       real(8) voigte 
-      integer np1i,np1r,np1k 
 !                                                                       
 !     temporary grid for use in calculating profile                     
-      real(8) etpp(nbtpp),optpp2(nbtpp),optmp(ncn) 
+      real(8) etpp(nbtpp),optpp2(nbtpp)
 !                                                                       
 !      real(8)  tmpew,tmpewo,tmpop,tmpe,sum,sume                         
-      real(8) tmpew,tmpewo,tmpop,tmpe,sume,rnormchk,ergsev 
+      real(8) tmpew,tmpop,tmpe,sume,ergsev 
 !                                                                       
       data dpcrit/1.e-6/,ergsev/1.602197e-12/ 
 !                                                                       
@@ -93,7 +86,7 @@
       vth=(1.29E+1)*sqrt(t/aatmp) 
       vturb=bbb 
 !      e0=(12398.41)/max(elin,1.E-24)                                   
-      e0=(12398.41)/max(elin,1.E-24) 
+      e0=(12398.41)/max(elin,1.d-49) 
       if (e0.le.epi(1)) return 
       deleturb=e0*(vturb/3.E+5) 
       deleth=e0*(vth/3.E+5) 
@@ -144,7 +137,7 @@
           deletpp=dele 
           ncut=int(deleepi/deletpp) 
           ncut=max(ncut,1) 
-          ncut=min(ncut,nbtpp/10) 
+          ncut=min(ncut,int(nbtpp/10))
           deleused=deleepi/float(ncut) 
           mlc=0 
           ldir=1 
@@ -234,7 +227,7 @@
      &               .or.(mlm.le.1).or.(mlm.ge.nbtpp)                   &
      &               .or.(etptst.le.0.).or.(etptst.ge.epi(ncn2))        &
      &               .or.(mlc.gt.nbtpp)                                 &
-     &               .or.(abs(delet).gt.max(50.,200.*aasmall)))         &
+     &               .or.(abs(delet).gt.max(50.d0,200.*aasmall)))       &
      &               .and.(ml1min.lt.ml1-2).and.(ml1max.gt.ml1+2)       &
      &               .and.(ml1min.ge.1).and.(ml1max.le.ncn))            &
      &                ldon(ij)=1                                        
@@ -303,11 +296,10 @@
 !                                                                       
 !           end of rebinning loop                                       
             enddo 
- 9000     continue 
 !                                                                       
 !         norm check                                                    
 !          rnormchk=ewsv(nlsv)/optpp/dele/(1.e-34+delr)                 
-!          if (lpri.ne.0) write (lun11,*)'norm check',nilin,elin,optpp, 
+!          if (lpri.gt.0) write (lun11,*)'norm check',nilin,elin,optpp, 
 !     $          dele,aasmall,ewsv(nlsv),rnormchk                       
 !                                                                       
 !       end of test for fast calculation                                

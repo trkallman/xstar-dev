@@ -1,4 +1,4 @@
-      subroutine unsavd(jkstep,ldir,                                    &
+      subroutine unsavd(jkstep,ldir,                                 &
      &       lpri,iunit,iunit2,iunit3,iunit4,                           &
      &       t,p,r,rdel,delr,xcol,xee,xpx,zeta,                         &
      &       xilev,rnist,                                               &
@@ -79,20 +79,22 @@
       delr=0. 
       t=0. 
       p=0. 
+      if (lpri.ge.1)                                                    &
+     & write (lunlog,*)'in unsavd',jkstep,iunit,iunit2,iunit3,iunit4            
       if (status .gt. 0)call printerror(lunlog,status) 
-      call rstepr(iunit,jkstep,r,delr,rdel,t,p,                         &
+      call rstepr(iunit,jkstep,r,delr,rdel,t,p,                      &
      &          xcol,xee,xpx,zeta,                                      &
      &          xilev,rnist,                                            &
      &          lunlog,lpri,status)                                     
-      call rstepr2(iunit2,jkstep,r,delr,rdel,t,p,                       &
+      call rstepr2(iunit2,jkstep,r,delr,rdel,t,p,                    &
      &          xcol,xee,xpx,zeta,                                      &
      &          rcem,oplin,tau0d,                                       &
      &          lunlog,lpri,status)                                     
-      call rstepr3(iunit3,jkstep,r,delr,rdel,t,p,                       &
+      call rstepr3(iunit3,jkstep,r,delr,rdel,t,p,                    &
      &          xcol,xee,xpx,zeta,                                      &
      &          cemab,cabab,opakab,taucd,                               &
      &          lunlog,lpri,status)                                     
-      call rstepr4(iunit4,jkstep,r,delr,rdel,t,p,                       &
+      call rstepr4(iunit4,jkstep,r,delr,rdel,t,p,                    &
      &          xcol,xee,xpx,zeta,                                      &
      &          zrems,dpthcd,opakc,rccemis,                             &
      &          lunlog,lpri,status)                                     
@@ -114,7 +116,7 @@
         enddo 
       nlyc=nbinc(13.7d0,epi,ncn2) 
       nry=nlyc+1 
-      if (lpri.ne.0) write (lunlog,*)'in unsavd',rdel,t,tauc(1,25),     &
+      if (lpri.gt.0) write (lunlog,*)'in unsavd',rdel,t,tauc(1,25),  &
      &                ldir,dpthc(1,nry),dpthc(2,nry)                    
 !                                                                       
       return 

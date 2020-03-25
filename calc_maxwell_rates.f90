@@ -1,4 +1,4 @@
-      subroutine calc_maxwell_rates(lun11,lpri,coll_type,min_T,max_T,   &
+      subroutine calc_maxwell_rates(lun11,lpri,coll_type,min_T,max_T,  &
      &  tarr, om, dE,  T,                                               &
      & z,  degl,  degu,                                                 &
      & exc_rate, dex_rate,upsilon)                                      
@@ -17,7 +17,7 @@
 !        Input:
 !        lpri= print switch
 !        lun11= logical unit for printing
-!        coll_type The collision type, as defined in calc_maxwell_rat
+!        coll_type The collision type, as defined in calc_maxwell_rates
 !        min_T=The minimum temperature (in Kelvin) for which the     
 !               transition is defined.                              
 !        max_T=The maximum temperature (in Kelvin) for which the     
@@ -34,12 +34,12 @@
 !        exc_rate=The calculated excitation rate coefficient, in cm^3
 !        dex_rate=The calculated deexcitation rate coefficient, in cm
 !     Called by: ucalc
-!     Dependencies:  calc_kato, prep_spline, calc_spline, errmess, 
+!     Dependencies:  calc_kato, prepspline, calcspline, errmess, 
 !       calc_sampson_s,calc_sampson_p,calc_sampson_h, exint1,expo,
 !       interpol_huntd
 !_______________________________________________________________        
 !                                                                       
-      real(8) calc_spline 
+      real(8) calcspline 
       real(8) interpol_huntd 
       real(8) calc_kato 
       real(8) calc_sampson_s 
@@ -225,7 +225,7 @@
       upsilon = 0.0 
       rate_coeff = 0.0 
       if (lpri.ge.2)                                                    &
-     &     write (lun11,*)'in calc_maxwell_rates,',t,dE,z,degl,degu,    &
+     &     write (lun11,*)'in calc_maxwell_rates,',t,dE,z,degl,degu,   &
      &                   kboltz,chi,calc_type,coll_type                 
                                                                         
       exc_rate = 0 
@@ -278,8 +278,8 @@
         do mm=1,5 
           spline_dat(mm) = (om(mm)) 
           enddo 
-        call prep_spline(xs, spline_dat, 5, yp) 
-        upsilon = calc_spline(xs, spline_dat, yp, 5, st,lpri,lun11) 
+        call prepspline(xs, spline_dat, 5, yp) 
+        upsilon = calcspline(xs, spline_dat, yp, 5, st,lpri,lun11) 
                                                                         
         if (coll_type.eq.CHIANTI_1  ) upsilon=upsilon*log(chi_inv+M_E) 
 !        if (coll_type .eq. CHIANTI_2)   /* Do nothing */               
@@ -325,21 +325,21 @@
            if (lpri.gt.1) write (lun11,*)mm,spline_dat(mm) 
            enddo 
         if (num_spline .eq. 5) then 
-            call prep_spline(xs, spline_dat, num_spline, yp) 
-            upsilon = calc_spline(xs, spline_dat, yp, num_spline, st,   &
+            call prepspline(xs, spline_dat, num_spline, yp) 
+            upsilon = calcspline(xs, spline_dat, yp, num_spline, st, &
      &                            lpri,lun11)                           
           else 
             if (num_spline .eq. 9) then 
                 if (lpri.gt.1) write (lun11,*)'before prep_spline:',    &
      &            xs9,spline_dat                                        
-                call prep_spline(xs9, spline_dat, num_spline, yp9) 
+                call prepspline(xs9, spline_dat, num_spline, yp9) 
                 if (lpri.gt.1) write (lun11,*)'before calc_spline:',    &
      &               st,yp9                                             
-                upsilon = calc_spline(xs9,spline_dat,yp9,num_spline,st, &
+                upsilon=calcspline(xs9,spline_dat,yp9,num_spline,st, &
      &                            lpri,lun11)                           
               else 
-                call errmess(lun11,71,"calc_maxwell_rates, Chianti data &
-     &with %d values, not 5 or 9 as expected")                          
+                call errmess(lun11,71,"calc_maxwell_rates, Chianti  &
+     &data with %d values, not 5 or 9 as expected")                          
                 stop 
 !     $           num_spline)                                           
                 return 
@@ -415,7 +415,7 @@
       if ((coll_type .ge.INTERP_E_UPSILON) .and.                        &
      &    (coll_type .le.INTERP_E_UPSILON + MAX_UPS)) then              
         N_interp = coll_type - INTERP_E_UPSILON 
-        upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,         &
+        upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,       &
      &       lpri,lun11)                                                
         calc_type = E_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_UPSILON'      &
@@ -427,7 +427,7 @@
      &     (coll_type .le. INTERP_E_UPS_OPEN + MAX_UPS)) then           
         N_interp = coll_type - INTERP_E_UPS_OPEN 
         if ((T .gt. min_T).and.(T .lt. max_T))                          &
-     &      upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,     &
+     &      upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,   &
      &       lpri,lun11)                                                
         calc_type = E_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_UPS_OPEN'     &
@@ -439,7 +439,7 @@
      &     (coll_type .le. INTERP_E_UPS_INC_MIN + MAX_UPS)) then        
         N_interp = coll_type - INTERP_E_UPS_INC_MIN 
         if (T .lt. max_T)                                               &
-     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = E_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_UPS_INC_MIN'  &
@@ -451,7 +451,7 @@
      &     (coll_type .le. INTERP_E_UPS_INC_MAX + MAX_UPS)) then        
         N_interp = coll_type - INTERP_E_UPS_INC_MAX 
         if (T .gt. min_T)                                               &
-     &       upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
+     &       upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,  &
      &       lpri,lun11)                                                
         calc_type = E_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_UPS_INC_MAX'  &
@@ -462,7 +462,7 @@
       if ((coll_type .ge. INTERP_P_UPSILON) .and.                       &
      &     (coll_type .le. INTERP_P_UPSILON + MAX_UPS)) then            
         N_interp = coll_type - INTERP_P_UPSILON 
-        upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,         &
+        upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,       &
      &       lpri,lun11)                                                
         calc_type = P_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_UPSILON'      &
@@ -474,7 +474,7 @@
      &     (coll_type .le. INTERP_P_UPS_OPEN + MAX_UPS)) then           
         N_interp = coll_type - INTERP_P_UPS_OPEN 
         if ((T .gt. min_T).and.(T .lt. max_T))                          &
-     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = P_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_UPS_OPEN'     &
@@ -486,7 +486,7 @@
      &     (coll_type .le. INTERP_P_UPS_INC_MIN + MAX_UPS)) then        
         N_interp = coll_type - INTERP_P_UPS_INC_MIN 
         if (T .lt. max_T)                                               &
-     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = P_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_UPS_INC_MIN'  &
@@ -498,7 +498,7 @@
      &     (coll_type .le. INTERP_P_UPS_INC_MAX + MAX_UPS)) then        
         N_interp = coll_type - INTERP_P_UPS_INC_MAX 
         if (T .gt. min_T)                                               &
-     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+     &     upsilon = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = P_UPSILON 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_UPS_INC_MAX'  &
@@ -509,7 +509,7 @@
       if ((coll_type .ge. INTERP_E_RATE_COEFF) .and.                    &
      &     (coll_type .le. INTERP_E_RATE_COEFF + MAX_UPS)) then         
         N_interp = coll_type - INTERP_E_RATE_COEFF 
-        rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+        rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = E_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_RATE_COEFF'   &
@@ -521,7 +521,7 @@
      &     (coll_type .le. INTERP_E_RATE_OPEN + MAX_UPS)) then          
         N_interp = coll_type - INTERP_E_RATE_OPEN 
         if ((T .gt. min_T).and.(T .lt. max_T))                          &
-     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,   &
+     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
      &       lpri,lun11)                                                
         calc_type = E_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_RATE_OPEN'    &
@@ -533,7 +533,7 @@
      &     (coll_type .le. INTERP_E_RATE_INC_MIN + MAX_UPS)) then       
         N_interp = coll_type - INTERP_E_RATE_INC_MIN 
         if (T .lt. max_T)                                               &
-     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,   &
+     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
      &       lpri,lun11)                                                
         calc_type = E_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_RATE_INC_MIN' &
@@ -545,7 +545,7 @@
      &     (coll_type .le. INTERP_E_RATE_INC_MAX + MAX_UPS)) then       
         N_interp = coll_type - INTERP_E_RATE_INC_MAX 
         if (T .gt. min_T)                                               &
-     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,   &
+     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
      &       lpri,lun11)                                                
         calc_type = E_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_E_RATE_INC_MAX' &
@@ -556,7 +556,7 @@
       if ((coll_type .ge. INTERP_P_RATE_COEFF) .and.                    &
      &     (coll_type .le. INTERP_P_RATE_COEFF + MAX_UPS)) then         
         N_interp = coll_type - INTERP_P_RATE_COEFF 
-        rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,      &
+        rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,    &
      &       lpri,lun11)                                                
         calc_type = P_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_RATE_COEFF'   &
@@ -568,7 +568,7 @@
      &     (coll_type .le. INTERP_P_RATE_OPEN + MAX_UPS)) then          
         N_interp = coll_type - INTERP_P_RATE_OPEN 
         if ((T .gt. min_T).and.(T .lt. max_T))                          &
-     &       rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
+     &       rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl,ju,&
      &       lpri,lun11)                                                
         calc_type = P_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_RATE_OPEN'    &
@@ -580,7 +580,7 @@
      &     (coll_type .le. INTERP_P_RATE_INC_MIN + MAX_UPS)) then       
         N_interp = coll_type - INTERP_P_RATE_INC_MIN 
         if (T .lt. max_T)                                               &
-     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju,   &
+     &     rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
      &       lpri,lun11)                                                
         calc_type = P_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_RATE_INC_MIN' &
@@ -592,7 +592,7 @@
      &     (coll_type .le. INTERP_P_RATE_INC_MAX + MAX_UPS)) then       
         N_interp = coll_type - INTERP_P_RATE_INC_MAX 
         if (T .gt. min_T)                                               &
-     &       rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl, ju, &
+     &       rate_coeff = interpol_huntd(N_interp, Tarr, om, T, jl,ju,&
      &       lpri,lun11)                                                
         calc_type = P_RATE_COEFF 
         if (lpri.gt.1) write (lun11,*)'coll_type=INTERP_P_RATE_INC_MAX' &
@@ -600,8 +600,8 @@
         endif 
                                                                         
       if (calc_type .eq. -1) then 
-        call errmess(lun11,43,"calc_trans_rates, Undefined collision ty &
-     &pe.")                                                             
+        call errmess(lun11,43,"calc_trans_rates, Undefined collision &
+     &type.")                                                             
         return 
         endif 
                                                                         
@@ -629,8 +629,8 @@
                                                                         
         exc_rate = 0. 
         dex_rate = 0. 
-        call errmess(lun11,59,"calc_rate,  Can't calculate collision str&
-     &ength for protons.")                                              
+        call errmess(lun11,59,"calc_rate,  Can't calculate collision &
+     &strength for protons.")                                              
         return 
         endif 
                                                                         

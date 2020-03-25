@@ -41,7 +41,7 @@
        rk=1.16058e+4 
        cb=13.605692*1.6021e-19/1.3805e-23 
        if (lpri.gt.1)                                                   &
-     &  write (lun11,*)'entering calt57:',den2,te,                      &
+     &  write (lun11,*)'entering calt57:',den2,te,                   &
      &   ep,e,n                                                         
        if (ep.lt.e) return 
        rio=(ep-e)/13.6 
@@ -62,7 +62,7 @@
        if (int(rno).gt.n) then 
         call irc(n,temp,rc,rno,ciono,lpri,lun11) 
        if (lpri.gt.1)                                                   &
-     &  write (lun11,*)'in calt57:',rno,den,rc,tmin,te,                 &
+     &  write (lun11,*)'in calt57:',rno,den,rc,tmin,te,              &
      &   ciono                                                          
 !                                                                       
 ! extrapolates to actual temperature below Tmin                         
@@ -77,7 +77,7 @@
          if (ete.lt.1.e-20) return 
          call eint(rio/tmin*cb,etm,e2,e3) 
          if (lpri.gt.1)                                                 &
-     &    write (lun11,*)'in calt57:',                                  &
+     &    write (lun11,*)'in calt57:',                               &
      &     n,temp,tmin,rc,rno,cion,te,ete,etm,wte,wtm,cion              
          cion=ciono*sqrt(tmin/te)*ete/(etm+1.e-30)*wte/(wtm+1.e-30) 
         else 

@@ -1,4 +1,4 @@
-      subroutine step(ectt,emult,epi,ncn2,opakc,rccemis,fline,          &
+      subroutine step(ectt,emult,epi,ncn2,opakc,rccemis,fline,       &
      &  zrems,lpri,delr,dpthc,r,                                        &
      &  xpxcol,xcol,xpx,taumax,numrec0,lun11)                           
 !                                                                       
@@ -55,17 +55,17 @@
       fpr2=12.56*r19*r19 
       klmn = 1 
       do  kl = 1,ncn2 
-         optp2 = max(opakc(kl),1.e-24) 
+         optp2 = max(opakc(kl),1.d-49) 
          dell=max(optp2*zrems(1,kl),                                    &
      &    (rccemis(1,kl)+rccemis(2,kl))*fpr2)                           
-         tst = emult*zrems(1,kl)/(abs(dell)+1.e-24) 
+         tst = emult*zrems(1,kl)/(abs(dell)+1.d-49) 
          tst = emult/optp2 
          if ((epi(kl).gt.ectt).and.(dpthc(1,kl).le.taumax)              &
      &     .and.(zrems(1,kl).gt.1.e-12)) then                           
             if ( tst.lt.delr ) klmn = kl 
             delr = min(delr,tst) 
             endif 
-         if (lpri.ne.0) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
+         if (lpri.gt.0) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
      &          rccemis(1,kl),rccemis(2,kl),fline(1,kl),dell,tst,       &
      &          dpthc(1,kl),delr                                        
          enddo 

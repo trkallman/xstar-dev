@@ -38,8 +38,7 @@
       data delt/1.e-28/ 
 !                                                                       
       lprisv=lpri 
-      if (lpri.ge.1) lpri=2 
-      if (lpri.ge.2) write (lun11,*)'in ioneqm' 
+!      if (lpri.ge.1) lpri=2 
 !                                                                       
 !     initialize                                                        
       do jk = 1,n 
@@ -103,7 +102,7 @@
             enddo 
         endif 
 !                                                                       
-      if ( lpri.ge.2 ) write (lun11,99005) (ll,q(ll),s(ll),ll=l,n) 
+      if ( lpri.ge.1 ) write (lun11,99005) (ll,q(ll),s(ll),ll=l,n) 
 !                                                                       
       lpri=lprisv 
 !                                                                       

@@ -1,4 +1,4 @@
-      subroutine rstepr(unit,hdunum,radin,radout,rdel,t,prs,            &
+      subroutine rstepr(unit,hdunum,radin,radout,rdel,t,prs,         &
      &             xcol,xee,xpx,xi,                                     &
      &             xilev,rnist,                                         &
      &             lun11,lpri,status)                                   
@@ -62,96 +62,99 @@
       data tunit/' ','ev','/cm',' ',' '/ 
                                                                         
 !                                                                       
+      if (lpri.gt.0)                                                    &
+     & write (lun11,*)'in rstepr ',hdunum,unit,nhdu
 !                                                                       
-      if (lpri.ne.0)                                                    &
-     & write (lun11,*)'in rstepr ',hdunum                               
-!                                                                       
-                                                                        
+!       try to open the file, to see if it exists                         
+!        blocksize=1
+!        call ftopen(unit,'xo00_detail.fits',1,blocksize,status) 
+!        write (lun11,*)'after ftopen',unit,status                            
       call FTGHDN(unit, nhdu) 
-      if (lpri.ne.0)                                                    &
+                                                                        
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'current hdu ',nhdu                               
       call ftmahd(unit,1,hdutype,status) 
       call FTGHDN(unit, nhdu) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'current hdu ',nhdu,unit                               
 !                                                                       
 !     Move to the appropriate HDU (hdunum) in the file                  
       mm=hdunum 
 !                                                                       
-      if (lpri.ne.0)                                                    &
-     & write(lun11,*)'rstepr2: Moving to extension',mm                  
+      if (lpri.gt.0)                                                    &
+     & write(lun11,*)'rstepr: Moving to extension',mm                  
       call ftmahd(unit,mm,hdutype,status) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)unit,mm,hdutype,status                            
       if (status .gt. 0)call printerror(lun11,status) 
       call FTGHDN(unit, nhdu) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'current hdu ',nhdu                               
                                                                         
 !     Determine the number of keywords in the header                    
       nkeys=0 
       call ftghsp(unit,nkeys,nspace,status) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftghsp:',unit,nkeys,nspace,status          
 !                                                                       
 !                                                                       
 !     Read each 80-character keyword record, and print it out           
       call ftgkyj(unit,'NAXIS2',nrows,kcom,status) 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkyj:',nrows,kcom,status                 
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       call ftgkye(unit,'RINNER',rtmp,kcom,status) 
       radin=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',radin,kcom,status                  
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       call ftgkye(unit,'ROUTER',rtmp,kcom,status) 
       radout=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',radout,kcom,status                 
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
       call ftgkye(unit,'RDEL',rtmp,kcom,status) 
       rdel=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',rdel,kcom,status                   
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
       call ftgkye(unit,'TEMPERAT',rtmp,kcom,status) 
       t=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',t,kcom,status                      
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
       call ftgkye(unit,'PRESSURE',rtmp,kcom,status) 
       prs=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',prs,kcom,status                    
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       call ftgkye(unit,'COLUMN',rtmp,kcom,status) 
       xcol=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye, xcol=',xcol,kcom,status            
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
       call ftgkye(unit,'XEE',rtmp,kcom,status) 
       xee=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',xee,kcom,status                    
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       call ftgkye(unit,'DENSITY',rtmp,kcom,status) 
       xpx=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',xpx,kcom,status                    
       if (status .gt. 0)call printerror(lun11,status) 
 !                                                                       
       call ftgkye(unit,'LOGXI',rtmp,kcom,status) 
       xi=rtmp 
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'after ftgkye',xi,kcom,status                     
       if (status .gt. 0)call printerror(lun11,status) 
                                                                         
@@ -161,7 +164,7 @@
       nullstr=' ' 
       nullj=0 
       do irow2=1,nrows 
-        if (lpri.ne.0)                                                  &
+        if (lpri.gt.0)                                                  &
      &   write (lun11,*)'row=',irow2                                    
         colnum=1 
         call ftgcvj(unit,colnum,irow2,felem,nelems,nullstr,             &

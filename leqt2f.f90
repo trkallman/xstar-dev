@@ -74,7 +74,7 @@
           mmmxo=0 
           do  mm=1,n 
             btmp=bn(mm) 
-            tmp=dble(a(ll2,mm))*max(0.,btmp) 
+            tmp=dble(a(ll2,mm))*max(0.d0,btmp) 
             if (abs(tmp).ge.tmpmx) then 
               mmmxo=mmmx 
               mmmx=mm 

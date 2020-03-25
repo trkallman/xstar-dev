@@ -1,10 +1,11 @@
-      subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,               &
+      subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,cfrac,         &
      &   nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,                       &
-     &   ans3,ans4,idest1,idest2,idest3,idest4,                         &
+     &   ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,               &
      &   abund1,abund2,ptmp1,ptmp2,xpx,opakab,                          &
      &   opakc,opakcont,rccemis,lpriu,kdesc2,                           &
      &   rr,delr,t,trad,tsq,xee,xh1,xh0,                                &
      &   epi,ncn2,bremsa,bremsint,                                      &
+     &       leveltemp,                                                 &
      &   rniss,rnisse,nlev,lfast,lun11,                                 &
      &   np2,ncsvn,nlsvn)                
 !                                                                       
@@ -70,15 +71,22 @@
 !       ans3=heating rate
 !       ans4=cooling rate
 !     Dependencies: many
-!     Called by:  func1,func2,func3
+!     Called by:  calc_ion_rates,calc_rates_level,calc_emis_ion
 !
       use globaldata
+      use times
       implicit none 
-!                                                                       
 !                                                                       
       integer nptmpdim 
       parameter (nptmpdim=max(10000,ncn)) 
-!                                                                       
+!
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
       character(49) kdesc(ntyp),kdesc2 
       character(29) krdesc(ntyp) 
       real(8) epi(ncn) 
@@ -88,47 +96,49 @@
       real(8) aa(11),aaa(11,10),bbb(10),sg(ncn) 
       real(8) rstorey(5),dcfe(8),defe(8),alhe(2),alh(2) 
       real(8) etmpp(nptmpdim),stmpp(nptmpdim),ttmp(400),xsec(100) 
-      real(8) stmpe(nptmpdim) 
       real(8)  zc,eion,far,gam,scal,etmp8(ncn),stmp8(ncn) 
       real(8) scal2 
-      real(8) a, aa1,aarec, aax, abund1, abund2, adi, aij,               &
+      real(8) a, aa1,aarec, aax, abund1, abund2, adi, aij,              &
      &     airt, al, algt, alm, alp, alph                               
-      real(8) alpha, alppp, ans1, ans1o, ans2, ans2d, ans3,              &
+      real(8) alpha, alppp, ans1, ans1o, ans2, ans2d, ans3,             &
      &     ans3d, ans4, ans4s, ansar2, ansar2o, ap, arad, atan, atmp, b,&
-     &     bb                                                           
-      real(8) bbb2, bbrec, bbx, bdi, beta, bethe, c, beth,               &
+     &     bb, ans5, ans6
+      real(8) bbb2, bbrec, bbx, bdi, beta, bethe, c, beth,              &
      &     cai, ccrec, ccx, ch, ch2, ch3, chi, chir, chitmp,            &
      &     cii                                                          
-      real(8) cij, cijpp, cion, citmp1, citmp2, cji, clu, cn, cno, crate,&
+      real(8) cij, cijpp, cion, citmp1, citmp2, cji, clu, cn, cno,crate,&
      &     crec, crit53, csum, csum2, cul, d, ddd, ddx, delea           
-      real(8) del1, del2, dele, delev, delt, den, dirt, dirtemp,         &
-     &     e, e0, e1, eai, ecm, ediff, ee1exp, ee1expo, eelo, eeup      
-      real(8) eex, eexc, efnd, eij, eijry, ekt, elammu, elin, elo, em1,  &
+      real(8) del1, del2, dele, delev, delt, den, dirt, dirtemp,        &
+     &     e, e0, e1, eai, ecm, ediff,  ee1expo, eelo, eeup      
+      real(8) eex, eexc, efnd, eij, eijry, ekt, elammu, elin, elo, em1, &
      &     em2ph, emax, enelec, ener, enn, ep, epii, erel, ergsev,eijkev
-      real(8) eta, eth, etkh, etmp, ett, ett2, ettry, eup, exp10,        &
-     &     expo, exptmp, f1, f2, fchi, ff, ff2, fh2lke, fi, flin        
-      real(8) float, fudge, gamma, gflin, ggl, gglo, ggu, ggup, hecxrt,  &
+      real(8) eta, eth, etkh, etmp, ett, ett2, ettry, eup, exp10,       &
+     &     expo,exptmp, f1, f2, fchi, ff, ff2, fh2lke, fi, flin,        &
+     &     enerm
+      real(8) float, fudge, gamma, gflin, ggl, gglo, ggu, ggup, hecxrt, &
      &     hij, opakab, texp, flinabs, opakb1,                          &
      &     p1, p2, p3, p4, p5, phi, phi1, phi2                          
-      real(8) pi, pp, ppp, psi, ptmp1, ptmp2, q2, qq, r19, rate,         &
+      real(8) pi, pp, ppp, psi, ptmp1, ptmp2, q2, qq, r19, rate,        &
      &     rcemsum, rctmp1, rctmp2, rec,                                &
-     &     rinf,rcem1,rcem2,rnist                                       
-      real(8) rm, rr, rrrt, rs, s0, scale, sd, se, sg0, delr,            &
+     &     rinf,rcem1,rcem2,rnist, rnissel, rnisseu, emltlv, ethion,    &
+     &     bktm, bk                                       
+      real(8) rm, rr, rrrt, rs, s0, scale, sd, se, sg0, delr,           &
      &     sgth, sigma, sigvtherm, sqrt, sscal, sth, sum                
-      real(8) swrat, t, t0, t1, t3s2, t6, tbig, temp, tfnd,              &
-     &     time1, time2, tk, tm, tmr, tq, trad                          
-      real(8) tsq, tst, ttz, tz,                                         &
-     &     upsil, upsiln, vth, vtherm, vturb, vturbi, wav, xee, xh0,    &
-     &     xh1, xhe1, upsilon                                           
-      real(8) xkt, xnx, xpx, xx, y, ya, ypow, yw, ywsq, yy, z1,          &
+      real(8) swrat, t, t0, t1, t3s2, t6, tbig, temp, tfnd,             &
+     &     time1, time2, tk, tm, tmr, trad                          
+      real(8) tsq, ttz, tz,                                             &
+     &     upsil, upsiln, vth, vtherm, vturb, vturbi, wav, xee,   &
+     &      xh0, xh1, xhe1, upsilon, cfrac
+      real(8) xkt, xnx, xpx, xx, y, ya, ypow, yw, ywsq, yy, z1,         &
      &     zap, zeff, zz, zzz, y0,y1,yyqq                               
       real(8) dc,dt4,t2,term1,term2,term3,optst,opcrit,hcxrt 
 !      real(8) er,ee1,ee2,ee3,er1,co,z2s,qij,sig,cr,crp,cr1
       real(8)  tmin,tmax,alphamilne,amilnerr                                
       real(8) tstr(100),cstr(100),rdattmp(100) 
-      real(8) tt,e3,e2,rho,ee,term4 
+      real(8) tt,e3,e2,rho,ee,term4,bbnurjp,bremtmpp,epiip,anstmp
 !      real(8) min       !jg                                             
       integer nspline 
+      integer indonly
       integer i57, ic, idest1, idest2, idest3, idest4,                  &
      &     ierr, ik, il, iltmp, int, iq, ist,                           &
      &     itmp, iz                                                     
@@ -147,7 +157,8 @@
      &     ntmp, ntmp2, nu, numcon2, nzel, nterm, np2                        
       integer lunsv,lfnd 
       integer np1r,np1i,np1k,np1r2,np1i2,np1k2 
-      integer lctype,ncase,npts 
+      integer lctype
+!     integer ncase,npts 
       integer ntem 
 !                                                                       
 !     Not used                                                          
@@ -155,11 +166,12 @@
       integer javi 
 !      character(80) javik                                              
 !                                                                       
-      save aa,bb,ddd,ett,ggup,gglo,hij,opcrit,                          &
-     &         swrat,elin,pi,c,ergsev,etmp8,luse8                       
+!      save aa,bb,ddd,ett,ggup,gglo,hij,opcrit,                          &
+!     &         swrat,elin,pi,c,ergsev,etmp8,luse8                       
 !                                                                       
-!      data opcrit/1.e-39/                                              
-      data opcrit/1.e-26/ 
+      data bk/1.38062e-16/ 
+!      data opcrit/1.d-39/                                              
+      data opcrit/1.d-26/ 
       data ergsev/1.602197e-12/ 
       data pi/3.1415927/,c/2.997925e10/,luse8/0/ 
       data krdesc(1)/'ground state ionization      '/ 
@@ -276,12 +288,10 @@
       data kdesc(96)/' Fe XXiV satellites from safranova              '/ 
       data kdesc(97)/' CI rates from inner shells from palmeri 2016   '/ 
       data kdesc(98)/' chianti2016 collisional rates                  '/ 
+      data kdesc(99)/' old type 70                                    '/ 
                                                                         
       javir=trad 
 !      trad=javir                                                       
-      javi=leveltemp%nlpt(1) 
-      javi=leveltemp%iltp(1) 
-!      javik=leveltemp%klev(1,1)                                                  
       javi=nlsvn 
 !      nlsvn=javi                                                       
       javi=derivedpointers%npcon(1) 
@@ -298,12 +308,13 @@
 !                                                                       
       lpri=lpriu 
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc:',ndesc,lcon,nrdt,nidt,nkdt,           &
+     &  write (lun11,*)'in ucalc:',ndesc,lcon,nrdt,nidt,nkdt,        &
      &  ml,(masterdata%rdat1(np1r+mm-1),mm=1,nrdt),                     &
      &  (masterdata%idat1(np1i+mm-1),mm=1,nidt),                        &
      &  (masterdata%kdat1(np1k+mm-1),mm=1,nkdt)                        
-       if (lpri.gt.1) write (lun11,*)'in ucalc, inputs:',               &
+       if (lpri.gt.1) write (lun11,*)'in ucalc, inputs:',            &
      &   t,xee,xpx,xnx                                                  
+!
 !                                                                       
       vturb=vturbi 
 !                                                                       
@@ -320,13 +331,18 @@
       ans2=0. 
       ans3=0. 
       ans4=0. 
+      ans5=0. 
+      ans6=0. 
       idest1=0 
       idest2=0 
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=masterdata%idat1(np1i+nidt-1)+1 
       opakab=0. 
       lforce=1 
-!                                                                       
+!
+!     nb indonly will be needed later
+      indonly=0
+!
       go to (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,                    &
      &  17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,       &
      &  36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,    &
@@ -355,7 +371,8 @@
       bbx=masterdata%rdat1(np1r+1) 
       ccx=masterdata%rdat1(np1r+2) 
       ddx=masterdata%rdat1(np1r+3) 
-      rate=aax*expo(log(t)*bbx)*max(0.,(1.+ccx*expo(ddx*t)))*(1.e-9) 
+      rate=aax*expo(log(t)*bbx)*max(0.d0,(1.+ccx*expo(ddx*t)))    &
+     & *(1.d-9) 
       ans1=rate*xh0 
 !      if (lpri.ge.1) write (lun11,*)'note turning off charge exchange' 
 !      ans1=0.                                                          
@@ -403,9 +420,10 @@
 ! 1906        continue                                                  
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       elin=abs(masterdata%rdat1(np1r)) 
       flin=masterdata%rdat1(np1r+1) 
-!      if (flin.le.1.e-10) flin=1.                                      
+!      if (flin.le.1.d-10) flin=1.                                      
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -419,8 +437,8 @@
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
       a=masterdata%rdat1(np1r+4) 
-      hij=elin*1.e-8 
-      elammu=elin*1.e-4 
+      hij=elin*1.d-8 
+      elammu=elin*1.d-4 
       aij=(6.67e+7)*gglo*flin/ggup/elammu/elammu 
 !     this is a fudge to avoid badnumerics from fine structure.         
       if (flin.le.1.01e-12) aij=1.e+5 
@@ -428,7 +446,7 @@
       ans1=aij*(ptmp1+ptmp2) 
       ans4=aij*(ptmp1+ptmp2)*ergsev*12398.41/abs(elin) 
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       ener=12398.41/abs(elin) 
       nb1=nbinc(ener,epi,ncn2) 
@@ -438,7 +456,7 @@
          ans2=0. 
          sigvtherm=0. 
          endif 
-      ans1=ans1+ans2*ggup/(1.e-36+gglo) 
+      ans1=ans1+ans2*ggup/(1.d-48+gglo) 
       opakab=sigvtherm 
       ans3=ans2*ener*ergsev 
       ans4=ans1*ener*ergsev 
@@ -449,6 +467,7 @@
 !     2photon rates, col                                                
       idest1=masterdata%idat1(np1i+1) 
       idest2=masterdata%idat1(np1i) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -456,7 +475,7 @@
       ans2=0. 
       ggup=leveltemp%rlev(2,masterdata%idat1(np1i+1)) 
       gglo=leveltemp%rlev(2,masterdata%idat1(np1i)) 
-      hij=elin*1.e-8 
+      hij=elin*1.d-8 
       ekt=t*(0.861707) 
       eex=abs(leveltemp%rlev(1,masterdata%idat1(np1i))                  &
      &      -leveltemp%rlev(1,masterdata%idat1(np1i+1))) 
@@ -482,11 +501,11 @@
       t0=masterdata%rdat1(np1r+2) 
       t1=masterdata%rdat1(np1r+3) 
       ap=1. 
-      dirt=adi*ap*(1.e-06)*expo(-t0/t)                                  &
+      dirt=adi*ap*(1.d-06)*expo(-t0/t)                                  &
      &  *(1.+bdi*expo(-t1/t))/(t*sqrt(t))                               
       ans1=dirt*xnx 
-!      if (lpri.ne.0) write (lun11,*)'type 7 data:',                    
-!     $  adi,bdi,t0,t1,dirt,xnx,ans1                                    
+      if (lpri.gt.1) write (lun11,*)'type 7 data:',                     &
+     &  adi,bdi,t0,t1,dirt,xnx,ans1                                    
       idest1=1 
       idest2=0 
       go to 9000 
@@ -496,7 +515,7 @@
       dirt=0. 
       ekt=0.861707*t 
       t3s2=t**(-1.5) 
-      tmr = 1.e-6*t3s2 
+      tmr = 1.d-6*t3s2 
       do 820 n = 1,4 
         dcfe(n)=masterdata%rdat1(np1r+n-1) 
         defe(n)=masterdata%rdat1(np1r-1+n+4) 
@@ -510,12 +529,13 @@
 !                                                                       
 !     he charge exchange                                                
     9 continue 
+      go to 9000
       aax=masterdata%rdat1(np1r) 
       bbx=masterdata%rdat1(np1r+1) 
       ccx=masterdata%rdat1(np1r+2) 
       ddx=masterdata%rdat1(np1r-1+4) 
-      texp=min(t,1000.)**bbx 
-      rate=aax*texp*(1.+ccx*expo(ddx*t))*(1.e-9) 
+      texp=min(t,1000.d0)**bbx 
+      rate=aax*texp*(1.+ccx*expo(ddx*t))*(1.d-9) 
       ans2=rate*xh0 
       ans1=0. 
       idest1=1 
@@ -542,17 +562,19 @@
 !                                                                       
 !                                                                       
    10 continue 
-!     charge transfer ionzation as used in func2, for level rates       
+      go to 9000
+!     charge transfer ionzation as used in calc_rates_level, for level rates
       aax=masterdata%rdat1(np1r) 
       bbx=masterdata%rdat1(np1r+1) 
       ccx=masterdata%rdat1(np1r+2) 
       ddx=masterdata%rdat1(np1r-1+4) 
       eex=masterdata%rdat1(np1r-1+7) 
-      rate=aax*t**bbx*(1.+ccx*expo(ddx*t))                              &
-     &             *expo(-eex/t)*(1.e-9)                                
+      rate=aax*t**bbx*(1.+ccx*expo(ddx*t))                           &
+     &             *expo(-eex/t)*(1.d-9)                                
       ans1=rate*xh1 
       ans2=0. 
-!     this is tricky: func1 only uses the rate type 15 rate if idest1=1 
+!     this is tricky: calc_ion_rates only uses the rate type 15 rate 
+!       if idest1=1 
 !     for O I we have idest1=1,2,3, so it's OK                          
       idest1=masterdata%idat1(np1i) 
       idest2=nlevp 
@@ -561,6 +583,7 @@
    11 continue 
       idest2=masterdata%idat1(np1i) 
       idest1=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -585,22 +608,23 @@
       lprisv=lpri 
       if (lpri.gt.1) write(lun11,*)'ltyp=15',ml,derivedpointers%npar(ml) 
 !      if (lpri.gt.1) write (lun11,*)(rdat1(np1r-1+jj),jj=1,nrdt)       
-!      if (lpri.ne.0) write (lun11,*)(idat1(np1i-1+jj),jj=1,nidt)       
-!      if (lpri.ne.0) write (lun11,*)(kdat1(np1k-1+jj),jj=1,nkdt)       
+!      if (lpri.gt.0) write (lun11,*)(idat1(np1i-1+jj),jj=1,nidt)       
+!      if (lpri.gt.0) write (lun11,*)(kdat1(np1k-1+jj),jj=1,nkdt)       
       if (ml.le.0) go to 9000 
       nilin=derivedpointers%npar(ml) 
       if (nilin.le.0) go to 9000 
       ntmp=nrdt/2 
       do ml2=1,ntmp+1 
         etmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2-1) 
-        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.e-18 
+        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.d-18 
         enddo 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp2,lrtyp2,lcon2,                                      &
      &  nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                        &
      &  0,lun11)                                                  
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=masterdata%idat1(np1i+nidt-3)-masterdata%idat1(np1i+nidt-1) 
+      if (indonly.eq.1) return
       if (lpri.gt.1)                                                    &
      & write (lun11,*)ml,nilin,masterdata%rdat1(np1r),idest1                 
       ett=masterdata%rdat1(np1r2) 
@@ -609,7 +633,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       gglo=leveltemp%rlev(2,1) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -621,7 +645,7 @@
 !      aa(1)=min(max(aa(1),-6.),6.)                                     
       ekt=t*(0.861707) 
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=15:',lcon,                        &
+     &  write (lun11,*)'in ucalc, ind=15:',lcon,                     &
      &               nrdt,nidt,nkdt                                     
       if (lpri.gt.1)                                                    &
      & write (lun11,891)(masterdata%rdat1(np1r-1+mm),mm=1,nrdt)        
@@ -664,22 +688,22 @@
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'calling bkhsgo:',ett,t,                          &
+     & write (lun11,*)'calling bkhsgo:',ett,t,                       &
      & ddd,(bbb(mm),mm=1,3),na,                                         &
      & aaa(1,1),aaa(7,1)                                                
       lfastl=1 
-      call bkhsgo(sg,ett,ddd,bbb,na,                                    &
+      call bkhsgo(sg,ett,ddd,bbb,na,                                 &
      &         aaa,epi,ncn2,t,lprib,lfastl,lun11)                       
       lprib=0 
 !      if (lpri.gt.1) lprib=lpri                                        
       gglo=leveltemp%rlev(2,1) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
       swrat=gglo/ggup 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11)
       if (lpri.ge.1) then 
@@ -688,6 +712,13 @@
      &         npr,ett,sg(npr)                                          
         endif 
       lpri=lprisv 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    16 continue 
@@ -720,7 +751,7 @@
         term3=c*f1 
         term4=d*xx*f2 
         fi=term1+term2+term3+term4 
-        fi=max(fi,0.) 
+        fi=max(fi,0.d0) 
         csum=csum+fi*expo(-xx)/xx 
         csum2=csum2+fi/xx 
         if (lpriu.ne.0)                                                 &
@@ -753,7 +784,7 @@
 !     line rates, col                                                   
       ans1=0. 
       ans2=0. 
-      hij=elin*1.e-8 
+      hij=elin*1.d-8 
 !      write (lun11,*)'ltyp=4',idest1,idest2,elin,flin,ggup,gglo        
       ekt=t*(0.861707) 
       idest1=masterdata%idat1(np1i+1) 
@@ -766,6 +797,7 @@
         eeup=leveltemp%rlev(1,idest2) 
         eelo=leveltemp%rlev(1,idest1) 
         endif 
+      if (indonly.eq.1) return
       eex=eeup-eelo 
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
@@ -777,7 +809,7 @@
       if (ekt.gt.eex/20.)                                               &
      & ans1=ans2*ggup*exptmp/gglo                                       
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in ucalc, ltyp=17',masterdata%idat1(np1i),       &
+     & write (lun11,*)'in ucalc, ltyp=17',masterdata%idat1(np1i),    &
      &   masterdata%idat1(np1i+1),ggup,                                 &
      &   gglo,eex,ans2,ans1                                             
       go to 9000 
@@ -787,9 +819,9 @@
       bbrec=masterdata%rdat1(np1r+1) 
       ccrec=masterdata%rdat1(np1r+2) 
       ttz=masterdata%rdat1(np1r-1+4) 
-      algt=log10(t/(1.e-32+ttz))+4. 
-      algt=max(algt,3.5) 
-      algt=min(algt,7.5) 
+      algt=log10(t/(1.d-48+ttz))+4. 
+      algt=max(algt,3.5d0) 
+      algt=min(algt,7.5d0) 
       idest1=masterdata%idat1(np1i) 
       ans1=exp10(aarec+bbrec*(algt-ccrec)**2)/t/1.e+4 
       ans1=ans1*xnx 
@@ -811,31 +843,38 @@
       ekt=t*(0.861707) 
       lm=nb1 
       do while (lm.le.nphint) 
-         bbb2=epi(lm)/max(etkh,1.e-30) 
+         bbb2=epi(lm)/max(etkh,1.d-48) 
          etmp=log(bbb2) 
          alppp=masterdata%rdat1(np1r)+etmp*(masterdata%rdat1(np1r+1)+   &
      &         etmp*(etmp*masterdata%rdat1(np1r+2)                      &
      &        +etmp*masterdata%rdat1(np1r-1+4)))                    
          ppp=expo(alppp) 
-         sg(lm)=(1.e-18)*enelec*ppp*(13.606)/etkh 
-         call enxt(eth,nb1,lpri,epi,ncn2,t,lfastl,lun11,                &
+         sg(lm)=(1.d-18)*enelec*ppp*(13.606)/etkh 
+         call enxt(eth,nb1,lpri,epi,ncn2,t,lfastl,lun11,             &
      &                  lm,nskp,nphint,lrcalc)                          
         lm=lm+nskp 
         enddo 
-      call phintfo(sg,eth,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,eth,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    20 continue 
-!     charge transfer ionzation as used in func1, for total rate        
+!     charge transfer ionzation as used in calc_ion_rates, for total rate        
       aax=masterdata%rdat1(np1r) 
       bbx=masterdata%rdat1(np1r+1) 
       ccx=masterdata%rdat1(np1r+2) 
       ddx=masterdata%rdat1(np1r-1+4) 
       eex=masterdata%rdat1(np1r-1+5) 
-      rate=aax*t**bbx*(1.+ccx*expo(ddx*t))                              &
-     &             *expo(-eex/t)*(1.e-9)                                
+      rate=aax*t**bbx*(1.+ccx*expo(ddx*t))                           &
+     &             *expo(-eex/t)*(1.d-9)                                
       ans1=rate*xh1 
       ans2=0. 
       idest1=1 
@@ -870,11 +909,11 @@
 !      if (rstorey(5).lt.0.) go to 9000                                 
       t3s2=t**(-1.5) 
       dirtemp=                                                          &
-     &   (1.e-12)*(rstorey(1)/t+rstorey(2)                              &
+     &   (1.d-12)*(rstorey(1)/t+rstorey(2)                              &
      &   +t*(rstorey(3)+t*rstorey(4)))*t3s2                             &
      &   *expo(-rstorey(5)/t)                                           
-      dirtemp=max(dirtemp,0.) 
-      if (lpri.gt.1) write (lun11,*)'in ucalc, ltyp=22:',               &
+      dirtemp=max(dirtemp,0.d0) 
+      if (lpri.gt.1) write (lun11,*)'in ucalc, ltyp=22:',            &
      &   ndesc,lcon,nrdt,nidt,nkdt,                                     &
      &  ml,(masterdata%rdat1(np1r-1+mm),mm=1,nrdt),                     &
      &  (masterdata%idat1(np1i-1+mm),mm=1,nidt),                        &
@@ -889,7 +928,7 @@
       lprisv=lpri 
 !      lpri=2                                                           
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in ucalc, 23:',masterdata%rdat1(np1r),           &
+     & write (lun11,*)'in ucalc, 23:',masterdata%rdat1(np1r),        &
      &       masterdata%rdat1(np1r+1),                                  &
      &  masterdata%rdat1(np1r+2),masterdata%rdat1(np1r-1+4),            &
      &  masterdata%rdat1(np1r-1+5),swrat,masterdata%idat1(np1i),        &
@@ -900,7 +939,7 @@
       nb1=nbinc(eth,epi,ncn2) 
       gglo=leveltemp%rlev(2,masterdata%idat1(np1i)) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -914,7 +953,7 @@
       ndtmp=derivedpointers%npfirst(12) 
       do while ((jkk.ne.jkk2).and.(ndtmp.ne.0)) 
         jkk3=jkk3+1 
-        mlm=ndtmp-1 
+        mlm=ndtmp
         call drd(ltyp2,lrtyp2,lcon2,                                    &
      &    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                      &
      &    0,lun11)                                                
@@ -927,7 +966,7 @@
       mllz=derivedpointers%npar(ndtmp) 
       if (lpri.gt.1) write (lun11,*)jkk,jkk2,jkk3,zzz,ndtmp 
       iltmp=1 
-      mlm=ndtmp-1 
+      mlm=ndtmp
       call drd(ltyp2,lrtyp2,lcon2,                                      &
      &    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                      &
      &    0,lun11)                                                
@@ -935,7 +974,7 @@
       ndtmp=derivedpointers%npnxt(ndtmp) 
       do while ((ndtmp.ne.0).and.(iltmp.ne.masterdata%idat1(np1i))      &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))               
-        mlm=ndtmp-1 
+        mlm=ndtmp
         call drd(ltyp2,lrtyp2,lcon2,                                    &
      &    nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                      &
      &    0,lun11)                                                
@@ -946,7 +985,7 @@
       ndtmp=ndtmpo 
       nprn=masterdata%idat1(np1i) 
       enn=float(nprn) 
-      if ((enn.le.1.e-24).or.(zzz.le.1.e-24).or.(ett.le.1.e-6))         &
+      if ((enn.le.1.d-24).or.(zzz.le.1.d-24).or.(ett.le.1.d-6))         &
      &  go to 9000                                                      
       sg0=6.3e-18*enn/zzz/zzz 
       if (lpri.gt.1)                                                    &
@@ -955,18 +994,25 @@
       do while (ll.le.nphint) 
         epii=epi(ll) 
         sg(ll)=sg0*(epii/ett)**(-3) 
-        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,                 &
+        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,              &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       lprib=0 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
       lpri=lprisv 
 !      ans2=ans2*xnx                                                    
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    24 continue 
@@ -982,6 +1028,7 @@
          idest2=1 
          idest1=1 
         endif 
+      if (indonly.eq.1) return
       e=masterdata%rdat1(np1r) 
       a=masterdata%rdat1(np1r+1) 
       b=masterdata%rdat1(np1r+2) 
@@ -994,7 +1041,7 @@
       ans2=0. 
 !      idest2=1                                                         
       if ( chir.le..0115 ) go to 9000 
-      chi = max(chir,0.1) 
+      chi = max(chir,0.1d0) 
       ch2 = chi*chi 
       ch3 = ch2*chi 
       alpha = (.001193+.9764*chi+.6604*ch2+.02590*ch3)                  &
@@ -1013,6 +1060,9 @@
       rinf=(2.08e-22)*gglo/ggup/t/tsq 
       ans2=ans1*rinf*xnx 
       ans1=ans1*chitmp 
+      eth=e
+      ans6=ans1*eth*ergsev
+      ans5=ans2*eth*ergsev
       go to 9000 
 !                                                                       
    26 continue 
@@ -1046,7 +1096,7 @@
 !      if (lpri.gt.1)                                                   
 !      write (lun11,*)'in ucalc, ind=27:',rlev(1,nlev),                 
 !     $     rlev(1,1),nlev,ett                                          
-      if (ett.le.1.e-5) go to 9000 
+      if (ett.le.1.d-5) go to 9000 
       eth=ett 
       nb1=nbinc(eth,epi,ncn2) 
       gglo=leveltemp%rlev(2,masterdata%idat1(np1i)) 
@@ -1060,22 +1110,29 @@
         zap = e/eth - 1. 
         y = e/eth 
         yy=sqrt(zap) 
-        yy=max(yy,1.e-04) 
+        yy=max(yy,1.d-04) 
         fh2lke=((6.3e-18)/masterdata%rdat1(np1r)**2                     &
-     &   *y**(-4)*expo(4.-4.*atan(yy)/yy)                               &
+     &   *y**(-4)*expo(4.-4.*atan(yy)/yy)                            &
      &   /(1.-expo(-6.2832/yy)))                                         
 !        fh2lke=((6.3e-18)/rdat1(np1r)/rdat1(np1r))*y**(-3)             
         sg(ll)=fh2lke 
         if (lpri.ge.2) write (lun11,*)ll,epii,zap,y,yy,fh2lke 
-        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,                 &
+        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,              &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       lprib=0 
       if (lpri.gt.1) lprib=1 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -1088,6 +1145,7 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -1103,8 +1161,8 @@
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       elin=abs(masterdata%rdat1(np1r)) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
 !      nind=nrdt-2                                                      
       cijpp=masterdata%rdat1(np1r-1+nind) 
       ekt=0.861707*t 
@@ -1149,7 +1207,7 @@
         yy=beta 
         vth=(3.10782e+7)*sqrt(t) 
 !       fudge factor makes the 2 expressions join smoothly              
-        ypow=min(1.,(0.06376)/yy/yy) 
+        ypow=min(1.d0,(0.06376)/yy/yy) 
         fudge=0.9*(1.-ypow)+(1./1.5)*ypow 
         phi1=(1.735+log(yy)+1./6./yy)*fudge/2. 
         phi2=yy*(-1.202*log(yy)-0.298) 
@@ -1171,6 +1229,7 @@
 ! 1906        continue                                                  
       idest1=masterdata%idat1(np1i+1) 
       idest2=masterdata%idat1(np1i) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -1186,16 +1245,16 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       a=masterdata%rdat1(np1r2+1) 
-      hij=elin*1.e-8 
-      aij=(0.02655)*flin*8.*pi/hij/hij*gglo/(1.e-24+ggup) 
+      hij=elin*1.d-8 
+      aij=(0.02655)*flin*8.*pi/hij/hij*gglo/(1.d-24+ggup) 
       ans1=aij*(ptmp1+ptmp2) 
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       ener=12398.41/abs(elin) 
       nb1=nbinc(ener,epi,ncn2) 
@@ -1204,7 +1263,7 @@
          ans2=0. 
          sigvtherm=0. 
          endif 
-      ans1=ans1+ans2*ggup/(1.e-36+gglo) 
+      ans1=ans1+ans2*ggup/(1.d-48+gglo) 
 !     notice that opakab does not have abundance in                     
       opakab=sigvtherm 
       ans3=ans2*ener*ergsev 
@@ -1212,7 +1271,7 @@
       delea=0. 
       lfasto=4 
       if (lfasto.ge.4) ans2=0. 
-!      if (opakab.gt.1.e-34)                                            
+!      if (opakab.gt.1.d-34)                                            
 !     $  call linopac(lpri,lun11,opakab,rcem1,rcem2,elin,vturb,t,a,     
 !     $               delea,epi,ncn2,opakc,rccemis,
 !     $               lfasto)                                           
@@ -1222,11 +1281,12 @@
 !                                                                       
    32 continue 
       idest1=masterdata%idat1(np1i) 
+      if (indonly.eq.1) return
       gglo=masterdata%rdat1(np1r-1+4) 
       ans1=0. 
       ans2=0. 
       go to 9000 
-!      if (gglo.lt.1.e-24) go to 9000                                   
+!      if (gglo.lt.1.d-24) go to 9000                                   
 !      ekt=t*(0.861707)                                                 
 !      edelt=rdat1(np1r+2)                                              
 !      ans1=(4.1416e-9)*rdat1(np1r)*t**rdat1(np1r+1)*expo(-edelt/ekt)   
@@ -1239,14 +1299,15 @@
 !     line rates, col                                                   
       idest1=masterdata%idat1(np1i+1) 
       idest2=masterdata%idat1(np1i) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
       ggup=leveltemp%rlev(2,masterdata%idat1(np1i+1)) 
       gglo=leveltemp%rlev(2,masterdata%idat1(np1i)) 
       elin=abs(masterdata%rdat1(np1r)) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       nind=4 
       cijpp=masterdata%rdat1(np1r-1+nind) 
       ekt=0.861707*t 
@@ -1267,6 +1328,7 @@
 ! 1906        continue                                                  
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -1284,13 +1346,13 @@
 !      ggup=rdat1(np1r-1+4)                                             
 !      gglo=rdat1(np1r+2)                                               
       a=masterdata%rdat1(np1r-1+5) 
-      hij=elin*1.e-8 
-      elammu=elin*1.e-4 
+      hij=elin*1.d-8 
+      elammu=elin*1.d-4 
 !      flin=aij*hij*hij*ggup/((0.02655)*8.*pi*gglo)                     
       flin=aij*hij*hij*ggup/((0.667274)*gglo) 
       ans1=aij*(ptmp1+ptmp2) 
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       ener=12398.41/abs(elin) 
       nb1=nbinc(ener,epi,ncn2) 
@@ -1299,7 +1361,7 @@
          ans2=0. 
          sigvtherm=0. 
          endif 
-      ans1=ans1+ans2*ggup/(1.e-36+gglo) 
+      ans1=ans1+ans2*ggup/(1.d-48+gglo) 
 !     notice that opakab does not have abundance in                     
       opakab=sigvtherm 
       delea=0. 
@@ -1307,11 +1369,11 @@
       if (lfasto.ge.4) ans2=0. 
       ans3=ans2*ener*ergsev 
       ans4=ans1*ener*ergsev 
-!      if (opakab.gt.1.e-34)                                            
+!      if (opakab.gt.1.d-34)                                            
 !     $  call linopac(lpri,lun11,opakab,rcem1,rcem2,elin,vturb,t,a,     
 !     $               delea,epi,ncn2,opakc,rccemis,
 !     $               lfasto)                                           
-!      if (lpri.ne.0)                                                   
+!      if (lpri.gt.0)                                                   
 !     $ write (lun11,*)'ltyp=34',idest1,idest2,elin,flin,ggup,gglo,     
 !     $                         a,aij,hij,pi                            
       go to 9000 
@@ -1321,7 +1383,7 @@
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'in ucalc, ind=15:',lcon                         
       ett=masterdata%rdat1(np1r) 
-      if (ett.le.(1.e-24)) go to 9000 
+      if (ett.le.(1.d-24)) go to 9000 
       ntmp=(nrdt-1)/2 
       do ml2=1,ntmp 
         etmpp(ml2)=masterdata%rdat1(np1r-1+1+2*ml2) 
@@ -1330,7 +1392,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       gglo=leveltemp%rlev(2,1) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
          write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -1339,6 +1401,7 @@
       nphint=ncn2-numcon2 
       idest1=masterdata%idat1(np1i-1+6) 
       idest2=masterdata%idat1(np1i-1+5)-masterdata%idat1(np1i-1+7) 
+      if (indonly.eq.1) return
       ekt=t*(0.861707) 
       jlo=0 
       ll=nb1 
@@ -1355,13 +1418,13 @@
 !          if (lpri.gt.1)                                               
 !     $    write (lun11,*)ll,epii,sg(ll),ml2,stmpp(ml2),stmpp(mlp),     
 !     $              del1,del2                                          
-          call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,               &
+          call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,            &
      &                  ll,nskp,nphint,lrcalc)                          
           ll=ll+nskp 
           enddo 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
       if (lpri.gt.1) then 
@@ -1369,6 +1432,13 @@
         write (lun11,*)'bkh threshold xsection:',                       &
      &         npr,ett,sg(npr)                                          
         endif 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
                                                                         
@@ -1378,17 +1448,18 @@
       lprisv=lpri 
 !      lpri=2                                                           
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=36:',                             &
+     &  write (lun11,*)'in ucalc, ind=36:',                          &
      &      (masterdata%idat1(np1i-1+mm),mm=1,5)    
       idest1=masterdata%idat1(np1i+nidt-2) 
       ett=leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1) 
       idest2=nlevp 
-      if (ett.le.1.e-5) go to 9000 
+      if (indonly.eq.1) return
+      if (ett.le.1.d-5) go to 9000 
       eth=ett 
       nb1=nbinc(eth,epi,ncn2) 
       gglo=leveltemp%rlev(2,idest1) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -1399,15 +1470,15 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in ucalc, ind=36:',                              &
+     & write (lun11,*)'in ucalc, ind=36:',                           &
      &   ml,nilin,nelin                                                 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       nistage=masterdata%idat1(np1i2) 
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -1423,15 +1494,22 @@
       do while (ll.le.nphint) 
         epii=epi(ll) 
         sg(ll)=sgth*(epii/ett)**(-3) 
-        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,                 &
+        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,              &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -1440,7 +1518,7 @@
       dirt=0. 
       ekt=0.861707*t 
       t3s2=t**(-1.5) 
-      tmr = 1.e-6*t3s2 
+      tmr = 1.d-6*t3s2 
       nterm=masterdata%idat1(np1i) 
       do  n = 1,nterm 
         dcfe(n)=masterdata%rdat1(np1r-1+n) 
@@ -1467,7 +1545,7 @@
       term1=(T/T0)**(0.5) 
       term2=(1.+(T/T0)**(0.5))**(1.-b) 
       term3=(1.+(T/T1)**(0.5))**(1.+b) 
-      rrrt=a/(1.e-34+term1*term2*term3) 
+      rrrt=a/(1.d-48+term1*term2*term3) 
       ans1=rrrt*xnx 
       if (lpri.gt.1) write (lun11,*)a,b,c,t0,t1,t2,                     &
      &         term1,term2,term3,rrrt,ans1                              
@@ -1480,7 +1558,7 @@
       dirt=0. 
       ekt=0.861707*t 
       t3s2=t**(-1.5) 
-      tmr = 1.e-6*t3s2 
+      tmr = 1.d-6*t3s2 
       nterm=nrdt/2 
       do  n = 1,nterm 
         dc=masterdata%rdat1(np1r-1+n) 
@@ -1536,7 +1614,8 @@
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=nlevp+max(0,masterdata%idat1(np1i-1+nidt-3))-1 
-      if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2 
+      if (indonly.eq.1) return
+      if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
@@ -1547,8 +1626,8 @@
       ntmp=nrdt/2 
       do ml2=1,ntmp+1 
         etmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2-1) 
-        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.e-18 
-        stmpp(ml2)=max(stmpp(ml2),0.) 
+        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.d-18 
+        stmpp(ml2)=max(stmpp(ml2),0.d0) 
         enddo 
 !      ett=ett+max(0.,13.605692*etmpp(1))                               
       optst=abund1*stmpp(1) 
@@ -1560,7 +1639,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       xkt=ett/(0.861707*t) 
       r19=rr/1.e+19 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdti,np1r2,nidti,np1i2,nkdti,np1k2,mlm,                        &
      &  0,lun11)                                                  
@@ -1580,7 +1659,7 @@
         iltmp=0 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))                 
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -1588,7 +1667,7 @@
            if (lpri.gt.1) then 
              write (lun11,*)nidt2,iltmp,ndtmp 
              write (lun11,*)np1r2,np1i2,np1k2,mlm 
-             call dprinto(ltyp2,lrtyp2,lcon2,                           &
+             call dprinto(ltyp2,lrtyp2,lcon2,                        &
      &          nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,                    &
      &          lun11)                 
              endif 
@@ -1599,7 +1678,7 @@
      &    write (lun11,*) ndtmp,iltmp,idest2,ggup                       
          endif 
       if (lpri.gt.1) write (lun11,*)'before phint53' 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -1608,23 +1687,29 @@
         write (lun11,*)'type 49 data:',masterdata%idat1(np1i),          &
      &    masterdata%idat1(np1i+nidt-1),t,xnx,                          &
      &    eth,gglo,ggup,swrat                                           
-        call dprinto(ndesc,nrdesc,lcon,                                 &
+        call dprinto(ndesc,nrdesc,lcon,                              &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-!      rnist=rniss(idest1)                                               &
-!     &  *exp(-(ett+max(0.,13.605692*etmpp(1)))/(0.861707)/t)            &
-!     &  /rniss(nlevp)                                                   
-      rnist=rnisse(idest1)                                              &
-     &  *exp(-(max(0.,13.605692*etmpp(1)))/(0.861707)/t)                &
-     &  /rnisse(nlevp)                                                   
+      tm=t*1.e4 
+      bktm=bk*tm/ergsev 
+      q2=2.07e-16*xnx*(tm**(-1.5)) 
+      emltlv=leveltemp%rlev(2,nlev) 
+      rs=q2/emltlv 
+      ethion=leveltemp%rlev(1,nlev) 
+      emltlv=leveltemp%rlev(2,idest1) 
+      rnissel=emltlv*rs
+      rnisseu=1.
+      rnist=rnissel                                                     &
+     &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
+     &  /(1.e-37+rnisseu)                                                   
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'ett=',ett,etmpp(1),                             &
-     &  ett+max(0.,13.605692*etmpp(1)),                                 &
-     &  rnisse(idest1)/rnisse(nlevp),rnist                                
-      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,            &
-     &  abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,                     &
+     &  ett+max(0.d0,13.605692*etmpp(1)),                               &
+     &  rniss(idest1)/rniss(nlevp),rnist,rniss(idest1),rniss(nlevp)
+      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
+     &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
      &  lfast,lun11)                                                    
       if (lpri.gt.1) then 
@@ -1633,16 +1718,26 @@
      &      npr,ett,eth,masterdata%rdat1(np1r),sg(npr),ans2,swrat     
         endif 
       lpri=lprisv 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    50 continue 
 !     op line rad. rates                                                
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
 !     nb check this out:  no bound-bound decays from continuum          
       if ((idest1.le.0).or.(idest1.ge.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.ge.nlev))                          &
      &      go to 9000                                                  
+      elin=abs(masterdata%rdat1(np1r)) 
+      if (elin.le.1.d-34) go to 9000 
       aij=masterdata%rdat1(np1r+2) 
       ans1=aij*(ptmp1+ptmp2) 
 !      aij=min(aij,1.e+10)                                              
@@ -1653,8 +1748,6 @@
          idest1=idest2 
          idest2=itmp 
          endif 
-      elin=abs(masterdata%rdat1(np1r)) 
-      if (elin.le.1.e-34) go to 9000 
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
       if (ml.le.0) go to 9000 
@@ -1662,9 +1755,9 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
+      flin=(1.d-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
 !                                                                       
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -1672,62 +1765,86 @@
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
       ener=12398.41/elin 
       dele=ener*vtherm/3.e+10 
-      elammu=elin*1.e-4 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      elammu=elin*1.d-4 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       jkkl=derivedpointers%nplini(ml) 
       if (jkkl.le.0) go to 9000 
       ml3=derivedpointers%nplin(jkkl) 
       if (ml3.le.0) go to 9000 
-      mlm=ml3-1 
+      mlm=ml3
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                              &
      &  0,lun11)                                                  
       elin=abs(masterdata%rdat1(np1r)) 
       ener=12398.41/abs(elin) 
+      epiip=ener
       nb1=nbinc(ener,epi,ncn2) 
       ans2=sigvtherm*bremsa(nb1)*vtherm/3.e+10                          &
-     &      *flinabs(ptmp1)                                             
+     &      *flinabs(ptmp1)                                            
+!     &      *2.
+!     NB this is a fudge to test comparison with prismspect which assumes
+!     radiation isotropic in the half space.
+!      bremtmpp=bremsa(nb1)/(12.56) 
+!      bbnurjp=(min(2.d+4,epiip))**3*(1.571e+22)*2. 
+!      ans2=ans1*(bremtmpp/bbnurjp)*gglo/ggup
 !                                                                       
-!     turning off rex                                                   
-      ans2=0. 
+!     nb turning off rex                                                   
+!      ans2=0. 
+      ans2=ans2*max(0.,1.d0-cfrac)
 !                                                                       
       if (elin.gt.0.99e+9) then 
          ans2=0. 
          sigvtherm=0. 
          endif 
-!      ans1=ans1+ans2*ggup/(1.e-36+gglo)                                
+!      ans1=ans1+ans2*ggup/(1.d-36+gglo)                                
 !     note that now opakab does not have abundance in                   
       opakab=sigvtherm 
       lfasto=2 
 !      lfasto=4                                                         
       delea=0. 
       lfnd=0 
-      lpriu=0 
+      lpriu=lpri
+
 !      if (lpri.ge.1) lpriu=3                                           
-      call deleafnd(jkion,idest1,                                       &
+      call deleafnd(jkion,idest1,                                    &
      &   delea,lfnd,lpriu,lun11)                          
 !                                                                       
       if (lfnd.eq.0) delea=masterdata%rdat1(np1r+2)*(4.136e-15) 
       ans4=ans1*ener*ergsev 
       ans3=ans2*ener*ergsev 
-      rcem1=abund2*ans4*ptmp1/(1.e-34+ptmp1+ptmp2) 
-      rcem2=abund2*ans4*ptmp2/(1.e-34+ptmp1+ptmp2) 
+      rcem1=abund2*ans4*ptmp1/(1.d-48+ptmp1+ptmp2) 
+      rcem2=abund2*ans4*ptmp2/(1.d-48+ptmp1+ptmp2) 
       opakb1=sigvtherm*abund1 
-!     this test should prevent calculation when called from func2       
+!     this test should prevent calculation when called 
+!     from calc_rates_level      
 !     since abund1 will be zero                                         
 !      lpriu=lpri                                                       
       lpriu=0 
-      if ((nrdesc.ne.9).and.(lfasto.le.4).and.(opakb1*delr.gt.1.e-8))   &
-     & call linopac(lpriu,lun11,opakb1,ans2,sigvtherm,vtherm,bremsa,    &
+      if ((nrdesc.ne.9).and.(lfasto.le.4).and.(opakb1*delr.gt.1.d-8))   &
+     & call linopac(lpriu,lun11,opakb1,                                 &
      &               rcem1,rcem2,elin,vturb,t,a,delea,epi,ncn2,         &
      &               opakc,rccemis,lfasto)              
+9801  format (1x,'in ucalc, ind=50:',3i8,10(1pe11.3),5i8,3(1pe11.3), &
+     &              i8,3(1pe11.3),i8)
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=50:',                             &
+     &  write (lun11,9801)                                              &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r+2),gglo,ggup,a,  &
      &  vtherm,vturb,                                                   &
      &  ans1,ans2,idest1,idest2,idest3,idest4,nlev,sigvtherm,           &
-     &  bremsa(nb1),nb1,abund1,abund2,delea,lfnd                        
+     &  bremtmpp,bbnurjp,nb1,abund1,abund2,delea,lfnd                        
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
+      anstmp=ans1
+      ans1=ans2
+      ans2=anstmp
+!
+!     nb testing with suppressed decay!!!
+!      ans2=ans2/1.e+8
+!      ans1=ans1/1.e+8
+!
       if (nrdesc.ne.9) go to 9000 
 !                                                                       
 !       special for 2 photon                                            
@@ -1737,7 +1854,7 @@
         emax=ener 
         nbmx=nbinc(emax,epi,ncn2) 
         if (lpri.gt.1)                                                  &
-     &  write (lun11,*)'in ucalc, ind=50:',                             &
+     &  write (lun11,*)'in ucalc, ind=50:',                          &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r),gglo,ggup,a,    &
      &  vtherm,ans2,nbmx                                                     
         rcemsum=0. 
@@ -1745,10 +1862,10 @@
         ll=2 
         do while (ll.le.nbmx) 
           ansar2o=ansar2 
-          ansar2=epi(ll)*epi(ll)*max(0.,(epi(nbmx)-epi(ll))) 
+          ansar2=epi(ll)*epi(ll)*max(0.d0,(epi(nbmx)-epi(ll))) 
           rcemsum=rcemsum+(ansar2+ansar2o)                              &
      &                   *(epi(ll)-epi(ll-lskp))/2.                     
-          call enxt(epi(1),nb1,0,epi,ncn2,t,lfastl,lun11,               &
+          call enxt(epi(1),nb1,0,epi,ncn2,t,lfastl,lun11,            &
      &                  ll,lskp,nphint,lrcalc)                          
           ll=ll+lskp 
           enddo 
@@ -1756,13 +1873,13 @@
         rctmp2=0. 
         ll=2 
         do while (ll.le.nbmx) 
-          ansar2=epi(ll)*epi(ll)*max(0.,(epi(nbmx)-epi(ll))) 
-          ansar2=ansar2*em2ph*emax/(1.e-24+rcemsum) 
+          ansar2=epi(ll)*epi(ll)*max(0.d0,(epi(nbmx)-epi(ll))) 
+          ansar2=ansar2*em2ph*emax/(1.d-24+rcemsum) 
           rctmp1=abund2*ansar2*ptmp1/12.56 
           rctmp2=abund2*ansar2*ptmp2/12.56 
           rccemis(1,ll)=rccemis(1,ll)+rctmp1 
           rccemis(2,ll)=rccemis(2,ll)+rctmp2 
-          call enxt(epi(1),nb1,0,epi,ncn2,t,lfastl,lun11,               &
+          call enxt(epi(1),nb1,0,epi,ncn2,t,lfastl,lun11,            &
      &                  ll,nskp,nphint,lrcalc)                          
           ll=ll+nskp 
           enddo 
@@ -1772,6 +1889,7 @@
 !     line rates, col, burgess and tully from manuel                    
       idest1=masterdata%idat1(np1i+2) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -1789,10 +1907,10 @@
       eijry=masterdata%rdat1(np1r) 
       eij=eijry*13.605692 
       elin=12398.41/eij 
-      hij=elin*1.e-8 
-!      if (lpri.ne.0)                                                   
+      hij=elin*1.d-8 
+!      if (lpri.gt.0)                                                   
 !     $ write (lun11,*)'type 51 data:',elin                             
-      if (elin.le.1.e-24) go to 9000 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       if (lpri.gt.1)                                                    &
@@ -1806,7 +1924,7 @@
       p5=masterdata%rdat1(np1r-1+7) 
       tk=t*1.e+4 
 !      tk=max(tk,(1.e+4)*12398.54/elin/(0.861707)/50.)                  
-      tk=max(tk,2.8777e+6/elin) 
+      tk=max(tk,2.8777d+6/elin) 
       ik=masterdata%idat1(np1i) 
       cijpp=upsil(ik,eijry,c,p1,p2,p3,p4,p5,tk) 
       ekt=0.861707*t 
@@ -1820,6 +1938,8 @@
      &      eij,idest1,idest2,cij,cji,xnx,cijpp                         
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*eij*ergsev
+      ans5=ans2*eij*ergsev
       elin=0. 
       go to 9000 
 !                                                                       
@@ -1828,7 +1948,7 @@
       go to 59 
 !                                                                       
    53 continue 
-  533  continue 
+  533 continue 
 !     op pi xsections                                                   
       lprisv=lpri 
 !      if (lpri.ge.1) lpri=2                                            
@@ -1837,8 +1957,10 @@
 !     (not relative to the element as a whole)                          
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp+masterdata%idat1(np1i-1+nidt-3)-1 
+      if (indonly.eq.1) return
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp,ml 
-      if (lpri.gt.1) write (lun11,*)'bremsa=',bremsa(1),bremsa(10) 
+      if (lpri.gt.1) write (lun11,*)'bremsa=',bremsa(1),bremsa(10),     &
+     &    bremsa(100)
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
@@ -1854,7 +1976,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       xkt=ett/(0.861707*t) 
       r19=rr/1.e+19 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -1875,7 +1997,7 @@
         iltmp=0 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))                 
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -1894,9 +2016,8 @@
       sscal=1. 
       do ml2=1,ntmp 
         etmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2-1) 
-        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.e-18*sscal 
-        stmpp(ml2)=max(stmpp(ml2),0.) 
-        stmpe(ml2)=stmpp(ml2)*(etmpp(ml2)*13.605692+ett) 
+        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.d-18*sscal 
+        stmpp(ml2)=max(stmpp(ml2),0.d0) 
         if (lpri.gt.1) write (lun11,9819)ml2,etmpp(ml2),stmpp(ml2) 
  9819   format (1x,i6,2(1pe11.3)) 
         enddo 
@@ -1908,7 +2029,7 @@
 !       but some cross sections should not be extrapolated.             
 !      call phextrap(etmpp,stmpp,ntmp,ntmp2,ett,ncn2,lpri,lun11)        
       if (lpri.gt.1) write (lun11,*)'before phint53',eexc,eth,lfast 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -1917,23 +2038,36 @@
         write (lun11,*)'type 53 data:',masterdata%idat1(np1i),          &
      &    masterdata%idat1(np1i+nidt-1),t,xnx,                          &
      &    eth,gglo,ggup,swrat                                           
-        call dprinto(ndesc,nrdesc,lcon,                                 &
+        call dprinto(ndesc,nrdesc,lcon,                              &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
+      tm=t*1.e4 
+      bktm=bk*tm/ergsev 
+      q2=2.07e-16*xnx*(tm**(-1.5)) 
+      emltlv=leveltemp%rlev(2,nlev) 
+      rs=q2/emltlv 
+      ethion=leveltemp%rlev(1,nlev) 
+      emltlv=leveltemp%rlev(2,idest1) 
+      rnissel=emltlv*rs
+      rnisseu=1.
+      rnist=rnissel                                                     &
+     &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
+     &  /(1.e-37+rnisseu)                                                   
 !      rnist=rniss(idest1)                                               &
 !     &  *exp(-(ett+max(0.,13.605692*etmpp(1)))/(0.861707)/t)            &
-!     &  /rniss(nlevp)                                                   
-      rnist=rnisse(idest1)                                               &
-     &  *exp(-(max(0.,13.605692*etmpp(1)))/(0.861707)/t)            &
-     &  /rnisse(nlevp)                                                   
+!     &  /(1.e-37+rniss(nlevp))                                                   
+!      rnist=rnisse(idest1)                                              &
+!     &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
+!     &  /rnisse(nlevp)                                                   
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'ett=',ett,etmpp(1),                             &
-     &  ett+max(0.,13.605692*etmpp(1)),                                 &
-     &  rnisse(idest1)/rnisse(nlevp),rnist                                
-      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,            &
-     &  abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,                     &
+     &  ett+max(0.d0,13.605692*etmpp(1)),                               &
+     &  rniss(idest1),rniss(nlevp),                                     &
+     &  rniss(idest1)/(1.e-37+rniss(nlevp)),rnist                                
+      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
+     &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
      &  lfast,lun11)                                                    
 !                                                                       
@@ -1949,22 +2083,30 @@
           stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2) 
           enddo 
         lprim=0 
-        call milne(temp,ntmp,etmpp,stmpp,ett/13.6,alphamilne,           &
+        call milne(temp,ntmp,etmpp,stmpp,ett/13.6,alphamilne,        &
      &     lun11,lprim)                                                 
         alphamilne=alphamilne*xnx 
-        amilnerr=(log10(alphamilne/max(1.e-34,ans2))) 
+        amilnerr=(log10(alphamilne/max(1.d-48,ans2))) 
         if ((abs(amilnerr).gt.0.05)                                     &
-     &    .and.((alphamilne.gt.1.e-28).or.(ans2.gt.1.e-28))             &
+     &    .and.((alphamilne.gt.1.d-28).or.(ans2.gt.1.d-28))             &
      &    .and.(lfast.gt.1))                                            &
      &     write (lun11,*)'milne error',alphamilne,ans2,amilnerr        
         endif 
       lpri=lprisv 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    54 continue 
 !     h-like cij, bautista (hlike ion)                                  
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-3) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -1979,10 +2121,12 @@
         idest2=idest1 
         idest1=itmp 
         endif 
+      if (indonly.eq.1) return
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
+      dele=abs(eeup-eelo)
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      hij=elin*1.d-8 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
 !      if (delt.gt.50.) go to 9000                                      
@@ -2000,12 +2144,22 @@
         endif 
       iq=masterdata%idat1(np1i+nidt-2) 
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'before anl1:',ni,nf,li,lf,iq,idest1,idest2,      &
+     & write (lun11,*)'before anl1:',ni,nf,li,lf,iq,idest1,idest2,   &
      &  eelo,eeup,masterdata%idat1(np1i-1+nidt-3),                      &
      &  masterdata%idat1(np1i+nidt-3)               
       call anl1(ni,nf,lf,iq,alm,alp,lpri,lun11) 
       ans1=alp 
       if (li.lt.lf) ans1=alm 
+!     changing order to agree with type 50
+      anstmp=ans2
+      ans2=ans1
+      ans1=anstmp
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans6
+      ans6=-ans5
+      ans5=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -2013,17 +2167,18 @@
 !      hydrogenic pi xsections, bautista format                         
       lprisv=lpri 
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=55:',                             &
+     &  write (lun11,*)'in ucalc, ind=55:',                          &
      &      (masterdata%idat1(np1i-1+mm),mm=1,5)    
       idest1=masterdata%idat1(np1i+nidt-2) 
       ett=leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1) 
       idest2=nlevp 
-      if (ett.le.1.e-5) go to 9000 
+      if (indonly.eq.1) return
+      if (ett.le.1.d-5) go to 9000 
       eth=ett 
       nb1=nbinc(eth,epi,ncn2) 
       gglo=leveltemp%rlev(2,idest1) 
       ggup=leveltemp%rlev(2,nlevp) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -2034,15 +2189,15 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in ucalc, ind=55:',                              &
+     & write (lun11,*)'in ucalc, ind=55:',                           &
      &   ml,nilin,nelin                                                 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       nistage=masterdata%idat1(np1i2) 
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -2054,29 +2209,37 @@
       do while (ll.le.nphint) 
         epii=epi(ll) 
         sg(ll)=sgth*(epii/ett)**(-3) 
-        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,                 &
+        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,              &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11)    
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
    56 continue 
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
-      if ((idest1.le.0).or.(idest1.gt.nlev)                             &
-     &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
-     &      go to 9000                                                  
+      if (indonly.eq.1) return
+      if ((idest1.le.0).or.(idest2.le.0)                                &
+     &   .or.(idest1.gt.nlev).or.(idest2.gt.nlev)) go to 9000      
       if (leveltemp%rlev(1,masterdata%idat1(np1i+1))                    &
      &      .lt.leveltemp%rlev(1,masterdata%idat1(np1i))) then 
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       lprisv=lpri 
 !      if (lpri.ge.1) lpri=2                                            
       ggup=leveltemp%rlev(2,idest2) 
@@ -2084,31 +2247,35 @@
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
       dele=abs(eeup-eelo) 
-      if (dele.le.1.e-16) go to 9000 
+      if (dele.le.1.d-16) go to 9000 
       ntmp=nrdt/2 
-      do kl=1,ntmp 
-        ttmp(kl)=masterdata%rdat1(np1r-1+kl) 
-        enddo 
-      tfnd=log10(t*1.e+4) 
-      jlo=0 
-      call hunt3(ttmp,ntmp,tfnd,jlo,0,lun11) 
-      jlo=min(jlo,ntmp-1) 
-      nind=ntmp+jlo 
+      if (ntmp.eq.1) then
+        cijpp=masterdata%rdat1(np1r+1) 
+        else
+        do kl=1,ntmp 
+          ttmp(kl)=masterdata%rdat1(np1r-1+kl) 
+          enddo 
+        tfnd=log10(t*1.e+4) 
+        jlo=0 
+        call hunt3(ttmp,ntmp,tfnd,jlo,0,lun11) 
+        jlo=min(jlo,ntmp-1) 
+        nind=ntmp+jlo 
+        cijpp=(masterdata%rdat1(np1r-1+nind+1)                          &
+     &   -max(1.d-48,masterdata%rdat1(np1r-1+nind)))                    &
+     &   *(tfnd-ttmp(jlo))/(ttmp(jlo+1)-ttmp(jlo)+1.d-24)               &
+     &     +max(1.d-48,masterdata%rdat1(np1r-1+nind))                          
+        endif
       if (lpri.gt.1) write (lun11,*)'type 56:',                         &
      &  idest1,idest2,ggup,gglo,dele,jlo,nind,                          &
      &  masterdata%rdat1(np1r-1+nind),masterdata%rdat1(np1r-1+nind+1),  &
      &  tfnd,ttmp(jlo+1),ttmp(jlo)                                      
-      cijpp=(masterdata%rdat1(np1r-1+nind+1)                            &
-     &   -max(1.e-36,masterdata%rdat1(np1r-1+nind)))                    &
-     &   *(tfnd-ttmp(jlo))/(ttmp(jlo+1)-ttmp(jlo)+1.e-24)               &
-     &     +max(1.e-36,masterdata%rdat1(np1r-1+nind))                          
 !                                                                       
 !     NB a fudge for Fe XXIV q line                                     
 !      if ((jkion.eq.349).and.(idest1.eq.1).and.(idest2.ge.26)) then    
 !         cijpp=cijpp*166.                                              
 !         endif                                                         
 !                                                                       
-      cijpp=max(0.,cijpp) 
+      cijpp=max(0.d0,cijpp) 
       ekt=0.861707*t 
       delt=dele/ekt 
       cij=0. 
@@ -2119,6 +2286,8 @@
       cji=(8.626e-8)*cijpp/tsq/ggup 
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       if (lpri.gt.1) write (lun11,*)'type 56 data:',                    &
      &  idest1,idest2,dele,cijpp,delt,exptmp,cij,cji,                   &
      &  nind,gglo,ggup,tfnd,ntmp,jlo,ntmp,ttmp(jlo)                     
@@ -2134,14 +2303,15 @@
       tz=t*1.e+4 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp 
+      if (indonly.eq.1) return
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in ucalc at 57:',idest1,                         &
+     & write (lun11,*)'in ucalc at 57:',idest1,                      &
      &  masterdata%idat1(np1i),masterdata%rdat1(np1r)  
       if ((masterdata%idat1(np1i).le.0)                                 &
      &      .or.(idest1.le.1).or.(idest1.gt.nlevp))                     &
      &        go to 9000                                                
       i57=masterdata%idat1(np1i) 
-      eth=max(0.,leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1)) 
+      eth=max(0.d0,leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1)) 
       ekt=0.861707*t 
 !      tz=max(tz,(1.e+4)*eth/(0.861707)/50.)                            
 !      tz=max(tz,2.320975e+02*eth)                                      
@@ -2166,8 +2336,10 @@
       ggup=leveltemp%rlev(2,nlevp) 
       gglo=leveltemp%rlev(2,idest1) 
 !     note that rinf has exponential removed                            
-      rinf=gglo/(1.e-36+ggup) 
+      rinf=gglo/(1.d-48+ggup) 
       ans2=crec*rinf*xnx*xnx 
+      ans6=-ans1*eth*ergsev
+      ans5=-ans2*eth*ergsev
 !     set to zero for ground state because we have more accurate rates  
 !     for these levels: types 95 or 25                                  
       if (idest1.eq.1) then 
@@ -2205,12 +2377,13 @@
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp+masterdata%idat1(np1i-1+nidt-3)-1 
       idest2=max(idest2,1) 
+      if (indonly.eq.1) return
 !      nb must uncomment these if func2a is called                      
 !      if (nrdesc.eq.7) then                                            
 !        idest2=nlevp                                                   
 !        endif                                                          
       if ((nilin.le.0).or.(nilin.gt.np2)) go to 9000 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp2,lrtyp2,lcon2,                                      &
      &  nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                        &
      &  0,lun11)                                                  
@@ -2242,7 +2415,7 @@
         iltmp=0 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))                
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -2259,7 +2432,7 @@
      &    write (lun11,*) ndtmp,iltmp,idest2,ggup,ett                   
          endif 
       if (lpril.gt.1) write (lun11,*)nlevp,ggup 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         if (lpril.gt.1) write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -2269,10 +2442,10 @@
       if (lpril.gt.1)                                                   &
      & write (lun11,*)'ett=',ett,nb1,nphint,swrat,gglo,ggup             
       if (nb1.ge.(nphint-1)) go to 9000 
-      if ((bremsint(nb1).lt.1.e-20).and.(lpril.gt.1))                   &
+      if ((bremsint(nb1).lt.1.d-20).and.(lpril.gt.1))                   &
      &    write (lun11,*)'skipping 59',                                 &
      &         nb1,bremsint(nb1)                                        
-      if (bremsint(nb1).lt.1.e-20) go to 9000 
+      if (bremsint(nb1).lt.1.d-20) go to 9000 
       if (nrdt.eq.9) then 
           ett=masterdata%rdat1(np1r) 
           emax=masterdata%rdat1(np1r+1) 
@@ -2307,28 +2480,28 @@
           else 
             yy=xx 
           endif 
-        yyqq=qq*log(max(1.e-34,yy)) 
-        yyqq=exp(-min(60.,max(-60.,yyqq))) 
+        yyqq=qq*log(max(1.d-48,yy)) 
+        yyqq=exp(-min(60.d0,max(-60.d0,yyqq))) 
         term1=((xx-1.)*(xx-1.)+ywsq) 
         term2=yyqq 
         term3=(1.+sqrt(yy/ya))**(-pp) 
         ff=term1*term2*term3 
-        sg(ll)=s0*ff*(1.e-18) 
+        sg(ll)=s0*ff*(1.d-18) 
         if (lpril.gt.1) write (lun11,*)ll,epii,sg(ll),                  &
      &    yy,yyqq,xx,term1,term2,term3,qq,ff                            
-        call enxt(ett,nb1,0,epi,ncn2,t,lfastl,lun11,                    &
+        call enxt(ett,nb1,0,epi,ncn2,t,lfastl,lun11,                 &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       ekt=t*(0.861707) 
       lprib=0 
       if (lpril.gt.1) lprib=lpril 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
       swrat=gglo/ggup 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
       if (lpril.gt.1) then 
@@ -2338,10 +2511,18 @@
         endif 
 !     nb this turns off all recombination into excited levels           
 !     for type 59...                                                    
-!      if ((nrdesc.eq.1).or.(idest1.gt.1)) then                         
-!        ans4=0.                                                        
-!        ans2=0.                                                        
-!        endif                                                          
+      if ((nrdesc.eq.1).or.(idest1.gt.1)) then                         
+        ans6=0.                                                        
+        ans4=0.                                                        
+        ans2=0.                                                        
+        endif                                                          
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -2349,9 +2530,10 @@
 !      go to 9000                                                       
 !     calloway h-like coll. strength                                    
       lpril=0 
-      if (lpri.ge.1) lpril=2                                           
+!      if (lpri.ge.1) lpril=2                                           
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -2360,21 +2542,24 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       dele=abs(leveltemp%rlev(1,idest2)-leveltemp%rlev(1,idest1)) 
-      if (dele.le.1.e-24) go to 9000 
+      if (dele.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=dele/ekt 
       temp=t*1.e+4 
       temp=max(temp,0.02*dele*1.e+4/(0.861707)) 
-      call calt60_62(temp,nrdt,ndesc,np1r,np1i,cijpp) 
+      call calt6062(temp,nrdt,ndesc,np1r,np1i,cijpp) 
 !      cijpp=cijpp/2./2.                                                
-      cji=(8.626e-8)*cijpp/tsq/(1.e-16+ggup) 
+      cji=(8.626e-8)*cijpp/tsq/(1.d-16+ggup) 
       exptmp=expo(-delt) 
-      cij=cji*ggup*exptmp/(1.e-16+gglo) 
+      cij=cji*ggup*exptmp/(1.d-16+gglo) 
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       if (lpril.gt.1) then 
         write (lun11,*)'ltyp=60',idest1,idest2,temp,flin,ggup,gglo 
         write (lun11,*)'       ',nrdt,                                  &
@@ -2390,19 +2575,21 @@
       go to 60 
 !                                                                       
    63 continue 
-!      if (lpri.ne.0) write (lun11,*) 'type 63 data not implemented'    
+!      if (lpri.gt.0) write (lun11,*) 'type 63 data not implemented'    
 !      go to 9000                                                       
       lpril=0 
 !      if (lpri.ge.1) lpril=2                                           
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-3) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      dele=abs(eeup-eelo)
+      hij=elin*1.d-8 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       if (lpril.ne.0) write (lun11,*)'delt=',delt 
@@ -2483,7 +2670,7 @@
              endif 
              if (lff.eq.lf .and. li.gt.lf) aa1=alp 
              if (lff.eq.lf .and. li.lt.lf) aa1=alm 
-             if (lpril.ne.0) write (lun11,*)'after anl1',               &
+             if (lpril.ne.0) write (lun11,*)'after anl1',            &
      &           lff,li,lf,sum,alp,alm,aa1                              
           enddo 
           if (lpril.ne.0)                                               &
@@ -2506,17 +2693,20 @@
 !                                                                       
       ans1=ans1*xnx 
       ans2=ans2*xnx 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
    64 continue 
 !     hydrogenic pi xsections, bautista format                          
       lprisv=lpri 
       idest1=masterdata%idat1(np1i+nidt-2) 
+      if (indonly.eq.1) return
       ett=abs(leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1)) 
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=64:',                             &
+     &  write (lun11,*)'in ucalc, ind=64:',                          &
      &      (masterdata%rdat1(np1r-1+mm),mm=1,5)    
-      if (ett.le.1.e-5) go to 9000 
+      if (ett.le.1.d-5) go to 9000 
       zzz=float(masterdata%idat1(np1i+2)) 
       enn=float(masterdata%idat1(np1i)) 
       eth=ett 
@@ -2536,18 +2726,18 @@
         epii=epi(ll) 
         e=epii 
         eth=ett 
-        erel=max(0.,(e-eth)/13.605692) 
+        erel=max(0.d0,(e-eth)/13.605692) 
         call hphotx(erel,ic,nq,xsec,lun11,lpri) 
-        sg(ll)=xsec(lorb+1)*(1.e-18) 
+        sg(ll)=xsec(lorb+1)*(1.d-18) 
         stmpp(mm)=xsec(lorb+1) 
         etmpp(mm)=erel 
-        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,                 &
+        call enxt(ett,nb1,lpri,epi,ncn2,t,lfastl,lun11,              &
      &                  ll,nskp,nphint,lrcalc)                          
         ll=ll+nskp 
         enddo 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      call phintfo(sg,ett,ans1,ans2,ans3,ans4,                          &
+      call phintfo(sg,ett,ans1,ans2,ans3,ans4,ans5,ans6,             &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lprib,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
       lprim=0 
@@ -2556,6 +2746,13 @@
       ntmp=mm 
       call milne(temp,ntmp,etmpp,stmpp,eth/13.6,ans2,lun11,lprim) 
       ans2=ans2*swrat 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -2565,22 +2762,27 @@
       tz=t*1.e+4 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,nlevp) 
       gglo=leveltemp%rlev(2,1) 
-      eth=max(0.,leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1)) 
+      eth=max(0.d0,leveltemp%rlev(1,nlevp)-leveltemp%rlev(1,idest1)) 
       ekt=0.861707*t 
 !      if (eth/ekt.gt.50.) go to 9000                                   
-      call szirco(masterdata%idat1(np1i),tz,masterdata%rdat1(np1r),cii) 
+      call szirco(masterdata%idat1(np1i),tz,masterdata%rdat1(np1r),  &
+     &               cii) 
       ans1=cii*xnx 
 !     note that rinf has exponential removed                            
       rinf=(2.08e-22)*gglo/ggup/t/tsq 
       ans2=ans1*rinf*expo(eth/ekt) 
+      ans6=ans1*eth*ergsev
+      ans5=ans2*eth*ergsev
       go to 9000 
 !                                                                       
    66 continue 
 !     Like type 69 but, data in fines tructure                          
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -2589,15 +2791,17 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       elin=masterdata%rdat1(np1r) 
-      if (elin.le.1.e-24) go to 9000 
+      if (elin.le.1.d-24) go to 9000 
+      dele=elin
       elin=12398.41/elin 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
 !      if (delt.gt.50.) go to 9000                                      
-      hij=elin*1.e-8 
+      hij=elin*1.d-8 
       temp=t*1.e+4 
 !      temp=max(temp,(1.e+4)*12398.54/elin/(0.861707)/50.)              
       temp=max(temp,2.8777e+6/elin) 
@@ -2615,6 +2819,8 @@
         write (lun11,*)'       ',cij,cji,xnx,cijpp,exptmp 
         endif 
       elin=0. 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
    67 continue 
@@ -2629,19 +2835,21 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       elin=abs(masterdata%rdat1(np1r)) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
+      dele=elin
       delt=12398.41/elin/ekt 
       temp=t*1.e+4 
 !      temp=max(temp,(1.e+4)*12398.54/elin/(0.861707)/50.)              
       temp=max(temp,2.8777e+6/elin) 
       call calt67(temp,np1r,gamma) 
       cijpp=gamma 
-      cijpp=max(0.,cijpp) 
+      cijpp=max(0.d0,cijpp) 
       cji=(8.626e-8)*cijpp/tsq/ggup 
         exptmp=expo(-delt) 
         cij=cji*ggup*exptmp/gglo 
@@ -2654,6 +2862,8 @@
         write (lun11,*)'       ',cij,cji,xnx,cijpp,exptmp 
         endif 
       elin=0. 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
    68 continue 
@@ -2668,13 +2878,15 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      dele=abs(eeup-eelo+1.d-24) 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       temp=t*1.e+4 
@@ -2687,7 +2899,7 @@
         endif 
       call calt68(temp,np1r,np1i,gamma) 
       cijpp=gamma 
-      cijpp=max(cijpp,0.) 
+      cijpp=max(cijpp,0.d0) 
       cji=(8.626e-8)*cijpp/tsq/ggup 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
@@ -2699,6 +2911,8 @@
         write (lun11,*)'       ',cij,cji,xnx,cijpp,exptmp 
         endif 
       elin=0. 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
    69 continue 
@@ -2713,13 +2927,15 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      dele=abs(eeup-eelo)
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       m=nrdt 
@@ -2728,7 +2944,7 @@
 !      temp=max(temp,2.8777e+6/elin)                                    
       call calt69(temp,m,np1r,gamma,lpri,lun11) 
       cijpp=gamma 
-      cijpp=max(cijpp,0.) 
+      cijpp=max(cijpp,0.d0) 
       cji=(8.626e-8)*cijpp/tsq/ggup 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
@@ -2745,6 +2961,8 @@
         write (lun11,*)'       ',cij,cji,xnx,cijpp,exptmp 
         endif 
       elin=0. 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
    70 continue 
@@ -2756,16 +2974,21 @@
       ans4=0. 
       den=xpx 
       m=1000 
-      lpric=0 
-!      if (lpri.ge.1) lpric=2                                           
+      lpric=0
+      mlm=ml
+      call drd(ltyp,lrtyp,lcon,                                         &
+     &  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                              &
+     &  0,lun11)                                                  
+!      if (lpri.ge.1) lpric=2                                          
       mlion=derivedpointers%npar(ml) 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest1=min(idest1,nlev-1) 
       idest2=nlev+masterdata%idat1(np1i-1+nidt-3)-1 
       idest2=max(idest2,nlev) 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,nlevp) 
       ett=abs(leveltemp%rlev(1,idest1)-leveltemp%rlev(1,nlevp)) 
-      if (lpric.ge.1)                                                   &
+      if (lpric.gt.1)                                                   &
      & write (lun11,*)'rlev:',idest1,nlevp,                             &
      &    leveltemp%rlev(1,idest1),leveltemp%rlev(1,nlevp) 
       if (idest2.gt.nlevp) then 
@@ -2780,7 +3003,7 @@
         nptmp=mllz 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(nptmp.eq.mllz))                                       
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -2793,11 +3016,11 @@
          ggup=masterdata%rdat1(np1r2+1) 
          ett=abs(leveltemp%rlev(1,idest1)+masterdata%rdat1(np1r2)) 
          endif 
-       if (lpric.ge.1)                                                  &
+       if (lpric.gt.1)                                                  &
      &    write (lun11,*) ndtmp,iltmp,idest2,ggup,ett                   
       xkt=ett/(0.861707*t) 
       nb1=nbinc(ett,epi,ncn2) 
-      mlm=mlion-1 
+      mlm=mlion
       call drd(ltyp2,lrtyp2,lcon2,                                      &
      &  nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                        &
      &  0,lun11)                                                  
@@ -2805,31 +3028,33 @@
       ic=ist 
       eth=ett 
       gglo=leveltemp%rlev(2,idest1) 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
       swrat=gglo/ggup 
-      if (lpric.ne.0) then 
-         write (lun11,*)'type 70 data:',masterdata%idat1(np1i),          &
+      if (lpric.gt.1) then 
+         write (lun11,*)'type 70 data:',masterdata%idat1(np1i),         &
      &       masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat
-         call dprinto(ndesc,nrdesc,lcon,                                 &
+         call dprinto(ndesc,nrdesc,lcon,                             &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       ettry=ett/13.6 
 !     nb eliminating high density for H
-      if (jkion.eq.1) den=min(den,1.e+8)
-      call calt70(temp,den,ettry,ic,m,np1r,np1i,                         &
-     &             ntmp,etmpp,stmpp,rec,al,lun11,lpric)                 
-      if (lpric.ne.0) write (lun11,*)'after  calt70:',rec,stmpp(1) 
+!      if (jkion.eq.1) den=min(den,1.d+8)
+      m=nrdt
+      call calt70(temp,den,ettry,ic,m,np1r,np1i,                     &
+     &             ntmp,etmpp,stmpp,rec,al,lun11,lpric,ierr)                 
+      if ((ierr.ne.0).and.(lpric.ne.0)) write (lun11,*)'calt70 error'
+      if (lpric.gt.1) write (lun11,*)'after  calt70:',rec,stmpp(1) 
       crit53=0.01 
       do mm=1,ntmp 
-        stmpp(mm)=stmpp(mm)*1.e-18 
-        stmpp(mm)=max(stmpp(mm),0.) 
+        stmpp(mm)=stmpp(mm)*1.d-18 
+        stmpp(mm)=max(stmpp(mm),0.d0) 
         enddo 
-      call phint53hunt(stmpp,etmpp,ntmp,ett,ans1,ans2d,ans3d,ans4s,     &
+      call phint53hunt(stmpp,etmpp,ntmp,ett,ans1,ans2d,ans3d,ans4s,  &
      & lpric,epi,ncn2,bremsa,t,swrat,xnx,crit53,lfastl,lun11)           
-      if (ans2d.le.1.e-36) then 
+      if (ans2d.le.1.d-48) then 
         ans1=0. 
         ans2=0. 
         go to 9000 
@@ -2848,6 +3073,7 @@
       if (lpric.ge.2)                                                   &
      & write (lun11,*)'type 70 limit:',ans2,rs,swrat,                   &
      &   xnx,tm,q2,ans1o,ans1,scale,rec                                 
+!
 !                                                                       
 !     nb testing superlevel phot.                                       
 !      ans1=0.                                                          
@@ -2856,25 +3082,22 @@
 !                                                                       
    71 continue 
 !     Transition rates from superlevel to spect. lvls                   
+      idest1=masterdata%idat1(np1i-1+nidt-3) 
+      idest2=masterdata%idat1(np1i+nidt-3) 
+      if (indonly.eq.1) return
       temp=t*1.e+4 
       lpril=0 
       den=xpx 
       m=1000 
       if (lpril.ne.0)                                                   &
-     &  write (lun11,*)'before calt71:',masterdata%rdat1(np1r),         &
+     &  write (lun11,*)'before calt71:',masterdata%rdat1(np1r),      &
      &    masterdata%rdat1(np1r+1),masterdata%rdat1(np1r+2)                   
-      call calt71(temp,den,ic,m,np1r,np1i,                              &
+      call calt71(temp,den,ic,m,np1r,np1i,                           &
      &            wav,aij,lun11,lpril)                                  
-      idest1=masterdata%idat1(np1i-1+nidt-3) 
-      idest2=masterdata%idat1(np1i+nidt-3) 
       if ((idest1.le.0).or.(idest1.gt.nlev).or.                         &
      &   (idest2.le.0).or.(idest2.gt.nlev)) go to 9000                  
       if (lpril.ne.0)                                                   &
      & write (lun11,*)idest1,idest2,aij,wav,ml                          
-      ans1=aij 
-!                                                                       
-!                                                                       
-      ans2=0. 
       if (ml.le.0) go to 9000 
       nilin=derivedpointers%npar(ml) 
       if (nilin.le.0) go to 9000 
@@ -2882,21 +3105,21 @@
       elin=wav 
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
-      flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
-      mlm=nelin-1 
+      flin=(1.d-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       a=masterdata%rdat1(np1r2+1) 
-      elammu=elin*1.e-4 
+      elammu=elin*1.d-4 
       ans1=aij*(ptmp1+ptmp2) 
 !     special fudge for ca i and ca ii                                  
       if ((masterdata%idat1(np1i-1+6).eq.96)                            &
      &   .or.(masterdata%idat1(np1i-1+6).eq.97))                        &
-     &   ans1=min(ans1,1.e+10)                                            
+     &   ans1=min(ans1,1.d+10)                                            
 !                                                                       
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       ener=12398.41/abs(elin) 
       nb1=nbinc(ener,epi,ncn2) 
@@ -2906,17 +3129,23 @@
          ans2=0. 
          sigvtherm=0. 
          endif 
-      ans1=ans1+ans2*ggup/(1.e-36+gglo) 
+      ans1=ans1+ans2*ggup/(1.d-48+gglo) 
       opakab=sigvtherm 
       ans3=ans2*ener*ergsev 
       ans4=ans1*ener*ergsev 
       if (elin.gt.0.1) then 
-        dele=12398.41/(elin+1.e-24) 
+        dele=12398.41/(elin+1.d-24) 
         ans4=ans1*dele*(1.602197e-12) 
         endif 
 !      ans4=0.                                                          
       if (lpril.ne.0)                                                   &
      & write (lun11,*)' ',vtherm,ans2,ans4,flin                         
+!     changing order to allow universal assignment in calc_level_rates_level
+      ans2=ans1
+      ans1=0.
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       go to 9000 
 !                                                                       
    72 continue 
@@ -2924,6 +3153,7 @@
       lpril=0 
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-3) 
+      if (indonly.eq.1) return
       temp=t*1.e+4 
       call calt72(temp,np1r,nrdt,rate,lun11,lpril) 
       ans2=rate*xnx 
@@ -2939,13 +3169,14 @@
 !     Autoinization rates (in s^-1) for satellite lvls                  
 !        now including final ion stage                                  
       lpril=0 
-!      if (lpri.ne.0) lpril=2                                           
+!      if (lpri.gt.0) lpril=2                                           
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-2)+nlev-1 
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest1=max(idest1,1) 
       idest2=max(idest2,1) 
+      if (indonly.eq.1) return
       temp=t*1.e+4 
       call calt72(temp,np1r,nrdt,rate,lun11,lpril) 
       ans2=rate*xnx 
@@ -2979,13 +3210,14 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       elin=abs(masterdata%rdat1(np1r)) 
-      hij=elin*1.e-8 
+      hij=elin*1.d-8 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
-      if (elin.le.1.e-24) go to 9000 
+      if (elin.le.1.d-24) go to 9000 
       m=1000 
       temp=t*1.e+4 
 !      temp=max(temp,(1.e+4)*12398.54/elin/(0.861707)/50.)              
@@ -2996,12 +3228,18 @@
 !     $  (rdat1(np1r-1+lk),lk=1,7),(idat1(np1i-1+lk),lk=1,4),crate,     
 !     $  gglo,ggup                                                      
       cijpp=crate/gglo 
-      cijpp=max(cijpp,0.) 
+      cijpp=max(cijpp,0.d0) 
       cji=(8.626e-8)*cijpp/tsq/ggup 
         exptmp=expo(-delt) 
        cij=cji*ggup*exptmp/gglo 
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*elin*ergsev
+      ans5=ans2*elin*ergsev
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans6
+      ans6=-ans5
+      ans5=-anstmp
       if (lpri.gt.1) then 
         write (lun11,*)'ltyp=69',idest1,idest2,elin,flin,ggup,gglo 
         write (lun11,*)'       ',nrdt,                                 &
@@ -3013,6 +3251,11 @@
 !                                                                       
    74 continue 
 !     Delta functions to add to phot. x-sections  DR                    
+      idest1=masterdata%idat1(np1i+nidt-2) 
+      idest2=nlevp 
+      idest3=masterdata%idat1(np1i+nidt-1) 
+      idest4=idest3+1 
+      if (indonly.eq.1) return
       temp=t*1.e+4 
       den=xpx 
       m=1000 
@@ -3022,15 +3265,11 @@
       if (lpri.gt.1) write (lun11,*)'type 74 data:',den,temp,           &
      & (masterdata%rdat1(np1r-1+mm),mm=1,nrdt),                         &
      &  (masterdata%idat1(np1i-1+mm),mm=1,nidt)        
-      call calt74(temp,ncn2,epi,bremsa,nrdt,np1r,rate,                  &
+      call calt74(temp,ncn2,epi,bremsa,nrdt,np1r,rate,               &
      &       alpha)                                                     
-      idest1=masterdata%idat1(np1i+nidt-2) 
-      idest2=nlevp 
-      idest3=masterdata%idat1(np1i+nidt-1) 
-      idest4=idest3+1 
       gglo=leveltemp%rlev(2,idest1) 
       ggup=leveltemp%rlev(2,idest2) 
-      if (lpri.gt.1) write (lun11,*)'returning from calt74:',           &
+      if (lpri.gt.1) write (lun11,*)'returning from calt74:',        &
      &  rate,alpha,idest1,idest2,gglo,ggup                              
       ans1=rate 
       alpha=alpha*gglo/ggup 
@@ -3050,13 +3289,15 @@
         idest2=masterdata%idat1(np1i) 
         idest1=masterdata%idat1(np1i+1) 
         endif 
+      if (indonly.eq.1) return
       ggup=leveltemp%rlev(2,idest2) 
       gglo=leveltemp%rlev(2,idest1) 
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      dele=abs(eeup-eelo)
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       m=nrdt 
@@ -3069,7 +3310,7 @@
      &        (masterdata%rdat1(np1r-1+mm),mm=1,8),nind,jlo 
         endif 
       cijpp=masterdata%rdat1(np1r) 
-      cijpp=max(cijpp,0.) 
+      cijpp=max(cijpp,0.d0) 
       cji=(8.626e-8)*cijpp/tsq/ggup 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
@@ -3077,6 +3318,12 @@
         cij=cji*ggup*exptmp/gglo 
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*dele*ergsev
+      ans5=ans2*dele*ergsev
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans6
+      ans6=-ans5
+      ans5=-anstmp
       if (lpri.gt.1) then 
         write (lun11,*)'       ',cij,cji,xnx,cijpp,exptmp 
         endif 
@@ -3091,7 +3338,6 @@
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
       lpril=lpri 
-      aij=masterdata%rdat1(np1r) 
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -3099,6 +3345,8 @@
          idest1=idest2 
          idest2=itmp 
          endif 
+      if (indonly.eq.1) return
+      aij=masterdata%rdat1(np1r) 
       elin=12398.41/abs(eeup-eelo) 
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
@@ -3107,14 +3355,14 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
-      mlm=nelin-1 
+      flin=(1.d-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       a=masterdata%rdat1(np1r2+1) 
-      elammu=elin*1.e-4 
-!      if (flin.le.1.e-10) flin=1.                                      
+      elammu=elin*1.d-4 
+!      if (flin.le.1.d-10) flin=1.                                      
       ans1=aij 
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
       ans2=0. 
@@ -3125,7 +3373,7 @@
       emax=12398.41/elin 
       nbmx=nbinc(emax,epi,ncn2) 
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=76:',                             &
+     &  write (lun11,*)'in ucalc, ind=76:',                          &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r),gglo,ggup,a,    &
      &  vtherm,ans2,nbmx                                                       
         rcemsum=0. 
@@ -3133,10 +3381,10 @@
         ll=1+lskp 
         do while (ll.le.nbmx) 
           ansar2o=ansar2 
-          ansar2=epi(ll)*epi(ll)*max(0.,(epi(nbmx)-epi(ll))) 
+          ansar2=epi(ll)*epi(ll)*max(0.d0,(epi(nbmx)-epi(ll))) 
           rcemsum=rcemsum+(ansar2+ansar2o)                              &
      &                   *(epi(ll)-epi(ll-lskp))/2.                     
-          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,           &
+          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,        &
      &                  ll,lskp,nphint,lrcalc)                          
           ll=ll+lskp 
           enddo 
@@ -3145,21 +3393,28 @@
         rctmp2=0. 
         ll=2 
         do while (ll.le.nbmx) 
-          ansar2=epi(ll)*epi(ll)*max(0.,(epi(nbmx)-epi(ll))) 
-          ansar2=ansar2*em2ph*emax/(1.e-24+rcemsum) 
+          ansar2=epi(ll)*epi(ll)*max(0.d0,(epi(nbmx)-epi(ll))) 
+          ansar2=ansar2*em2ph*emax/(1.d-24+rcemsum) 
           rctmp1=abund2*ansar2*ptmp1/12.56 
           rctmp2=abund2*ansar2*ptmp2/12.56 
           rccemis(1,ll)=rccemis(1,ll)+rctmp1 
           rccemis(2,ll)=rccemis(2,ll)+rctmp2 
-          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,           &
+          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,        &
      &                  ll,nskp,nphint,lrcalc)                          
           ll=ll+nskp 
           enddo 
         if (lpri.gt.1)                                                  &
-     &  write (lun11,*)'in ucalc, ind=76:',                             &
+     &  write (lun11,*)'in ucalc, ind=76:',                          &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r+2),gglo,ggup,a,  &
      &    vtherm,ans2  
         ans4=aij*ergsev*12398.41/abs(elin) 
+!       changing order to allow universal assignment in calc_level_rates_level
+        anstmp=ans3
+        ans3=-ans4
+        ans4=-anstmp
+        anstmp=ans1
+        ans1=ans2
+        ans2=anstmp
         go to 9000 
 !                                                                       
    77 continue 
@@ -3171,22 +3426,24 @@
       cul=0. 
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-3) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
       eup=leveltemp%rlev(1,idest2) 
       elo=leveltemp%rlev(1,idest1) 
-      wav=12398.41/(eup-elo+1.e-24) 
+      wav=12398.41/(eup-elo+1.d-24) 
       ekt=0.861707*t 
       delt=wav/ekt 
       lprit=0 
-!      if (lpri.ne.0) lprit=1                                           
+!      if (lpri.gt.0) lprit=1                                           
       temp=t*1.e+4 
 !      temp=max(temp,(1.e+4)*12398.54/elin/(0.861707)/50.)              
       temp=max(temp,2.8777e+6/wav) 
       call calt77(lprit,lun11,temp,den,np1r,np1i,cul,clu) 
-      ans1=clu 
-      ans2=cul 
+!     this is counterintuitive:  77 should be proportional to density
+      ans1=clu
+      ans2=cul
       go to 9000 
 !                                                                       
    78 continue 
@@ -3200,9 +3457,6 @@
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
-      elin=abs(masterdata%rdat1(np1r)) 
-      flin=masterdata%rdat1(np1r+1) 
-!      if (flin.le.1.e-10) flin=1.                                      
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -3210,11 +3464,15 @@
          idest1=idest2 
          idest2=itmp 
          endif 
+      if (indonly.eq.1) return
+      elin=abs(masterdata%rdat1(np1r)) 
+      flin=masterdata%rdat1(np1r+1) 
+!      if (flin.le.1.d-10) flin=1.                                      
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
       a=masterdata%rdat1(np1r-1+5) 
-      hij=elin*1.e-8 
-      elammu=elin*1.e-4 
+      hij=elin*1.d-8 
+      elammu=elin*1.d-4 
       aij=(6.67e+7)*gglo*flin/ggup/elammu/elammu 
 !     this is a fudge to avoid badnumerics from fine structure.         
       if (flin.le.1.01e-12) aij=1.e+5 
@@ -3222,11 +3480,11 @@
       ans1=aij*(ptmp1+ptmp2) 
       ans4=aij*(ptmp1+ptmp2)*ergsev*12398.41/abs(elin) 
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
 !     notice that opakab does not have abundance in                     
       opakab=sigvtherm 
-!      ans2=(0.02655)*flin*elin*(1.e-8)/vtherm                          
+!      ans2=(0.02655)*flin*elin*(1.d-8)/vtherm                          
       ans2=0. 
       go to 9000 
 !                                                                       
@@ -3242,8 +3500,6 @@
       if ((idest1.le.0).or.(idest1.ge.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.ge.nlev))                          &
      &      go to 9000                                                  
-      gflin=masterdata%rdat1(np1r+2) 
-      aij=masterdata%rdat1(np1r-1+4) 
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -3251,6 +3507,9 @@
          idest1=idest2 
          idest2=itmp 
          endif 
+      if (indonly.eq.1) return
+      gflin=masterdata%rdat1(np1r+2) 
+      aij=masterdata%rdat1(np1r-1+4) 
       elin=abs(masterdata%rdat1(np1r)) 
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
@@ -3259,9 +3518,9 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-!      flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo)               
+!      flin=(1.d-16)*aij*ggup*elin*elin/((0.667274)*gglo)               
       flin=gflin 
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -3269,18 +3528,18 @@
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
       ener=12398.41/elin 
       dele=ener*vtherm/3.e+10 
-      delev=vtherm/(elin*(1.e-8)) 
+      delev=vtherm/(elin*(1.d-8)) 
       delea=masterdata%rdat1(np1r-1+6)*(4.14e-15) 
-      elammu=elin*1.e-4 
+      elammu=elin*1.d-4 
       ans1=aij*(ptmp1+ptmp2) 
       sigma=(0.02655)*flin/delev 
-!      sigvtherm=(0.02655)*flin*elin*(1.e-8)/3.e+10                     
+!      sigvtherm=(0.02655)*flin*elin*(1.d-8)/3.e+10                     
       sigvtherm=sigma 
       jkkl=derivedpointers%nplini(ml) 
       if (jkkl.le.0) go to 9000 
       ml3=derivedpointers%nplin(jkkl) 
       if (ml3.le.0) go to 9000 
-      mlm=ml3-1 
+      mlm=ml3
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                              &
      &  0,lun11)                                                  
@@ -3290,7 +3549,7 @@
       ans2=sigvtherm*bremsa(nb1)*vtherm/3.e+10 
 !                                                                       
 !     turning off rex                                                   
-      ans2=0. 
+!      ans2=0. 
 !                                                                       
 !      ans4=ans1*ener*ergsev                                            
 !     notice that opakab does not have abundance in                     
@@ -3299,22 +3558,26 @@
       ans3=ans2*ener*ergsev 
 !     this is a cheat.  there is still an error in the 82/83 data that  
 !       makes some fluorescence emission                                
-!     this test should prevent calculation when called from func2       
+!     this test should prevent calculation when called 
+!     from calc_rates_level
 !     since abund1 will be zero                                         
       opakb1=sigvtherm*abund1 
 !      lpriu=lpri                                                       
       lpriu=0 
       rcem1=0. 
       rcem2=0. 
-      if (opakb1.gt.1.e-34)                                             &
-     & call linopac(lpriu,lun11,opakb1,ans2,sigvtherm,vtherm,bremsa,    &
+      if (opakb1.gt.1.d-48)                                             &
+     & call linopac(lpriu,lun11,opakb1,                                 &
      &               rcem1,rcem2,elin,vturb,t,a,delea,epi,ncn2,         &
      &               opakc,rccemis,lfasto)              
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=82:',                             &
+     &  write (lun11,*)'in ucalc, ind=82:',                          &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r+2),gglo,ggup,a,  &
      &  vtherm,ans2,                                                    &
      &  idest1,idest2,idest3,idest4,nlev,sigvtherm,bremsa(nb1),nb1      
+      anstmp=ans2
+      ans2=ans1
+      ans1=anstmp
       go to 9000 
 !                                                                       
 !                                                                       
@@ -3340,6 +3603,7 @@
       idest4=idest3+1 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=1 
+      if (indonly.eq.1) return
       ntmp=nrdt/2-1 
       ett2=masterdata%rdat1(np1r) 
       ett=masterdata%rdat1(np1r+2)*13.605692 
@@ -3348,8 +3612,8 @@
       do ml2=1,ntmp 
         etmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2+1)                     &
      &         -masterdata%rdat1(np1r+2) 
-        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2+2)*1.e-18*scal2 
-        stmpp(ml2)=max(stmpp(ml2),0.) 
+        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2+2)*1.d-18*scal2 
+        stmpp(ml2)=max(stmpp(ml2),0.d0) 
         if (lpril.gt.1) write (lun11,*)ml2,etmpp(ml2),stmpp(ml2) 
         enddo 
       ett=ett2-(masterdata%rdat1(np1r-1+2*ntmp+1)                       &
@@ -3396,6 +3660,7 @@
       idest4=idest3+1 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=1 
+      if (indonly.eq.1) return
       ett2=masterdata%rdat1(np1r+1)*13.605692 
       nmin=masterdata%idat1(np1i) 
       jkk=idest3 
@@ -3405,17 +3670,25 @@
       far=dble(masterdata%rdat1(np1r+2)) 
       gam=dble(masterdata%rdat1(np1r-1+4)) 
       scal=dble(masterdata%rdat1(np1r-1+5)) 
-      call pexs(nmin,kdim,zc,eion,far,gam,scal,                         &
+      call pexs(nmin,kdim,zc,eion,far,gam,scal,                      &
      &                etmp8,stmp8,ierr,lpril,lun11)                     
       do mm=1,ncn2 
-        stmpp(mm)=(stmp8(mm))*1.e-18 
+        stmpp(mm)=(stmp8(mm))*1.d-18 
         enddo 
-      call phintfo(stmpp,ett2*0.8,ans1,ans2,ans3,ans4,                  &
+      call phintfo(stmpp,ett2*0.8,ans1,ans2,ans3,ans4,ans5,ans6,     &
      & abund1,abund2,xpx,opakab,                                        &
      & opakc,opakcont,lpril,epi,ncn2,bremsa,t,swrat,xnx,lfastl,lun11) 
       opakab=0. 
+      ans6=0.
       ans4=0. 
       ans2=0. 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
       lpri=lprisv 
       go to 9000 
                                                                         
@@ -3430,6 +3703,13 @@
       idest2=nlevp+masterdata%idat1(np1i-1+nidt-4)-1 
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=idest3+1 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
+!      anstmp=ans1
+!      ans1=ans2
+!      ans2=anstmp
       go to 9000 
 !                                                                       
    87 continue 
@@ -3442,6 +3722,7 @@
 !      idest2=idat1(np1i+nidt-3)                                        
       idest2=nlevp 
 !      if (lpri.ge.1) lpri=2                                            
+      if (indonly.eq.1) return
       lunsv=lun11 
       if (lpri.gt.1) write (lun11,*)'ltyp=88,idest1=',idest1,idest2 
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
@@ -3454,8 +3735,8 @@
       ntmp=nrdt/2 
       do ml2=1,ntmp 
         etmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2-1) 
-        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.e-18 
-        stmpp(ml2)=max(stmpp(ml2),0.) 
+        stmpp(ml2)=masterdata%rdat1(np1r-1+2*ml2)*1.d-18 
+        stmpp(ml2)=max(stmpp(ml2),0.d0) 
         enddo 
       ntmp2=nptmpdim 
       call phextrap(etmpp,stmpp,ntmp,ntmp2,ett,ncn2,lpri,lun11) 
@@ -3465,7 +3746,7 @@
       nb1=nbinc(ett,epi,ncn2) 
                                                                         
       r19=rr/1.e+19 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdti,np1r2,nidti,np1i2,nkdti,np1k2,mlm,                        &
      &  0,lun11)                                                  
@@ -3475,19 +3756,19 @@
       idest3=masterdata%idat1(np1i-1+nidti) 
       idest4=idest3+1 
       if (lpri.gt.1) write (lun11,*)'before phint53',gglo,ggup 
-      if (ggup.le.1.e-24) then 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
       swrat=gglo/ggup 
       if (lpri.gt.1) then 
-         write (lun11,*)'type 88 data:',masterdata%idat1(np1i),          &
+         write (lun11,*)'type 88 data:',masterdata%idat1(np1i),         &
      &      masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat  
-        call dprinto(ndesc,nrdesc,lcon,                                 &
+        call dprinto(ndesc,nrdesc,lcon,                              &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
 !      if ((lpri.ge.1).and.(idest1.le.4).and.(jkion.eq.29)              
-!     $    .and.(abund1.gt.1.e-34))  then                               
+!     $    .and.(abund1.gt.1.d-34))  then                               
 !        lun99=99                                                       
 !        write (lun99,*)'type 88 data:', idest1, idest2,                
 !     $           eth,gglo,ggup,swrat, abund1,abund2                    
@@ -3501,20 +3782,32 @@
       lprib=lpri 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-!      rnist=rniss(idest1)*expo(-ett/(0.861707)/t)/rniss(nlevp) 
-      rnist=rnisse(idest1)/rnisse(nlevp) 
-      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,            &
-     &  abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,                     &
+      tm=t*1.e4 
+      bktm=bk*tm/ergsev 
+      q2=2.07e-16*xnx*(tm**(-1.5)) 
+      emltlv=leveltemp%rlev(2,nlev) 
+      rs=q2/emltlv 
+      ethion=leveltemp%rlev(1,nlev) 
+      emltlv=leveltemp%rlev(2,idest1) 
+      rnissel=emltlv*rs
+      rnisseu=1.
+      rnist=rnissel                                                     &
+     &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
+     &  /(1.e-37+rnisseu)                                                   
+!      rnist=rniss(idest1)*expo(-ett/(0.861707)/t)/(1.e-37+rniss(nlevp))
+!      rnist=rnisse(idest1)/rnisse(nlevp) 
+      call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
+     &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
      &  lfast,lun11)                                                    
 !      if ((lpri.ge.1).and.(idest1.le.4).and.(jkion.eq.29)              
-!     $    .and.(abund1.gt.1.e-34))  then                               
+!     $    .and.(abund1.gt.1.d-34))  then                               
 !        nhit=0                                                         
 !        do mm=1,ncn2                                                   
-!          if ((opakc(mm).gt.1.e-34).and.(epi(mm).gt.500.)              
+!          if ((opakc(mm).gt.1.d-34).and.(epi(mm).gt.500.)              
 !     $        .and.(epi(mm).lt.800.)) then                             
 !            write (lun99,919)mm,epi(mm),opakc(mm),                     
-!     $        opakc(mm)/max(1.e-34,abund1)/xpx,opaksv(mm)+opakc(mm)    
+!     $        opakc(mm)/max(1.d-34,abund1)/xpx,opaksv(mm)+opakc(mm)    
 !            nhit=1                                                     
 !            endif                                                      
 !          opakc(mm)=opaksv(mm)+opakc(mm)                               
@@ -3528,6 +3821,14 @@
         endif 
       ans2=0. 
       ans4=0. 
+      ans6=0. 
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans3
+      ans3=-ans4
+      ans4=-anstmp
+      anstmp=ans5
+      ans5=-ans6
+      ans6=-anstmp
       lpri=lprisv 
       go to 9000 
 !                                                                       
@@ -3539,9 +3840,6 @@
       if ((idest1.le.0).or.(idest1.ge.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.ge.nlev))                          &
      &      go to 9000                                                  
-      aij=masterdata%rdat1(np1r+2) 
-      ans1=aij*(ptmp1+ptmp2) 
-!      aij=min(aij,1.e+10)                                              
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -3549,8 +3847,12 @@
          idest1=idest2 
          idest2=itmp 
          endif 
+      if (indonly.eq.1) return
+      aij=masterdata%rdat1(np1r+2) 
+      ans1=aij*(ptmp1+ptmp2) 
+!      aij=min(aij,1.e+10)                                              
       elin=abs(masterdata%rdat1(np1r)) 
-      if (elin.le.1.e-34) go to 9000 
+      if (elin.le.1.d-48) go to 9000 
       ggup=leveltemp%rlev(2,idest1) 
       gglo=leveltemp%rlev(2,idest2) 
       if (ml.le.0) go to 9000 
@@ -3558,9 +3860,9 @@
       if (nilin.le.0) go to 9000 
       nelin=derivedpointers%npar(nilin) 
       if ((nilin.le.0).or.(nelin.le.0)) go to 9000 
-      flin=(1.e-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
+      flin=(1.d-16)*aij*ggup*elin*elin/((0.667274)*gglo) 
 !                                                                       
-      mlm=nelin-1 
+      mlm=nelin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -3568,19 +3870,20 @@
       vtherm=((vturb*1.e+5)**2+(1.29e+6/sqrt(a/t))**2)**(0.5) 
       ener=12398.41/elin 
       dele=ener*vtherm/3.e+10 
-      elammu=elin*1.e-4 
-      sigma=(0.02655)*flin*elin*(1.e-8)/vtherm 
+      elammu=elin*1.d-4 
+      sigma=(0.02655)*flin*elin*(1.d-8)/vtherm 
       sigvtherm=sigma 
       jkkl=derivedpointers%nplini(ml) 
       if (jkkl.le.0) go to 9000 
       ml3=derivedpointers%nplin(jkkl) 
       if (ml3.le.0) go to 9000 
-      mlm=ml3-1 
+      mlm=ml3
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                              &
      &  0,lun11)                                                  
       elin=abs(masterdata%rdat1(np1r)) 
       ener=12398.41/abs(elin) 
+      enerm=ener-eth
       nb1=nbinc(ener,epi,ncn2) 
       ans2=sigvtherm*bremsa(nb1)*vtherm/3.e+10                          &
      &      *flinabs(ptmp1)                                             
@@ -3592,7 +3895,7 @@
          ans2=0. 
          sigvtherm=0. 
          endif 
-!      ans1=ans1+ans2*ggup/(1.e-36+gglo)                                
+!      ans1=ans1+ans2*ggup/(1.d-36+gglo)                                
 !     note that now opakab does not have abundance in                   
       opakab=sigvtherm 
       lfasto=2 
@@ -3601,25 +3904,28 @@
       lfnd=0 
       lpriu=0 
 !      if (lpri.ge.1) lpriu=3                                           
-      call deleafnd(jkion,idest1,                                       &
+      call deleafnd(jkion,idest1,                                    &
      &   delea,lfnd,lpriu,lun11)                          
 !                                                                       
       if (lfnd.eq.0) delea=masterdata%rdat1(np1r+2)*(4.136e-15) 
       ans4=ans1*ener*ergsev 
       ans3=ans2*ener*ergsev 
-      rcem1=abund2*ans4*ptmp1/(1.e-34+ptmp1+ptmp2) 
-      rcem2=abund2*ans4*ptmp2/(1.e-34+ptmp1+ptmp2) 
+      ans6=0.
+      ans5=0.
+      rcem1=abund2*ans4*ptmp1/(1.d-48+ptmp1+ptmp2) 
+      rcem2=abund2*ans4*ptmp2/(1.d-48+ptmp1+ptmp2) 
       opakb1=sigvtherm*abund1 
-!     this test should prevent calculation when called from func2       
+!     this test should prevent calculation when called 
+!     from calc_rates_level
 !     since abund1 will be zero                                         
 !      lpriu=lpri                                                       
       lpriu=0 
-      if ((nrdesc.ne.9).and.(lfasto.le.4).and.(opakb1*delr.gt.1.e-8))   &
-     & call linopac(lpriu,lun11,opakb1,ans2,sigvtherm,vtherm,bremsa,    &
+      if ((nrdesc.ne.9).and.(lfasto.le.4).and.(opakb1*delr.gt.1.d-8))   &
+     & call linopac(lpriu,lun11,opakb1,                                 &
      &               rcem1,rcem2,elin,vturb,t,a,delea,epi,ncn2,         &
      &               opakc,rccemis,lfasto)              
       if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=89:',                             &
+     &  write (lun11,*)'in ucalc, ind=89:',                          &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r+2),              &
      &  gglo,ggup,a,vtherm,vturb,&
      &  ans1,ans2,idest1,idest2,idest3,idest4,nlev,sigvtherm,           &
@@ -3651,6 +3957,7 @@
       lctype=masterdata%idat1(np1i+3-1) 
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       tmin=masterdata%rdat1(np1r) 
       tmax=masterdata%rdat1(np1r+1) 
       do mml=1,20 
@@ -3661,31 +3968,37 @@
       gglo=leveltemp%rlev(2,idest1) 
       eeup=leveltemp%rlev(1,idest2) 
       eelo=leveltemp%rlev(1,idest1) 
-      elin=12398.41/abs(eeup-eelo+1.e-24) 
-      hij=elin*1.e-8 
-      if (elin.le.1.e-24) go to 9000 
+      elin=12398.41/abs(eeup-eelo+1.d-24) 
+      hij=elin*1.d-8 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       temp=t*1.e+4 
       eij=abs(eeup-eelo) 
       eijkev=eij/1.e+3 
       tk=t*1.e+4 
-      mlm=derivedpointers%npar(ml)-1 
+      mlm=derivedpointers%npar(ml)
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       nistage=masterdata%idat1(np1i2) 
-      mlm=derivedpointers%npar(mlm)-1 
+      mlm=derivedpointers%npar(mlm)
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
       nzel=masterdata%idat1(np1i2) 
       if (lpril.gt.1)                                                   &
-     & write (lun11,*)'before calc_maxwell_rates',lctype,tmin,tmax,     &
+     & write (lun11,*)'before calc_maxwell_rates',lctype,tmin,tmax,    &
      &   eijkev,tk,zzz,gglo,ggup                                        
-      call calc_maxwell_rates(lun11,lpril,lctype,tmin,tmax,             &
+      call calc_maxwell_rates(lun11,lpril,lctype,tmin,tmax,            &
      &  Tstr,cstr, eijkev,  tk, nzel,  gglo,  ggup,  cij, cji, upsilon) 
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*eij*ergsev
+      ans5=ans2*eij*ergsev
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans6
+      ans6=-ans5
+      ans5=-anstmp
       if (lpril.gt.1) then 
         write (lun11,*)'type 92 data',lctype,upsilon,cij,cji,xnx 
         endif 
@@ -3806,7 +4119,7 @@
 !          enddo                                                        
 !        mm=max(mm-1,1)                                                 
 !        cijpp=cstr(mm)+(cstr(mm+1)-cstr(mm))*(tk-tstr(mm))             
-!     $                 /(tstr(mm+1)-tstr(mm)+1.e-38)                   
+!     $                 /(tstr(mm+1)-tstr(mm)+1.d-38)                   
 !        endif                                                          
 !                                                                       
 !      cji=(8.626e-8)*cijpp/tsq/ggup                                    
@@ -3822,6 +4135,7 @@
       if (nrdt.gt.3) go to 533 
       idest1=masterdata%idat1(np1i+nidt-2) 
       idest2=nlevp+masterdata%idat1(np1i-1+nidt-3)-1 
+      if (indonly.eq.1) return
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp,ml 
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
@@ -3838,7 +4152,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       xkt=ett/(0.861707*t) 
       r19=rr/1.e+19 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -3858,7 +4172,7 @@
         iltmp=0 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))                
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -3874,8 +4188,8 @@
          if (lpri.gt.1)                                                 &
      &    write (lun11,*) ndtmp,iltmp,idest2,ggup,ett                   
          endif 
-      if (lpri.gt.1) write (lun11,*)'before phint53',eexc,eth,lfast 
-      if (ggup.le.1.e-24) then 
+      if (lpri.gt.1) write (lun11,*)'before phint53pl',eexc,eth,lfast 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -3883,16 +4197,16 @@
       if (lpri.gt.1) then 
          write (lun11,*)'type 93 data:',masterdata%idat1(np1i),         &
      &       masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat   
-        call dprinto(ndesc,nrdesc,lcon,                                 &
+        call dprinto(ndesc,nrdesc,lcon,                              &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      sth=1.e-18*masterdata%rdat1(np1r+1) 
+      sth=1.d-18*masterdata%rdat1(np1r+1) 
       alph=masterdata%rdat1(np1r+2) 
       e1=masterdata%rdat1(np1r) 
       lfastl=1 
-      call phint53pl(sth,e1,alph,ett,ans1,ans2,ans3,ans4,               &
+      call phint53pl(sth,e1,alph,ett,ans1,ans2,ans3,ans4,            &
      &  abund1,abund2,ptmp1,ptmp2,xpx,opakab,                           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
      &  lfastl,lun11)                                                   
@@ -3915,6 +4229,7 @@
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=nlevp+masterdata%idat1(np1i+nidt-4)-1 
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2 
+      if (indonly.eq.1) return
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
@@ -3927,7 +4242,7 @@
       nb1=nbinc(ett,epi,ncn2) 
       xkt=ett/(0.861707*t) 
       r19=rr/1.e+19 
-      mlm=nilin-1 
+      mlm=nilin
       call drd(ltyp,lrtyp,lcon,                                         &
      &  nrdt,np1r2,nidt,np1i2,nkdt,np1k2,mlm,                           &
      &  0,lun11)                                                  
@@ -3947,7 +4262,7 @@
         nptmp=mllz 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(nptmp.eq.mllz))                                       
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -3961,8 +4276,8 @@
          if (lpri.gt.1)                                                 &
      &    write (lun11,*) ndtmp,iltmp,idest2,ggup                       
          endif 
-      if (lpri.gt.1) write (lun11,*)'before phint53' 
-      if (ggup.le.1.e-24) then 
+      if (lpri.gt.1) write (lun11,*)'before phint53pl' 
+      if (ggup.le.1.d-24) then 
         write (lun11,*) 'ggup error' 
         return 
         endif 
@@ -3970,16 +4285,16 @@
       if (lpri.gt.1) then 
          write (lun11,*)'type 94 data:',masterdata%idat1(np1i),         &
      &        masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat 
-        call dprinto(ndesc,nrdesc,lcon,                                 &
+        call dprinto(ndesc,nrdesc,lcon,                              &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       lprib=0 
       if (lpri.gt.1) lprib=lpri 
-      sth=1.e-18*masterdata%rdat1(np1r+1) 
+      sth=1.d-18*masterdata%rdat1(np1r+1) 
       alph=masterdata%rdat1(np1r+2) 
       e1=masterdata%rdat1(np1r) 
       lfastl=1 
-      call phint53pl(sth,e1,alph,ett,ans1,ans2,ans3,ans4,               &
+      call phint53pl(sth,e1,alph,ett,ans1,ans2,ans3,ans4,            &
      &  abund1,abund2,ptmp1,ptmp2,xpx,opakab,                           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
      &  lfastl,lun11)                                                   
@@ -4006,6 +4321,7 @@
          idest2=1 
          idest1=1 
         endif 
+      if (indonly.eq.1) return
       ee=masterdata%rdat1(np1r) 
       tmin=masterdata%rdat1(np1r+1) 
       nspline=(nrdt-2)/2 
@@ -4031,7 +4347,7 @@
      &    /(masterdata%rdat1(np1r+1+mm)-masterdata%rdat1(np1r+1+mm-1))) 
 !      dere equation 7                                                  
       call eint(1./tt,e1,e2,e3) 
-      citmp1=1.e-6*e1*rho/sqrt(tt*ee**3) 
+      citmp1=1.d-6*e1*rho/sqrt(tt*ee**3) 
       ans1=citmp1*xnx 
       ans2=0. 
       idest1=1 
@@ -4045,19 +4361,22 @@
 !      idest1=idat1(np1i+nidt-2)                                        
       idest4=masterdata%idat1(np1i+nidt-1)+1 
       idest3=masterdata%idat1(np1i+nidt-1) 
+      ans6=-ans1*ee*ergsev
+      ans5=-ans2*ee*ergsev
       go to 9000 
 !                                                                       
    96 continue 
 !     Autoinization rates (in s^-1) for satellite lvls                  
 !        from safranova in kato et al. 1997 atndt 67 225                
       lpril=0 
-!      if (lpri.ne.0) lpril=2                                           
+!      if (lpri.gt.0) lpril=2                                           
       idest3=masterdata%idat1(np1i+nidt-1) 
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=masterdata%idat1(np1i+nidt-2)+nlev-1 
       idest1=masterdata%idat1(np1i-1+nidt-3) 
       idest1=max(idest1,1) 
       idest2=max(idest2,1) 
+      if (indonly.eq.1) return
       temp=t*1.e+4 
       dele=masterdata%rdat1(np1r+2) 
       rs=2.069e-3/(temp**1.5) 
@@ -4092,6 +4411,7 @@
          idest2=1 
          idest1=1 
         endif 
+      if (indonly.eq.1) return
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
       if (idest2.gt.nlevp) then 
         jkk3=jkion+1 
@@ -4105,7 +4425,7 @@
         iltmp=0 
         do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
      &      .and.(derivedpointers%npar(ndtmp).eq.mllz))                 
-           mlm=ndtmp-1 
+           mlm=ndtmp
            call drd(ltyp2,lrtyp2,lcon2,                                 &
      &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
      &       0,lun11)                                             
@@ -4154,6 +4474,8 @@
 !     note that rinf has exponential removed                            
       rinf=(2.08e-22)*gglo/ggup/t/tsq 
       ans2=ans1*rinf*xnx/exptmp 
+      ans6=ans1*eth*ergsev
+      ans5=ans2*eth*ergsev
 !      idest1=idat1(np1i+nidt-2)                                        
       idest4=masterdata%idat1(np1i+nidt-1)+1 
       idest3=masterdata%idat1(np1i+nidt-1) 
@@ -4165,6 +4487,116 @@
       go to 9000 
 !                                                                       
    99 continue 
+!     old type 70
+!     Coefficients for phot x-section of suplevels                      
+!      lfastl=lfast                                                     
+      lfastl=3 
+      temp=t*1.e+4 
+      ans3=0. 
+      ans4=0. 
+      den=xpx 
+      m=1000 
+      lpric=0
+      mlm=ml
+      call drd(ltyp,lrtyp,lcon,                                         &
+     &  nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                              &
+     &  0,lun11)                                                  
+!      if (lpri.ge.1) lpric=2                                           
+      mlion=derivedpointers%npar(ml) 
+      idest1=masterdata%idat1(np1i+nidt-2) 
+      idest1=min(idest1,nlev-1) 
+      idest2=nlev+masterdata%idat1(np1i-1+nidt-3)-1 
+      idest2=max(idest2,nlev) 
+      ggup=leveltemp%rlev(2,nlevp) 
+      ett=abs(leveltemp%rlev(1,idest1)-leveltemp%rlev(1,nlevp)) 
+      if (lpric.ge.1)                                                   &
+     & write (lun11,*)'rlev:',idest1,nlevp,                             &
+     &    leveltemp%rlev(1,idest1),leveltemp%rlev(1,nlevp) 
+      if (idest2.gt.nlevp) then 
+        jkk3=jkion+1 
+        if (lpric.gt.1)                                                 &
+     &    write (lun11,*)jkk3,ndtmp,nlevp,idest2                        
+        ndtmp=derivedpointers%npfi(13,jkk3) 
+        if (lpric.gt.1)                                                 &
+     &    write (lun11,*)jkk3,ndtmp,nlevp,idest2                        
+        mllz=derivedpointers%npar(ndtmp) 
+        iltmp=0 
+        nptmp=mllz 
+        do while ((ndtmp.ne.0).and.(iltmp.ne.(idest2-nlevp+1))          &
+     &      .and.(nptmp.eq.mllz))                                       
+           mlm=ndtmp
+           call drd(ltyp2,lrtyp2,lcon2,                                 &
+     &       nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                   &
+     &       0,lun11)                                             
+           iltmp=masterdata%idat1(np1i2+nidt2-2) 
+           if (lpric.gt.1) write (lun11,*)nidt2,iltmp,ndtmp 
+           ndtmp=derivedpointers%npnxt(ndtmp) 
+           nptmp=0 
+           if (ndtmp.ne.0) nptmp=derivedpointers%npar(ndtmp) 
+           enddo 
+         ggup=masterdata%rdat1(np1r2+1) 
+         ett=abs(leveltemp%rlev(1,idest1)+masterdata%rdat1(np1r2)) 
+         endif 
+       if (lpric.ge.1)                                                  &
+     &    write (lun11,*) ndtmp,iltmp,idest2,ggup,ett                   
+      xkt=ett/(0.861707*t) 
+      nb1=nbinc(ett,epi,ncn2) 
+      mlm=mlion
+      call drd(ltyp2,lrtyp2,lcon2,                                      &
+     &  nrdt2,np1r2,nidt2,np1i2,nkdt2,np1k2,mlm,                        &
+     &  0,lun11)                                                  
+      ist=masterdata%idat1(np1i2) 
+      ic=ist 
+      eth=ett 
+      gglo=leveltemp%rlev(2,idest1) 
+      if (ggup.le.1.d-24) then 
+        write (lun11,*) 'ggup error' 
+        return 
+        endif 
+      swrat=gglo/ggup 
+      if (lpric.ne.0) then 
+         write (lun11,*)'type 99 data:',masterdata%idat1(np1i),          &
+     &       masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat
+         call dprinto(ndesc,nrdesc,lcon,                              &
+     &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
+        endif 
+      ettry=ett/13.6 
+!     nb eliminating high density for H
+      if (jkion.eq.1) den=min(den,1.d+8)
+      m=nrdt
+      call calt99(temp,den,ettry,ic,m,np1r,np1i,                      &
+     &             ntmp,etmpp,stmpp,rec,al,lun11,lpric)                 
+      if (lpric.ne.0) write (lun11,*)'after  calt99:',rec,stmpp(1) 
+      crit53=0.01 
+      do mm=1,ntmp 
+        stmpp(mm)=stmpp(mm)*1.d-18 
+        stmpp(mm)=max(stmpp(mm),0.d0) 
+        enddo 
+      call phint53hunt(stmpp,etmpp,ntmp,ett,ans1,ans2d,ans3d,ans4s,  &
+     & lpric,epi,ncn2,bremsa,t,swrat,xnx,crit53,lfastl,lun11)           
+      if (ans2d.le.1.d-48) then 
+        ans1=0. 
+        ans2=0. 
+        go to 9000 
+        endif 
+      scale=rec*xnx/ans2d 
+      ans1=ans1*scale 
+!     does the swrat not belong?                                        
+!      ans2=rec*xnx*swrat                                               
+      ans2=rec*xnx 
+!      ans2=ans2d                                                       
+      tm=t*1.e4 
+      q2=2.07e-16*xnx*(tm**(-1.5)) 
+      rs=q2/swrat 
+      ans1o=ans1 
+!      ans1=min(ans1,ans2/rs)                                           
+      if (lpric.ge.2)                                                   &
+     & write (lun11,*)'type 99 limit:',ans2,rs,swrat,                   &
+     &   xnx,tm,q2,ans1o,ans1,scale,rec                                 
+!                                                                       
+!     nb testing superlevel phot.                                       
+!      ans1=0.                                                          
+!
       go to 9000 
 !                                                                       
    98 continue 
@@ -4173,6 +4605,7 @@
 !      if (lpri.ge.1) lpril=2                                           
       idest1=masterdata%idat1(np1i) 
       idest2=masterdata%idat1(np1i+1) 
+      if (indonly.eq.1) return
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
      &      go to 9000                                                  
@@ -4191,11 +4624,11 @@
       eijry=masterdata%rdat1(np1r) 
       eij=eijry*13.605692 
       elin=12398.41/eij 
-      hij=elin*1.e-8 
+      hij=elin*1.d-8 
       ntem=(nrdt-3)/2 
       if (lpril.gt.1)                                                   &
      & write (lun11,*)'type 98 data:',elin,ntem                         
-      if (elin.le.1.e-24) go to 9000 
+      if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
       delt=12398.41/elin/ekt 
       if (lpril.gt.1)                                                   &
@@ -4222,6 +4655,12 @@
      &    eij,idest1,idest2,cij,cji,xnx,cijpp,exptmp,delt,gglo,ggup     
       ans1=cij*xnx 
       ans2=cji*xnx 
+      ans6=ans1*eij*ergsev
+      ans5=ans2*eij*ergsev
+!     changing order to allow universal assignment in calc_level_rates_level
+      anstmp=ans6
+      ans6=-ans5
+      ans5=-anstmp
       elin=0. 
       lpril=0 
       go to 9000 
@@ -4231,13 +4670,14 @@
 !                                                                       
       call remtms(time2) 
 !      write (lun11,*)'ndesc=',ndes!                                    
-!jg      tucalc(ndesc)=tucalc(ndesc)+abs(time2-time1)                   
-!jg      ncall(ndesc)=ncall(ndesc)+1                                    
+      tucalc(ndesc)=tucalc(ndesc)+abs(time2-time1)                   
+      ncall(ndesc)=ncall(ndesc)+1                                    
 !                                                                       
       if (lpri.gt.1)                                                    &
      & write (lun11,9931)krdesc(nrdesc),kdesc(ndesc),ndesc,ans1,ans2,   &
      &     ans3,ans4,idest1,idest2,masterdata%rdat1(np1r)                    
- 9931 format (1x,'in ucalc :',a28,a56,i4,4x,4(1pe10.2),2i4,3(1pe10.2)) 
+ 9931 format (1x,'in ucalc :',a28,a56,i4,4x,4(1pe10.2),2i4,          &
+     &     3(1pe10.2)) 
 !                                                                       
       return 
       end                                           

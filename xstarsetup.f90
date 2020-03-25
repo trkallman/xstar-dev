@@ -6,7 +6,8 @@
      &       tau0,dpthc,dpthcont,tauc,                                  &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
-     &       xii,rrrt,pirt,htt,cll,httot,cltot,hmctot,elcter,           &
+     &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
+     &       httot2,cltot2,                                             &
      &       xilev,bilev,rnist,elum,                                    &
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
      &       cabab,opakab,nlin,elin)                                    
@@ -104,6 +105,7 @@
 !      NB: no input parameters are affected                             
 !                                                                       
       use globaldata
+      use times
       implicit none 
 !                                                                       
 !                                                                       
@@ -140,6 +142,7 @@
       real(8) xii(nni) 
 !     heating and cooling                                               
       real(8) htt(nni),cll(nni) 
+      real(8) htt2(nni),cll2(nni) 
       real(8) rrrt(nni),pirt(nni) 
 !     element abundances                                                
       real(8) abel(nl),abcosmic(30),ababs(nl) 
@@ -153,7 +156,7 @@
       real(8) p,r,t,xpx,delr,tp 
 !     heating-cooling variables                                         
       real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,          &
-     &     clcont,hmctot                                                
+     &     clcont,hmctot,httot2,cltot2
 !     input parameters                                                  
       real(8) xlum,xpxcol 
       real(8) cfrac,critf,xee 
@@ -174,10 +177,11 @@
 !     times                                                             
       real(8) tinf,t1s 
       integer np1r,np1i,np1k,np2 
-      integer jlk,j,ml,ltyp,lrtyp,lcon,                                 &
+      integer jlk,j,ml,ltyp,lrtyp,lcon,kl,                              &
      &        nrdt,nidt,nkdt                                            
 !     storing info for parameters                                       
       character(20) parname(55) 
+      real(8) abeltmp(nl)
 !                                                                       
 !     Not used                                                          
       integer javi 
@@ -239,7 +243,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-      write (lunlog,*)'xstar version 2.53' 
+      write (lunlog,*)'xstar version 2.56c' 
 !                                                                       
 !     Test if atomic database files are available.  Abort if not.       
       call getenv('LHEA_DATA', datafile) 
@@ -269,15 +273,15 @@
 !                                                                       
 !                                                                       
 !                                                                       
-!      tread=0.                                                         
-!      trates1=0.                                                       
-!      thcor=0.                                                         
-!      trates2=0.                                                       
-!      theat=0.                                                         
-!      do kl=1,ntyp                                                     
-!         tucalc(kl)=0.                                                 
-!         ncall(kl)=0                                                   
-!         enddo                                                         
+      tread=0.                                                         
+      trates1=0.                                                       
+      thcor=0.                                                         
+      trates2=0.                                                       
+      theat=0.                                                         
+      do kl=1,ntyp                                                     
+         tucalc(kl)=0.                                                 
+         ncall(kl)=0                                                   
+         enddo                                                         
 !                                                                       
 !                                                                       
 !     read in                                                           
@@ -285,7 +289,7 @@
       write (tmpst,*)'Loading Atomic Database...' 
       call xwrite(tmpst,10) 
                                                                         
-      call readtbl(np1r,np1i,np1k,                                      &
+      call readtbl(np1r,np1i,np1k,                                   &
      &       np2,                                                       &
      &      datafil4,atcredate,lpri,lunlog)                             
 !                                                                       
@@ -304,16 +308,18 @@
         enddo 
       close(lun25) 
 !                                                                       
-!                                                                       
 !     Initialize the database                                           
       write (lunlog,*)'initializng database...' 
       write (tmpst,*)'initializng database...' 
       call xwrite(tmpst,10) 
-      lpri=0 
+!     need to fool setptrs into using all the data
+      do mm=1,nl
+        abeltmp(mm)=1.
+        enddo
       call setptrs(lunlog,lpri,                                         &
      &       np2,ncsvn,nlsvn,                                           &
-     &       abcosmic,abel)                         
-      lpri=0 
+     &       abcosmic,abeltmp)                         
+!
 !                                                                       
 !     read in parameter values                                          
 !      write(lunlog,*)'Atomic Abundances'                               
@@ -328,8 +334,8 @@
 !                                                                       
 !     set up and initialize                                             
       tinf=0.31 
-      call init(lunlog,bremsa,bremsint,tau0,dpthc,dpthcont,tauc,        &
-     &   xii,rrrt,pirt,htt,cll,httot,cltot,                             &
+      call init(lunlog,abel,bremsa,bremsint,tau0,dpthc,dpthcont,tauc,   &
+     &   xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,httot2,cltot2,     &
      &   cllines,clcont,htcomp,clcomp,clbrems,                          &
      &   xilev,rcem,oplin,rccemis,brcems,opakc,opakcont,                &
      &   cemab,cabab,opakab,elumab,elumabo,elum,elumo,                  &
@@ -374,7 +380,7 @@
       do jlk=1,nlsvn 
          j=jlk 
          ml=derivedpointers%nplin(j) 
-         mlm=ml-1 
+         mlm=ml 
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               

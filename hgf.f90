@@ -31,6 +31,6 @@
       ser=ser*(ia+n)*(ib+n)*x/((n+1.)*(ic+n)) 
       hyp=hyp+ser 
    10  continue 
-!                                                                       
+!         
       return 
       END                                           

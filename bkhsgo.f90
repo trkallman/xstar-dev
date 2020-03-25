@@ -32,7 +32,7 @@
       integer lprisv,jj,nb1,j,i,nphint,lk,kk,nskp,lrcalc 
       real(8) tmp,xx,yy,sgtmp,et,epii 
 !                                                                       
-      if (lpri.gt.1) write (lun11,*)'in bkhsgo:'                        &
+      if (lpri.gt.1) write (lun11,*)'in bkhsgo:'                     &
      &      ,na,b,t                                                     
       lprisv=lpri 
 !                                                                       
@@ -67,7 +67,7 @@
      &             write (lun11,*)i,epii,xx,                            &
      &               tmp,sgtmp                                          
          endif 
-       call enxt(et,nb1,lpri,epi,ncn2,t,lfast,lun11,                    &
+       call enxt(et,nb1,lpri,epi,ncn2,t,lfast,lun11,                 &
      &                  i,nskp,nphint,lrcalc)                           
        i=i+nskp 
        enddo 

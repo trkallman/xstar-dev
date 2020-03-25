@@ -1,4 +1,5 @@
-      subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,lun11)    
+      subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,             &
+     &     leveltemp,lun11)    
 !                                                                       
 !     Name: levwk.f90  
 !     Description:  
@@ -28,6 +29,13 @@
       implicit none 
 !                                                                       
 !                                                                       
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,nd) 
+        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
+        character(1) :: klev(100,nd) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
       real(8) rniss(nd),rnisse(nd) 
       real(8) ergsev,bk,t,bktm,q2,rs,ethion,emltlv,                      &
      &     eexlv,ethsht,explev2,bb,expo                                 
@@ -68,12 +76,13 @@
      &   write (lun11,9901)ll,eexlv,emltlv,ethsht,explev2,              &
      &     rniss(ll),rs,bb,leveltemp%ilev(1,ll),leveltemp%iltp(ll),     &
      &     leveltemp%nlpt(ll),(leveltemp%klev(mm,ll),mm=1,8)         
- 9901   format (1x,i4,7(1pe11.3),3i6,8a1) 
+ 9901   format (1x,i4,7(1pe11.3),3i12,8a1) 
         enddo 
+        if (lpri.gt.1) write (lun11,*)'rniss:'
         do ll=1,nlev 
           rniss(ll)=rniss(ll)/bb 
+          if (lpri.gt.1) write (lun11,*)ll,rniss(ll)
           enddo 
-       bb=1. 
        lpri=lprisv 
 !                                                                       
       return 

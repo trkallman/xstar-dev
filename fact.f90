@@ -1,6 +1,6 @@
       subroutine fact(n,x) 
 !                                                                       
-!     Name: dfact.f90  
+!     Name: fact.f90  
 !     Description:  
 !       to calculate the factorial of an integer n.  the output x is          
 !       the natural log of n factorial, in double precision.                  

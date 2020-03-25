@@ -2,8 +2,8 @@
       implicit none
       integer ierr, ll
       character*(*) kdum,kresult
-      character*80 kres2
-      character*1 ktmp
+      character(80) kres2
+      character(1) ktmp
 !
       ierr=0
 !

@@ -23,7 +23,6 @@
 !           cmp1=compton heating coefficient
 !           cmp2=compton cooling coefficient
 !     Dependencies: cmpfnc
-!     Called by:  func
 !                                                                       
 !                                                                       
       use globaldata
@@ -39,7 +38,7 @@
 !                                                                       
       lprisv=lpri 
 !      lpri=2                                                           
-      if (lpri.ge.1) write (lun11,*)'in comp2' 
+      if (lpri.gt.1) write (lun11,*)'in comp2' 
 !                                                                       
       sigth0 = 6.65e-25 
       tmp1 = 0. 
@@ -66,7 +65,7 @@
          sum1 = sum1 + (tmp1+tmp1o)*(eee-eeeo)/2. 
          sum2 = sum2 + (bremsa(kl)+bremsa(kl-1))*(eee-eeeo)/2. 
          sum3 = sum3 + (bremsa(kl)*ee+bremsa(kl-1)*eeo)*(eee-eeeo)/2. 
-         if (lpri.ne.0) write (lun11,*)kl,eee,ee,zrmstp,tmp1,sum1 
+         if (lpri.gt.1) write (lun11,*)kl,eee,ee,zrmstp,tmp1,sum1 
          enddo 
       ans = sum1 
       cfake=sum2*sigth0 
@@ -76,7 +75,7 @@
       cmp2=(-cohc+hfake)/ekt 
                                                                         
                                                                         
-      if (lpri.ne.0)                                                    &
+      if (lpri.gt.0)                                                    &
      & write (lun11,*)'cmp1,cmp2:',cmp1,cmp2,cfake,hfake                
 !                                                                       
       lpri=lprisv 
