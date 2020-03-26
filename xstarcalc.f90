@@ -171,10 +171,7 @@
      &       cabab,opakab)                         
         endif 
 !                                                                       
-<<<<<<< HEAD
 !      lpri2=-1
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       call calc_hmc_all(lpri2,lun11,vturbi,critf,                       &
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &

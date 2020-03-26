@@ -197,11 +197,7 @@
 !                                                                       
 !               now find level data                                     
                 call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
-<<<<<<< HEAD
      &              leveltemp,nlev)
-=======
-     &              nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -417,11 +413,7 @@
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
 
-<<<<<<< HEAD
       if (lpri.gt.0)                                                    &
-=======
-      if (lpri.ne.0)                                                    &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
 !     Step through the columns and write them to the file               

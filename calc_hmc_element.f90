@@ -2,10 +2,7 @@
      &                 critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,&
      &                 zeta,mml,mmu,                                    &
      &                 epi,ncn2,bremsa,bremsint,                        &
-<<<<<<< HEAD
      &                 leveltemp,                                       &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                 tau0,tauc,                                       &
      &                 np2,ncsvn,nlsvn,                                 &
      &                 rnise,bileve,xileve,cl,ht,xii,rrrti,pirti)
@@ -65,7 +62,6 @@
       use globaldata
       implicit none 
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -73,8 +69,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -218,10 +212,7 @@
           call calc_ion_rates(ml_ion,lpri,lun11,                        &
      &                   vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,    &
      &                   epi,ncn2,bremsa,bremsint,                      &
-<<<<<<< HEAD
      &                   leveltemp,                                     &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirttmp,rrrttmp,                               &
@@ -274,13 +265,8 @@
       mmu(jk)=min(nnz,mmu(jk)+1)
       if (lpri.ge.1) write (lun11,*)'ion limits:',mml(jk),mmu(jk),mm
 !
-<<<<<<< HEAD
       call levwkelement(ml_element,lpri,ipmatsv,t,xee,xpx,leveltemp,    &
      &    lun11,rnise,mml(jk),mmu(jk))    
-=======
-      call levwkelement(ml_element,lpri,ipmatsv,t,xee,xpx,lun11,     &
-     &    rnise,mml(jk),mmu(jk))    
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !     second pass for ion by ion rates
 !     step thru ions
@@ -326,21 +312,14 @@
            call calc_hmc_ion(ml_ion,lpri,lun11,                         &
      &                   vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,    &
      &                   epi,ncn2,bremsa,bremsint,                      &
-<<<<<<< HEAD
      &                   leveltemp,                                     &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirttmp,rrrttmp,                               &
      &                   rnisi,                                         &
      &                   ajisi,cjisi,cjisi2,indbi,nindbi,nlev)
 !
-<<<<<<< HEAD
             if (lpri.gt.0) write (lun11,*)'   pirttmp,rrrtmp:',         &
-=======
-            if (lpri.ne.0) write (lun11,*)'   pirttmp,rrrtmp:',         &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &           pirttmp,rrrttmp
 !
 !           map to element matrix
@@ -400,19 +379,11 @@
 
 !     now calculate populations
       call remtms(tt1) 
-<<<<<<< HEAD
       nitmx=40 
       nitmx2=40 
       lprim=0
 !       if (lpri.gt.0) lprim=3                                    
 !      if (lpri.gt.0) lprim=1                                    
-=======
-      nitmx=400 
-      nitmx2=400 
-      lprim=0
-!      if (lpri.ne.0) lprim=3                                    
-!      if (lpri.ne.0) lprim=1                                    
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       if (lprim.ne.0) then
         write (lun11,*)'before msolvelucy'
         do mm=1,ipmat
@@ -433,7 +404,6 @@
      &                    ipmat2,x,lun11,lpri)                           
       call remtms(tt2) 
       if (lpri.gt.0)                                                    &
-<<<<<<< HEAD
      &  write (lun11,981)zeta,t,ipmat2,jk,abs(tt2-tt1),nit,nit2,nit3,   &
      &       ht,cl         
   981   format (1x,'after msolvelucy',2(1pe11.3),2i6,(1pe11.3),         &
@@ -441,10 +411,6 @@
       if (lpri.eq.-1)                                                   &
      &  write (13,981)zeta,t,ipmat2,jk,abs(tt2-tt1),nit,nit2,nit3,      &
      &        ht,cl         
-=======
-     &  write (lun11,981)jk,abs(tt2-tt1),nit,nit2,nit3,ht,cl         
-  981   format (1x,'after msolvelucy',i6,(1pe11.3),3i8,2(1pe11.3)) 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !     now map back to element abundances
 !     step thru ions
@@ -455,11 +421,7 @@
 !
 !       test if element belongs to parent of ion
         ml_element_test=derivedpointers%npar(ml_ion)
-<<<<<<< HEAD
         if (lpri.gt.1)                                                  &
-=======
-        if (lpri.ge.1)                                                  &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &   write (lun11,*)'ml_element_test=',ml_element_test,ml_element
         if (ml_element_test.eq.ml_element) then
 !
@@ -473,15 +435,9 @@
 !
 !         get level data                                          
           nlev=derivedpointers%nlevs(jkk_ion)
-<<<<<<< HEAD
           if (lpri.gt.1) write (lun11,*)'nlev=',nlev
           if (lpri.gt.1) write (lun11,*)'ipmat=',ipmat
           if (lpri.gt.1) write (lun11,*)'klion=',klion,mml(jk),mmu(jk)
-=======
-          if (lpri.ge.1) write (lun11,*)'nlev=',nlev
-          if (lpri.ge.1) write (lun11,*)'ipmat=',ipmat
-          if (lpri.ge.1) write (lun11,*)'klion=',klion,mml(jk),mmu(jk)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !         use calculated abundances if in range
           if ((klion.ge.mml(jk)).and.(klion.le.mmu(jk))) then
@@ -492,11 +448,7 @@
               bileve(mm+ipmat)=x(mm+ipmat2)/(1.e-37+rnise(mm+ipmat))
               if (mm.lt.nlev)                                           &
      &           xii(klion)=xii(klion)+x(mm+ipmat2)
-<<<<<<< HEAD
               if (lpri.gt.1)                                            &
-=======
-              if (lpri.ge.1)                                            &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &         write (lun11,*)'saving populations',mm,mm+ipmat,         &
      &          mm+ipmat2,xileve(mm+ipmat),rnise(mm+ipmat),             &
      &          bileve(mm+ipmat),xii(klion)
@@ -511,11 +463,7 @@
             do mm=1,nlev
               xileve(mm+ipmat)=0.
               bileve(mm+ipmat)=0.
-<<<<<<< HEAD
               if (lpri.gt.1)                                            &
-=======
-              if (lpri.ge.1)                                            &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &         write (lun11,*)'not saving populations',mm,mm+ipmat,     &
      &           xileve(mm),rnise(mm),bileve(mm)
 
@@ -533,11 +481,7 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'leaving calc_hmc_element'
-=======
-      if (lpri.ne.0) write (lun11,*)'leaving calc_hmc_element'
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !      deallocate(ajisi)
 !      deallocate(ajise)

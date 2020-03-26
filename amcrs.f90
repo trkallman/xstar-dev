@@ -1,10 +1,5 @@
-<<<<<<< HEAD
       subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,          &
      &                 lun11,lpri)                                      
-=======
-      subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,       &
-     &                 lpri,lun11)                                      
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !     Name: amcrs.f90  
 !     Description:  

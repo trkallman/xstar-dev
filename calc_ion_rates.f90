@@ -1,10 +1,7 @@
       subroutine calc_ion_rates(ml_ion,lpri,lun11,                      &
      &                   vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,    &
      &                   epi,ncn2,bremsa,bremsint,                      &
-<<<<<<< HEAD
      &                   leveltemp,                                     &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirti,rrrti,                                   &
@@ -61,7 +58,6 @@
       use globaldata
       implicit none 
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -69,8 +65,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -99,10 +93,6 @@
 !                                                                       
       character(1) kblnk 
       real(8) rnisi(nd)
-<<<<<<< HEAD
-=======
-      real(8) xilevi(nd)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       real(8) rnisse(nd) 
       real(8) tau1,tau2,ptmp
       real(8) pirti,rrrti
@@ -139,31 +129,18 @@
      &               (masterdata%kdat1(np1k+mm-1),mm=1,nkdt)
 903             format (1x,'      ion:',2(i12,1x),8(1a1))
 !
-<<<<<<< HEAD
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
      &          leveltemp,nlev)
-=======
-      call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       nlev=derivedpointers%nlevs(jkk_ion)
       if (lpri.gt.1) then 
         write (lun11,*)'      nlev=',nlev
         write (lun11,*)'  index level             energy',              &
-<<<<<<< HEAD
      &              '  stat.wt.                LTE ' 
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
      &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
      &        rnisi(mm)                                   
  9022     format (2x,i4,1x,20a1,2(1pe10.3),10x,1pe10.3) 
-=======
-     &              '  stat.wt. population   LTE ' 
-        do mm=1,nlev 
-          write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
-     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
-     &        xilevi(mm),rnisi(mm)                                   
- 9022     format (2x,i4,1x,20a1,4(1pe10.3)) 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
           enddo 
         endif
 !
@@ -211,10 +188,7 @@
      &                opakc,opakcont,rccemis,lpriu,kdesc2,              &
      &                r,delr,t,trad,tsq,xee,xh1,xh0,                    &
      &                epi,ncn2,bremsa,bremsint,                         &
-<<<<<<< HEAD
      &                leveltemp,                                        &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                rnisi,rnisse,nlev,lfpi,lun11,                     &
      &                np2,ncsvn,nlsvn)               
             if ((lrtyp.eq.1).or.(lrtyp.eq.15).or.                       &

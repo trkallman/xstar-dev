@@ -192,11 +192,7 @@
 !  register element record                                              
 !     npfirst,npnxt,npar,mlold                                          
                                                                         
-<<<<<<< HEAD
           if (lpri.gt.0) write (lun11,*)'npfirst(11):',                 &
-=======
-          if (lpri.ne.0) write (lun11,*)'npfirst(11):',                 &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       derivedpointers%npfirst(11),                               &
      &          indx,mlold(11)                                         
           if (derivedpointers%npfirst(11).eq.0) then 
@@ -317,7 +313,7 @@
                   nclev=masterdata%idat1(masterdata%nptrs(6,indx)       &
      &                  +masterdata%nptrs(9,indx)-2) 
                   if (nclev.gt.derivedpointers%nlevs(iion))             &
-     &                  derivedpointers%nlevs(iion)=nclev 
+     &                  derivedpointers%nlevs(iion)=nclev
                   mltst=nclev 
                   if (lpri.gt.1)                                        &
      &             write (lun11,*)'searching for level:'                
@@ -457,7 +453,7 @@
           enddo 
         endif                                                          
       enddo 
-                                                                        
+
       nlsvn=iline-1 
       ncsvn=icon-1 
       write (lun11,*)'number of lines=',nlsvn 

@@ -216,11 +216,7 @@
                                                                         
       tempip=rnist*(bremtmpp+bbnurjp)                                   &
      &  *sgtpp*exptmpp/epiip*(ptmp1+ptmp2)                              
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
-=======
-      if (lpri.ne.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & sgtpp,exptmpp,ptmp1,ptmp2,exptst                                 
       tempcp=tempip*epiip 
       tempcp2=tempip*(epiip-eth)

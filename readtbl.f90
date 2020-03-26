@@ -48,11 +48,7 @@
       nullj=0 
       nulle=0. 
               
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'in readtbl' 
-=======
-      if (lpri.ne.0) write (lun11,*)'in readtbl' 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 ! get an unused logical unit number and open the fits file              
 !      call ftgiou(unit,status)                                         

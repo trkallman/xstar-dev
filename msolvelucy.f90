@@ -146,13 +146,8 @@
               ngood=ngood+1 
               if (lpri.gt.1) write (lun11,91)ll,mm,nn,nspm,nspn,        &
      &              rr(mm),rr(nn),ajisb(1,ll),ajisb(2,ll),              &
-<<<<<<< HEAD
      &              ajissup(nspm,nspn),ajissup(nspm,nspm)
    91         format (1x,'used ',5i12,7(1pe13.5)) 
-=======
-     &              ajissup(nspm,nspn),ajissup(nspm,nspm)               
-   91         format (1x,'used ',5i12,6(1pe13.5)) 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
             endif 
           enddo 
         call remtms(tt2) 

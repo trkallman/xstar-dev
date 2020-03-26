@@ -62,11 +62,7 @@
       data tunit/' ','ev','/cm',' ',' '/ 
                                                                         
 !                                                                       
-<<<<<<< HEAD
       if (lpri.gt.0)                                                    &
-=======
-      if (lpri.ne.0)                                                    &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write (lun11,*)'in rstepr ',hdunum,unit,nhdu
 !                                                                       
 !       try to open the file, to see if it exists                         
@@ -75,11 +71,7 @@
 !        write (lun11,*)'after ftopen',unit,status                            
       call FTGHDN(unit, nhdu) 
                                                                         
-<<<<<<< HEAD
       if (lpri.gt.0)                                                    &
-=======
-      if (lpri.ne.0)                                                    &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write (lun11,*)'current hdu ',nhdu                               
       call ftmahd(unit,1,hdutype,status) 
       call FTGHDN(unit, nhdu) 
@@ -89,11 +81,7 @@
 !     Move to the appropriate HDU (hdunum) in the file                  
       mm=hdunum 
 !                                                                       
-<<<<<<< HEAD
       if (lpri.gt.0)                                                    &
-=======
-      if (lpri.ne.0)                                                    &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write(lun11,*)'rstepr: Moving to extension',mm                  
       call ftmahd(unit,mm,hdutype,status) 
       if (lpri.gt.0)                                                    &

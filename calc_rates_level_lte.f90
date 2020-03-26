@@ -1,9 +1,5 @@
       subroutine calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,         &
-<<<<<<< HEAD:calc_rates_level_lte.f90
      &              leveltemp,nlev)
-=======
-     &              nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a:calc_rates_level_lte.f90
 !                                                                       
 !     Name: calc_rates_level_lte.f90  
 !     Description:  

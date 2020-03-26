@@ -56,11 +56,7 @@
         enddo 
 !                                                                       
 !     calculate continuum depths                                        
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'calculating depths in stpcut' 
-=======
-      if (lpri.ne.0) write (lun11,*)'calculating depths in stpcut' 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       lind=1 
       if (ldirt.gt.0) lind=2 
       dpthmx=0. 

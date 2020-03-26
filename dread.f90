@@ -59,11 +59,7 @@
         np1r = masterdata%nptrs(8,np2) 
         np1i = masterdata%nptrs(9,np2) 
         np1k = masterdata%nptrs(10,np2) 
-<<<<<<< HEAD
         if ( lpri.gt.0 ) write (lun11,*) 'in dread:' , np2,np1, ltyp,   &
-=======
-        if ( lpri.ne.0 ) write (lun11,*) 'in dread:' , np2,np1, ltyp,   &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                                 lrtyp , lrdat , lidat            
         if ( lpri.gt.0 ) write (lun11,99001) lkdat , lcon , np1r ,np1i, &
      &                        np1k                                      

@@ -1,9 +1,5 @@
       subroutine levwkelement(ml_element,lpri,ipmatsv,t,xee,xpx,     &
-<<<<<<< HEAD
      &    leveltemp,lun11,rnise,mml,mmu)    
-=======
-     &    lun11,rnise,mml,mmu)    
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
 !     Name: levwkelement.f90  
 !     Description:  
@@ -32,7 +28,6 @@
       implicit none 
 !                                                                       
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -40,8 +35,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       real(8) rnisi(nd),rnisse(nd),rnise(nd), xileve(nd)
       real(8) ergsev,bk,t,                                              &
      &     bb
@@ -102,14 +95,9 @@
 903             format (1x,'      ion:',3(i12,1x),8(1a1))
             lprisv=lpri
             call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,     &
-<<<<<<< HEAD
      &              leveltemp,nlev)
             call levwk(rnisi,rnisse,bb,lpri,nlev,t,xee,xpx,             &
      &              leveltemp,lun11)      
-=======
-     &              nlev)
-            call levwk(rnisi,rnisse,bb,lpri,nlev,t,xee,xpx,lun11)      
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
             lpri=lprisv
             if (lpri.gt.1) write (lun11,*)'after calc_rates_level_lte'
             if (lpri.gt.1) write (lun11,*)'filling rnise'

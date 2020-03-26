@@ -8,34 +8,6 @@
       integer nzones
       parameter (nzones=100)
 !                                                                       
-<<<<<<< HEAD
-=======
-!     global xstar data
-!     master data
-      TYPE :: master_data
-        integer, allocatable, dimension(:) :: idat1 ! integer data
-        real(8), allocatable, dimension(:) :: rdat1  ! real data
-        integer, allocatable, dimension(:,:) :: nptrs ! pointer data
-        character(1), allocatable, dimension(:) :: kdat1 ! character data
-      END TYPE master_data
-      TYPE(master_data) :: masterdata
-      TYPE :: derived_pointers
-        integer, allocatable, dimension(:) :: npar   !    pointers to master data
-        integer, allocatable, dimension(:) :: npnxt   !    pointers to master data
-        integer, allocatable, dimension(:) :: npfirst !    pointers to master data
-        integer, allocatable, dimension(:,:) :: npfi    !    pointers to master data first record for ion
-        integer, allocatable, dimension(:,:) :: npfe  !   pointers to master data first record from element
-        integer, allocatable, dimension(:) :: nplin   ! pointers to line data
-        integer, allocatable, dimension(:) :: nplini  ! pointers to line data
-        integer, allocatable, dimension(:) :: npcon
-        integer, allocatable, dimension(:) :: npconi2 
-        integer, allocatable, dimension(:) :: npconi
-        integer, allocatable, dimension(:,:) :: npilev
-        integer, allocatable, dimension(:) :: npilevi
-        integer, allocatable, dimension(:) :: nlevs
-      END TYPE derived_pointers
-      TYPE(derived_pointers) :: derivedpointers
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -43,28 +15,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-<<<<<<< HEAD
-=======
-!     compton heating data                                              
-      real(8) decomp(ncomp,ncomp),ecomp(ncomp),sxcomp(ncomp) 
-      end module globaldata
-      module times
-      integer ntp
-      parameter (ntp=99)
-      real tread,tloop,tfunc,trates1,thcor,trates2,tucalc(ntp),theat
-      integer ncall(ntp)
-      end module times
-      subroutine xstar 
-!                                                                       
-!      based on attenuate
-!
-      use globaldata
-      use times
-      implicit none 
-      integer nzones
-      parameter (nzones=100)
-!                                                                       
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     global xstar data
 !     line luminosities                                                 
       real(8), dimension(:,:), allocatable :: elum,elumo
@@ -294,11 +244,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-<<<<<<< HEAD
       write (tmpst,*)'xstar version 2.56c' 
-=======
-      write (tmpst,*)'xstar version 2.56a test change' 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       call xwrite(tmpst,10) 
 !                                                                       
 !     default parameter values                                          
@@ -376,11 +322,6 @@
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
      &       cabab,opakab,nlin,elin)                                    
 !
-<<<<<<< HEAD
-=======
-      if (lpri.ne.0) stop
-!
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       xee=1.21 
       xi=10.**zeta 
 !                                                                       
@@ -592,10 +533,7 @@
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
      &            mml,mmu,                                              &
      &            epi,ncn2,bremsa,bremsint,                             &
-<<<<<<< HEAD
      &            leveltemp,                                            &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            tau0,tauc,                                            &
      &            np2,ncsvn,nlsvn,                                      &
      &            ntotit,                                               &
@@ -613,10 +551,7 @@
            call heatt(lpri,lunlog,                                      &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       ncsvn,nlsvn,                                               &
      &       zrems,zremso,elumab,elumabo,elum,elumo,                    &
      &       rcem,rccemis,opakc,opakcont,cemab,flinel,                  &
@@ -692,11 +627,7 @@
 !         transfer                                                      
           eliml=1. 
           elimh=1.0e6 
-<<<<<<< HEAD
               lpril2=lpri2
-=======
-              lpril2=0 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
               call stpcut(ldir,lpril2,lunlog,                           &
      &           ncsvn,nlsvn,                                           &
      &           epi,ncn2,opakc,opakcont,oplin,opakab,delr,             &
@@ -704,12 +635,8 @@
               call trnfrn(lpri,lunlog,                                  &
      &           nlsvn,ncsvn,ncn2,                                      &
      &           zrems,zremso,elumab,elumabo,elum,elumo)                    
-<<<<<<< HEAD
 !
 !
-=======
-
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !          All done looping over the radial zones                        
            enddo 
 !
@@ -792,10 +719,7 @@
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
      &            mml,mmu,                                              &
      &            epi,ncn2,bremsa,bremsint,                             &
-<<<<<<< HEAD
      &            leveltemp,                                            &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            tau0,tauc,                                            &
      &            np2,ncsvn,nlsvn,                                      &
      &            ntotit,                                               &
@@ -809,19 +733,12 @@
       call heatt(lpri2,lunlog,                                          &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       ncsvn,nlsvn,                                               &
      &       zrems,zremso,elumab,elumabo,elum,elumo,                    &
      &       rcem,rccemis,opakc,opakcont,cemab,flinel,                  &
      &       brcems)
-<<<<<<< HEAD
       call stpcut(ldir,lpri2,lunlog,                                    &
-=======
-      call stpcut(ldir,lpril2,lunlog,                                   &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &           ncsvn,nlsvn,                                           &
      &           epi,ncn2,opakc,opakcont,oplin,opakab,delr,             &
      &           dpthc,dpthcont,tau0,tauc) 
@@ -850,12 +767,8 @@
      &            cabab,elumab,elum,zrems,                              &
      &            zrtmp,zrtmpcol,zrtmph,zrtmpc)                            
          enddo
-<<<<<<< HEAD
                 
       close(13)                               
-=======
-                                               
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !     Write spectral data file xout_spect1.fits                         
       if (lwri.ge.0) then 
@@ -880,10 +793,7 @@
       write (lunlog,*)'after writespectra3' 
       call writespectra4(lunlog,lpril,nparms,parname,partype,parms,  &
      &        parcomm,atcredate,epi,ncn2,dpthc,ababs,                   &
-<<<<<<< HEAD
      &                   leveltemp,                                     &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &        np2,                                                      &
      &        elumab,tauc,kmodelname,nloopctl)                  
       write(6,*)'xstar: Done writing spectral data' 

@@ -116,11 +116,7 @@
         enddo 
       nlyc=nbinc(13.7d0,epi,ncn2) 
       nry=nlyc+1 
-<<<<<<< HEAD
       if (lpri.gt.0) write (lunlog,*)'in unsavd',rdel,t,tauc(1,25),  &
-=======
-      if (lpri.ne.0) write (lunlog,*)'in unsavd',rdel,t,tauc(1,25),  &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                ldir,dpthc(1,nry),dpthc(2,nry)                    
 !                                                                       
       return 

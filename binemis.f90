@@ -256,11 +256,7 @@
           ml1min=ncn+1 
           ml1max=0 
           ml2=int(nbtpp/2)
-<<<<<<< HEAD
           if (lpri.gt.0) write (lun11,*)'ncut=',ncut,deleused,deletpp,  &
-=======
-          if (lpri.ne.0) write (lun11,*)'ncut=',ncut,deleused,deletpp,  &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                                    deleepi                       
 !                                                                       
 !         calculate profile at continuum bin closest to line center     

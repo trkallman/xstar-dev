@@ -1,10 +1,7 @@
       subroutine heatt(lpri,lun11,                                      &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       ncsvn,nlsvn,                                               &
      &       zrems,zremso,elumab,elumabo,elum,elumo,                    &
      &       rcem,rccemis,opakc,opakcont,cemab,flinel,                  &

@@ -1,10 +1,7 @@
       subroutine calc_emis_ion(ml_ion,lpri,lun11,xeltp,                 &
      &       vturbi,critf,t,trad,r,delr,xee,xpx,xh0,xh1,cfrac,p,lcdd,   &
      &       epi,ncn2,bremsa,bremsint,                                  &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xilevi,bilevi,rnisi,                                       &
@@ -68,7 +65,6 @@
       use globaldata
       implicit none 
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -76,8 +72,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -147,11 +141,7 @@
 903             format (1x,'      ion:',i12,1x,i12,1x,8(1a1))
 !
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
-<<<<<<< HEAD
      &              leveltemp,nlev)
-=======
-     &              nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
       if (lpri.gt.1) then 
                   write (lun11,*)'      index level        energy',     &
@@ -213,10 +203,7 @@
      &            opakc,opakcont,rccemis,lpriu,kdesc2,                  &
      &            r,delr,t,trad,tsq,xee,xh1,xh0,                        &
      &            epi,ncn2,bremsa,bremsint,                             &
-<<<<<<< HEAD
      &            leveltemp,                                            &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            rnisi,rnisse,nlev,lfpi,lun11,                         &
      &            np2,ncsvn,nlsvn)               
               cabab(kkkl)=ans3 
@@ -232,13 +219,8 @@
      &              idest1,idest2,llo,lup,ml_data,ans1,ans2,            &
      &              ans3,ans4,cemab(1,kkkl)+cemab(2,kkkl),              &
      &              opakab(kkkl),eth,                                   &
-<<<<<<< HEAD
      &              kkkl,htt,cll,ptmp1,ptmp2                           
  9002             format (7x,7i6,i12,' h-c ',                           &
-=======
-     &              kkkl,htt,cll,ptmp1,ptmp2                                            
- 9002             format (7x,7i6,i12,' h-c ',                            &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &              7(1pe10.3),i12,2(1pe10.3),4(1pe10.3))                    
               endif
             endif
@@ -288,21 +270,14 @@
      &             opakc,opakcont,rccemis,lpriu,kdesc2,                 &
      &             r,delr,t,trad,tsq,xee,xh1,xh0,                       &
      &             epi,ncn2,bremsa,bremsint,                            &
-<<<<<<< HEAD
      &             leveltemp,                                           &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &             rnisi,rnisse,nlev,lfpi,lun11,                        &
      &             np2,ncsvn,nlsvn)               
              if (ml_data_type.eq.14) then
                rcemm=abund2*ans4 
                rccemis(2,3)=rccemis(2,3)+                               &
      &                  rcemm/(epi(4)-epi(3)+1.e-24)/ergsev/12.56       
-<<<<<<< HEAD
 !               if (lpri.gt.0) write (lun11,*)jkkl,tau0(1,jkkl),       
-=======
-!               if (lpri.ne.0) write (lun11,*)jkkl,tau0(1,jkkl),       
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                 cll=cll+rcemm 
 !                clcont=clcont+rcemm 
                 endif
@@ -333,11 +308,7 @@
 !       end of loop over data types
         enddo 
 !
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'returning from calc_emis_ion'
-=======
-      if (lpri.ne.0) write (lun11,*)'returning from calc_emis_ion'
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       lpri=lprisv
 !
       return 

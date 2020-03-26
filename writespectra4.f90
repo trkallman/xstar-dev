@@ -1,9 +1,6 @@
       subroutine writespectra4(lun11,lpri,nparms,parname,partype,parval,&
      &       parcomm,atcredate,epi,ncn2,dpthc,abel,                     &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       np2,                                                       &
      &       elumab,tauc,kmodelname,nloopctl)                   
 !                                                                       

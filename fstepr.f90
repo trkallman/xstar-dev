@@ -164,11 +164,7 @@
 !                                                                       
 !               get level data                                          
                 call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
-<<<<<<< HEAD
      &              leveltemp,nlev)
-=======
-     &              nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 

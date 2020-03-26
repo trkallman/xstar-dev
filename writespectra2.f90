@@ -319,11 +319,7 @@
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                    &
      &            0,lun11)                                        
                 nlev=masterdata%idat1(np1i+nidt-2) 
-<<<<<<< HEAD
                 if (lpri.gt.0)                                          &
-=======
-                if (lpri.ne.0)                                          &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &            call dprinto(ltyp,lrtyp,lcon,                      &
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)
                 if (lpri.gt.0)                                          &

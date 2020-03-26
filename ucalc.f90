@@ -1,8 +1,4 @@
-<<<<<<< HEAD
       subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,cfrac,         &
-=======
-      subroutine ucalc(ndesc,nrdesc,ml,lcon,jkion,vturbi,cfrac,      &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &   nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,                       &
      &   ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,               &
      &   abund1,abund2,ptmp1,ptmp2,xpx,opakab,                          &
@@ -84,7 +80,6 @@
       integer nptmpdim 
       parameter (nptmpdim=max(10000,ncn)) 
 !
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -92,8 +87,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       character(49) kdesc(ntyp),kdesc2 
       character(29) krdesc(ntyp) 
       real(8) epi(ncn) 
@@ -1622,11 +1615,7 @@
       idest4=masterdata%idat1(np1i+nidt-3) 
       idest2=nlevp+max(0,masterdata%idat1(np1i-1+nidt-3))-1 
       if (indonly.eq.1) return
-<<<<<<< HEAD
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp
-=======
-      if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
@@ -1919,11 +1908,7 @@
       eij=eijry*13.605692 
       elin=12398.41/eij 
       hij=elin*1.d-8 
-<<<<<<< HEAD
 !      if (lpri.gt.0)                                                   
-=======
-!      if (lpri.ne.0)                                                   
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     $ write (lun11,*)'type 51 data:',elin                             
       if (elin.le.1.d-24) go to 9000 
       ekt=0.861707*t 
@@ -2655,7 +2640,7 @@
           psi=0.75/nnz/nnz*lii/(2*lii+1)*ni*ni*(ni*ni-lii*lii) 
           if (lpril.ne.0)                                               &
      &     write (lun11,*)'before amcrs',ecm,ni,lii,sum                 
-          call amcrs(ni,lii,tbig,nnz,z1,rm,xnx,sum,ecm,psi,il,cn,    &
+          call amcrs(ni,lii,tbig,nnz,z1,rm,xnx,sum,ecm,psi,il,cn,       &
      &        lpril,lun11)                                              
           cno=cn 
           iz=masterdata%idat1(np1i-1+4) 

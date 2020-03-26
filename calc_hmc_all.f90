@@ -2,10 +2,7 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xiin,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter,&
@@ -98,7 +95,6 @@
       use globaldata
       implicit none 
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -106,8 +102,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     line optical depths                                               
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
@@ -271,10 +265,7 @@
      &                 critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,&
      &                 zeta,mml,mmu,                                    &
      &                 epi,ncn2,bremsa,bremsint,                        &
-<<<<<<< HEAD
      &                 leveltemp,                                       &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &                 tau0,tauc,                                       &
      &                 np2,ncsvn,nlsvn,                                 &
      &                 rnise,bileve,xileve,cl,ht,xii,rrrti,pirti)
@@ -335,11 +326,7 @@
                 if (lpri.ge.1) then 
                   write (lun11,*)'level populations:' 
                   call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,   &
-<<<<<<< HEAD
      &                       leveltemp,nlev)
-=======
-     &                       nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                   do mm=1,nlev 
                     write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)&
      &                       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),&
@@ -378,11 +365,7 @@
         enddo 
 !
       elcter=-enelec+xee
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'elcter=',elcter,enelec,xee
-=======
-      if (lpri.ne.0) write (lun11,*)'elcter=',elcter,enelec,xee
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 
       call comp2(lpri,lun11,epi,ncn2,bremsa,t,cmp1,cmp2)             
 !

@@ -3,10 +3,7 @@
      &       abel,cfrac,pressure,lcdd,                                  &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
-<<<<<<< HEAD
      &       leveltemp,                                                 &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xileve,bileve,rnise,ipmat,                             &
@@ -71,7 +68,6 @@
       use globaldata
       implicit none 
 !                                                                       
-<<<<<<< HEAD
       TYPE :: level_temp
         sequence
         real(8) :: rlev(10,nd) 
@@ -79,8 +75,6 @@
         character(1) :: klev(100,nd) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
@@ -192,10 +186,7 @@
      &       vturbi,critf,temperature,trad,radius,delr,                 &
      &       xee,xpx,xh0,xh1,cfrac,pressure,lcdd,                       &
      &       epi,ncn2,bremsa,bremsint,                                  &
-<<<<<<< HEAD
      &                   leveltemp,                                     &
-=======
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xilevi,bilevi,rnisi,                                       &
@@ -214,11 +205,7 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'returning from calc_emis_element'
-=======
-      if (lpri.ne.0) write (lun11,*)'returning from calc_emis_element'
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !
       return 
       end                                           

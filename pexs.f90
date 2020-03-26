@@ -38,11 +38,7 @@
 !                                                                       
       data x,a/nmax*0.,nmax*0./ 
 !                                                                       
-<<<<<<< HEAD
       if (lpri.gt.0) write (lun11,*)'in pexs',nmin,kdim,zc,          &
-=======
-      if (lpri.ne.0) write (lun11,*)'in pexs',nmin,kdim,zc,          &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      &        eion,far,gam,scal                                         
 !                                                                       
       ierr=0 

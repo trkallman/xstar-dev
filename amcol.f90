@@ -1,8 +1,4 @@
-<<<<<<< HEAD
       subroutine amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn,lpri,lun11) 
-=======
-      subroutine amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn) 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
 !                                                                       
 !     Name: amcol.f90  
 !     Description:  

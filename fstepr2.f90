@@ -174,15 +174,9 @@
 !                                                                       
 !           now find level data                                         
             jkk=masterdata%idat1(np1i+nidt-1) 
-<<<<<<< HEAD
             if (lpri.gt.0) write (lun11,*)'ion',kinam1,jkk 
             call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
      &              leveltemp,nlev)
-=======
-            if (lpri.ne.0) write (lun11,*)'ion',kinam1,jkk 
-            call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
-     &              nlev)
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
                                                                         
             ggup=leveltemp%rlev(2,idest1) 
             gglo=leveltemp%rlev(2,idest2) 
@@ -297,11 +291,7 @@
      & '[erg cm/s] log(ionization parameter)',status)                   
       if (status .gt. 0)call printerror(lun11,status) 
 
-<<<<<<< HEAD
       if (lpri.gt.0)                                                    &
-=======
-      if (lpri.ne.0)                                                    &
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
      & write (lun11,*)'after header write'                              
 !-------------------------------------------------------------------    
 !     Step through the columns and write them to the file               
@@ -359,11 +349,7 @@
          rwrk1(ll)=0. 
          if (ntptr(ll).ne.0)                                            &
      &      rwrk1(ll)=sngl(rcem(1,ntptr(ll)))                                 
-<<<<<<< HEAD
          if (lpri.gt.0) write (lun11,*)ll,ntptr(ll),rwrk1(ll) 
-=======
-         if (lpri.ne.0) write (lun11,*)ll,ntptr(ll),rwrk1(ll) 
->>>>>>> 2d75308c63b9789458ce092c697c7853fcdde44a
          enddo 
       if (lpri.gt.0)                                                    &
      & write(lun11,*)'fstepr2: Writing Column ',colnum                  
