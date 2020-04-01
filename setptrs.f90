@@ -206,28 +206,31 @@
           iel=masterdata%idat1(np1i) 
           abcosmic(iel)=masterdata%rdat1(np1r) 
                                                                         
+          if (lpri.gt.1) write (lun11,*)'filling rate type 11'
           if (lpri.gt.1)                                                &
      &     write (lun11,*)'registering element:',iel,abel(iel),indx,    &
      &                         mlold(11),abcosmic(iel)                  
           mlold(11)=indx 
           derivedpointers%npar(indx)=0 
           indx=indx+1 
+          if (lpri.gt.1) write (lun11,*)'indx=',indx
                                                                         
 !  go through ions                                                      
                                                                         
           ltyp=masterdata%nptrs(2,indx) 
           lrtp=masterdata%nptrs(3,indx) 
           if (lpri.gt.1)                                                &
-     &     write (lun11,*)'lrtp=',lrtp,indx                             
+     &     write (lun11,*)'lrtp=',lrtp,ltyp,indx                             
           do while(lrtp.eq.12) 
                                                                         
 !                                                                       
           if (lpri.gt.1)                                                &
-     &     write(lun11,*) iel,iion                                      
-                                                                        
+     &     write(lun11,*) 'iel,iion:',iel,iion      
+
 !  register ion record                                                  
 !  npfirst,npnxt,npar,mlold                                             
                                                                         
+            if (lpri.gt.1) write (lun11,*)'filling rate type 12'
             if (derivedpointers%npfirst(12).eq.0) then 
               derivedpointers%npfirst(12)=indx 
             else 
@@ -239,10 +242,13 @@
             mlold(12)=indx 
             derivedpointers%npar(indx)=mlold(11) 
             indx=indx+1 
+            if (lpri.gt.1) write (lun11,*)'indx=',indx
                                                                         
 !  level records, rate type 13                                          
 !  npfirst,npnxt,npar,mlold,npfi,npilev,npilevi                         
                                                                         
+!           rate type 13, level data
+            if (lpri.gt.1) write (lun11,*)'filling rate type 13'
             if (masterdata%nptrs(3,indx).eq.13) then 
               derivedpointers%npfi(13,iion)=indx 
               iilev=1 
@@ -261,10 +267,12 @@
                 if(derivedpointers%npilev(iilev,iion).eq.0)             &
      &                print *, 'AJA **** ', iilev,iion 
                 if (lpri.gt.1)                                          &
-     &           write (lun11,*)ilev,iilev,indx,iion                    
+     &           write (lun11,*)                                        &
+     &            'ilev,iilev,indx,iion:',ilev,iilev,indx,iion     
                 iilev=iilev+1 
                 ilev=ilev+1 
                 indx=indx+1 
+                if (lpri.gt.1) write (lun11,*)'indx=',indx
               enddo 
               mlold(13)=indx-1 
               derivedpointers%npnxt(indx-1)=0 
@@ -277,6 +285,7 @@
               else 
                 lrtp=1 
               endif 
+              if (lpri.gt.1) write (lun11,*)'filling rate type:',lrtp
               if (masterdata%nptrs(3,indx).eq.lrtp) then 
                 derivedpointers%npfi(lrtp,iion)=indx 
                 if (derivedpointers%npfirst(lrtp).eq.0) then 
@@ -348,6 +357,7 @@
      &             write (lun11,*)indx,derivedpointers%npar(indx),      &
      &             icon,nclev,masterdata%nptrs(3,indx),lrtp,mltmp               
                   indx=indx+1 
+                  if (lpri.gt.1) write (lun11,*)'indx=',indx
                   icon=icon+1 
                 enddo 
                 mlold(lrtp)=indx-1 
@@ -370,6 +380,7 @@
               else 
                 lrtp=14 
               endif 
+              if (lpri.gt.1) write (lun11,*)'filling rate type',lrtp
               if (lpri.gt.1) write (lun11,*)' indx=',indx,lrtp,iion 
               if (masterdata%nptrs(3,indx).eq.lrtp) then 
                 derivedpointers%npfi(lrtp,iion)=indx 
@@ -386,6 +397,7 @@
                   if (lpri.gt.1)                                        &
      &             write (lun11,*)indx,iline                            
                   indx=indx+1 
+                  if (lpri.gt.1) write (lun11,*)'indx=',indx
                   iline=iline+1 
                 enddo 
                 mlold(lrtp)=indx-1 
@@ -408,6 +420,7 @@
               else 
                 lrtp=40 
               endif 
+              if (lpri.gt.1) write (lun11,*)'filling rate type ',lrtp
               if (masterdata%nptrs(3,indx).eq.lrtp) then 
                 derivedpointers%npfi(lrtp,iion)=indx 
                 if (derivedpointers%npfirst(lrtp).eq.0) then 
@@ -419,6 +432,7 @@
                   derivedpointers%npar(indx)=mlold(12) 
                   derivedpointers%npnxt(indx)=indx+1 
                   indx=indx+1 
+                  if (lpri.gt.1) write (lun11,*)'indx=',indx
                 enddo 
                 mlold(lrtp)=indx-1 
                 derivedpointers%npnxt(indx-1)=0 
@@ -430,6 +444,7 @@
                                                                         
             lrtp=masterdata%nptrs(3,indx) 
             do while((lrtp.ne.12).and.(lrtp.ne.11).and.(lrtp.ne.0)) 
+              if (lpri.gt.1) write (lun11,*)'filling rate type ',lrtp
               derivedpointers%npar(indx)=mlold(12) 
               if (derivedpointers%npfirst(lrtp).eq.0) then 
                 derivedpointers%npfirst(lrtp)=indx 
@@ -441,6 +456,7 @@
      &              derivedpointers%npfi(lrtp,iion)=indx 
 !              write (lun11,*)iion,lrtp,indx,npfi(lrtp,iion)            
               indx=indx+1 
+              if (lpri.gt.1) write (lun11,*)'indx=',indx
               lrtp=masterdata%nptrs(3,indx) 
             enddo 
                                                                         
@@ -539,15 +555,15 @@
 !          mll=derivedpointers%npnxt(mll) 
 !          enddo 
 !     
-!        write (lun11,*)'in setptrs filling nptrt'
+        if (lpri.gt.1) write (lun11,*)'in setptrs filling nptrt'
         mm1=0
-        do mm=1,ndat2
+        do mm=1,np2
           iel=0 
-!          write (lun11,*)'mm=',mm 
+          if (lpri.gt.1) write (lun11,*)'mm=',mm 
           CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k,      &
      &          mm,0,Lun11)                                    
-!          call dprints(ltyp,lrtyp,lcon,                                &
-!     &      nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
+          if (lpri.gt.1) call dprints(ltyp,lrtyp,lcon,                 &
+     &      nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)        
           if (lrtyp.ne.0) then
             if (lrtyp.ne.11) then
               mlion=mm
@@ -557,6 +573,7 @@
               if (mlion.ne.0) then
                 mlel=derivedpointers%npar(mlion)
                 if (mlel.ne.0) then
+                  if (lpri.gt.1) write (lun11,*)'mlel=',mlel
                   CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,   &
      &                     np1k,mlel,0,Lun11)                       
                   endif
@@ -566,13 +583,13 @@
               endif
             if (mlel.ne.0) then
               iel=masterdata%idat1(np1i)
-!              write (lun11,*)'mm=',mm,iel,abel(iel)
+              if (lpri.gt.1) write (lun11,*)'mm=',mm,iel,abel(iel)
               if (iel.eq.0) stop 'iel=0'
 !              if (mm.gt.200000) stop
               if (abel(iel).gt.1.e-15) then
                 mm1=mm1+1
                 nptrt(mm1)=mm
-!                write (lun11,*)'mm1=',mm1,mm
+                if (lpri.gt.1) write (lun11,*)'mm1=',mm1,mm
 !                CALL DRD(ltyp,lrtyp,lcon,nrdt,np1r,nidt,np1i,nkdt,np1k, &
 !     &            mm,0,Lun11)                                    
 !                call dprints(ltyp,lrtyp,lcon,                           &
@@ -584,6 +601,7 @@
         np2=mm1
 !
       if (lpri.ge.1) write (lun11,*)'done with setptrs'
+      if (lpri.ge.1) stop 'stopping in setptrs'
 !        
 !       print data
 !        call dbwk2(12,abel,np2,nptrt,karg,lpri,lun11,                   &
