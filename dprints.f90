@@ -17,6 +17,7 @@
       real(8) rtmp 
 !                                                                       
       data kblnk/' '/,kperc/'%'/ 
+      save kblnk,kperc
 !                                                                       
 !      do ll=1,20000                                                    
 !         write (kdtt(ll:ll),'(a1)')kblnk                               

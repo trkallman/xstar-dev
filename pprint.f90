@@ -218,9 +218,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !
@@ -382,7 +382,7 @@
       integer    mlcu, mm2, mmtmp, ll 
       integer ntotit, nb1, nb10 
       integer lnerrd, nbinc 
-      integer nnmax, ncsvn,mlm,nnzel
+      integer nnmax, ncsvn,mlm,nnzel,nnzz,nnnn
       integer np1i,np1r,np1k,np1i2,np1r2,np1k2,np1ki 
 !                                                                       
       logical done 
@@ -403,6 +403,8 @@
      &               'Crabund=','Mnabund=','Feabund=','Coabund=',       &
      &               'Niabund=','Cuabund=','Znabund='/                  
 !                                                                       
+       save kblnk,kblnk20,kblnk16,kabstring
+!
       allocate(kdat(nptmpdim))
       allocate(elsv(nnnl))
       allocate(jpnt(nnnl))
@@ -640,6 +642,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidti-2) 
@@ -653,7 +657,7 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -971,6 +975,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidti-2) 
@@ -984,7 +990,7 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -1463,6 +1469,8 @@
         do ktt=nkdt+1,9 
           write (kinam1(ktt:ktt),'(a1)')kblnk 
           enddo 
+        nnzz=masterdata%idat1(np1i+1)
+        nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !          if (lpri.ge.1)                                               
 !     $      write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,              
@@ -1501,7 +1509,7 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
           lpri=0
           call deleafnd(jkk,idest2,delea,lfnd,lpri,lun11)           
           delearad=6.6262e-27*aij/6.28/1.602197e-12
@@ -2114,6 +2122,8 @@
           do ktt=nkdt+1,9 
             write (kinam1(ktt:ktt),'(a1)')kblnk 
             enddo 
+          nnzz=masterdata%idat1(np1i+1)
+          nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
           if (lpril.ge.1)                                               &
      &      write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,               &
@@ -2122,7 +2132,7 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2225,6 +2235,8 @@
           do ktt=nkdt+1,9 
             write (kinam1(ktt:ktt),'(a1)')kblnk 
             enddo 
+          nnzz=masterdata%idat1(np1i+1)
+          nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
           if (lpril.ge.1)                                               &
      &      write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,               &
@@ -2233,7 +2245,7 @@
 !         now find level data                                           
           jkk=masterdata%idat1(np1i+nidt-1) 
           call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,          &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
                                                                         
           ggup=leveltemp%rlev(2,idest1) 
           gglo=leveltemp%rlev(2,idest2) 
@@ -2309,6 +2321,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidti-2) 
@@ -2322,7 +2336,7 @@
 !               now find level data                                     
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 
@@ -2515,6 +2529,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                  &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidt-2) 
@@ -2535,7 +2551,7 @@
 !               get level data                                          
                 jkk=masterdata%idat1(nidt+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 

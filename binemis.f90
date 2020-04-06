@@ -80,6 +80,7 @@
       real(8) voigte 
 !                                                                       
       data dpcrit/1.e-6/ 
+      save dpcrit
 !                                                                       
       allocate(zrtpp2(2,nbtpp))
       allocate(etpp(nbtpp))

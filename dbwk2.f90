@@ -67,9 +67,9 @@
 !
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
         integer nel(30)                                                         
@@ -105,10 +105,11 @@
      &     ktt,kkl,kk,jxx,jlk,jkkl,jkk2,jkk,j,jk,jkion,itmp,            &
      &     isum,iso,iqo,ilv,iq,ii,ij,ijk  
       integer                                                           &
-     &     ijsv,idest1,idest2,nlsvn,np2,lun11,lpri,nvtot,               &
+     &     ijsv,idest1,idest2,nlsvn,np2,lun11,lpri,nvtot,nvmax,         &
      &     lenact,mlline,ncsvn,lkdat,lkdato,nlnsv(nni),ntmp,nilino      
       integer miso,miso2,mel,m4,msvtmp(30),mkk,m3 
       integer mlold(ntyp)
+      integer nnzz,nnnn
 !                                                                       
       character(50) kblnk20 
       character(48) kdesc(ntyp) 
@@ -226,6 +227,7 @@
       data kdesc(84)/' Iron K Pi xsections, spectator Auger binned    '/ 
       data kdesc(85)/' Iron K Pi xsections, spectator Auger summed    '/ 
       data kdesc(86)/' Iron K Auger data from Patrick                 '/ 
+      save kblnk,kblnk4,ku,kd,kt,krdesc,kdesc
 !                                                                       
        do mm=1,50 
          write (kblnk20(mm:mm),'(a1)')kblnk 
@@ -652,6 +654,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                  &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidt-2) 
@@ -676,7 +680,7 @@
                 xpx=1. 
                 lpril=0 
                 call calc_rates_level_lte(jkk,lprid,lun11,t,xee,xpx,    &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 
@@ -1512,13 +1516,16 @@
              write (lun11,*)'ion, #lines, #levels' 
              nltot=0 
              nvtot=0 
+             nvmax=0
              do mm=1,nni 
                write (lun11,*)mm,nlines(mm),                            &
      &              derivedpointers%nlevs(mm) 
                nltot=nltot+nlines(mm) 
                nvtot=nvtot+derivedpointers%nlevs(mm) 
+               nvmax=max(nvmax,derivedpointers%nlevs(mm))
                enddo 
              write (lun11,*)'totals:',nltot,nvtot 
+             write (lun11,*)'maximum levels:',nvmax
              endif 
 !          now the ion level pointers                                   
            if (lpri.gt.0)                                               &
@@ -1548,6 +1555,11 @@
  2234          continue 
              endif 
              enddo 
+           nvmax=0
+           do mm=1,nni 
+             nvmax=max(nvmax,derivedpointers%nlevs(mm))
+             enddo 
+          write (lun11,*)'maximum levels per ion:',nvmax
           if (lpri.gt.0)                                                &
      &     write (lun11,*)'nlsvn=',nlsvn,', ncsvn=',ncsvn               
 !         print out the pointers                                        

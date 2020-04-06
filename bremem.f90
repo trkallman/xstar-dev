@@ -37,6 +37,7 @@
 !                                                                       
 !      data cc/8.223e-15/                                               
       data cc/1.032e-13/ 
+      save cc
 !                                                                       
       lskp=1 
 !                                                                       

@@ -71,7 +71,9 @@
       logical done 
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
 !                                                                       
 !     internal to this routine we use the threshold binned              

@@ -77,6 +77,8 @@
       data tunit/' ','ev','erg/s','erg/s','erg/s','erg/s',              &
      &   'erg/s','/cm','erg/cm**3/s','erg/cm**3/s',' ',' '/
 !                                                                        
+       save kblnk,tform,ttype,tunit
+!
       allocate(ntptr(nptmpdim))
       allocate(rwrk1(nptmpdim))
 !

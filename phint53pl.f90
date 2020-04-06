@@ -64,7 +64,9 @@
       integer lprisv,numcon2,nphint,nb1,kl,klmax,nbinc 
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
       eth=ethi 
       lprisv=lpri 

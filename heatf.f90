@@ -71,13 +71,16 @@
       real(8) tmp2,tmp2o 
       integer lskp 
       integer kl,                                                       &
-     &    numcon
+     &    numcon,nnzz,nnnn
       integer                                                           &
      &     lprisv
 !                                                                       
 !                                                                       
       data kblnk/' '/ 
       data ergsev/1.602197e-12/ 
+      save ergsev
+!
+      save kblnk
 !                                                                       
       lprisv=lpri 
 !                                                                       

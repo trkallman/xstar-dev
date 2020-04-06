@@ -19,10 +19,10 @@
 !           rnisse: lte level population relative to ground 
 !                  with exponential removed
 !           From Globaldata:
-!           rlev(10,nd):  real data for levels of this ion
-!           ilev(10,nd):  integer data for levels of this ion
-!           nlpt(nd):
-!           iltp(nd):
+!           rlev(10,ndl):  real data for levels of this ion
+!           ilev(10,ndl):  integer data for levels of this ion
+!           nlpt(ndl):
+!           iltp(ndl):
 !
 
       use globaldata
@@ -31,9 +31,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
       real(8) rniss(nd),rnisse(nd) 
@@ -45,7 +45,9 @@
       integer mm 
                                                                         
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
       lprisv=lpri 
 !      lpri=0                                                           

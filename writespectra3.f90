@@ -79,6 +79,8 @@
 !      character(80) javik                                              
 !                                                                       
       data kblnk16/'                '/ 
+
+       save kblnk16
                                                                         
       ALLOCATE(zrtmp(5,ncn))
       ALLOCATE(rtmp(ncn))

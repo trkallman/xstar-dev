@@ -64,9 +64,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     energy bins                                                       
@@ -107,8 +107,10 @@
      &        llo,lup,ltyp,jkk_ion,                                     &
      &        lrtyp,lcon,nrdt,nidt,nkdt,kkkl,                           &
      &        ml_data,ml_ion,ml_data_type,ml_data_par
+      integer nnzz,nnnn
 !                                                                       
       data kblnk/' '/ 
+      save kblnk
 !                                                                       
       lprisv=lpri
 !      if (lpri.ge.1) lpri=2
@@ -129,13 +131,15 @@
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_ion,                 &
      &            0,lun11)                                        
       jkk_ion=masterdata%idat1(np1i+nidt-1)
+      nnzz=masterdata%idat1(np1i+1)
+      nnnn=nnzz-masterdata%idat1(np1i)+1
       if (lpri.ge.1)                                                    &
      &            write (lun11,903)jkk_ion,ml_ion,                      &
      &               (masterdata%kdat1(np1k+mm-1),mm=1,nkdt)
 903             format (1x,'      ion:',2(i12,1x),8(1a1))
 !
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
-     &      leveltemp,nlev)
+     &      nnzz,nnnn,leveltemp,nlev)
       nlev=derivedpointers%nlevs(jkk_ion)
       if (lpri.ge.1) then 
         write (lun11,*)'      nlev=',nlev
@@ -154,9 +158,9 @@
       ml_data_type=0 
       do while (ml_data_type.lt.ntyp) 
 !
+        ml_data_type=ml_data_type+1 
         if (lpri.gt.1)                                                  &
      &   write (lun11,*)'ml_data_type=',ml_data_type
-        ml_data_type=ml_data_type+1 
 !
 !       loop over data
         ml_data=derivedpointers%npfi(ml_data_type,jkk_ion) 
@@ -188,7 +192,7 @@
             tau1=0.
             tau2=0.
             if (lrtyp.eq.4) then
-              kkkl=derivedpointers%nplini(ml) 
+              kkkl=derivedpointers%nplini(ml_data) 
               if ((kkkl.gt.0).and.(kkkl.le.nnnl)) then
                 tau1=tau0(1,kkkl) 
                 tau2=tau0(2,kkkl) 

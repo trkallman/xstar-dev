@@ -82,9 +82,9 @@
 !
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
       character(49) kdesc(ntyp),kdesc2 
@@ -289,6 +289,8 @@
       data kdesc(97)/' CI rates from inner shells from palmeri 2016   '/ 
       data kdesc(98)/' chianti2016 collisional rates                  '/ 
       data kdesc(99)/' old type 70                                    '/ 
+
+      save kdesc,ergsev,krdesc,pi,c,luse8,bk,opcrit
                                                                         
       javir=trad 
 !      trad=javir                                                       
@@ -2316,7 +2318,7 @@
 !      tz=max(tz,(1.e+4)*eth/(0.861707)/50.)                            
 !      tz=max(tz,2.320975e+02*eth)                                      
       e1=leveltemp%rlev(1,idest1) 
-      ep=leveltemp%rlev(4,idest1) 
+      ep=leveltemp%rlev(4,idest1)-e1
       if (ep.le.0.) go to 9000 
       call calt57(tz,xnx,e1,ep,i57,cion,crec,lun11,lpri) 
       if (lpri.gt.1)                                                    &

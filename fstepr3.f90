@@ -42,9 +42,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
       real(4) rtmp 
@@ -85,6 +85,7 @@
       integer jkk3,nlevp,ndtmp,iltmp,lcon2,lrtyp2,ltyp2,                &
      &         np1r2,nrdt2,np1i2,nidt2,np1k2,nkdt2                      
       real(8) ett 
+      integer nnzz,nnnn
                                                                         
 !     Database manipulation quantities                                  
       integer nkdt 
@@ -103,6 +104,8 @@
                                                                         
       data tunit/' ',' ','ev',' ',' ',' ','erg/cm^3/s',                 &
      & 'erg/cm^3/s','erg/cm^3/s','/cm',' ',' '/                         
+
+       save kblnk,kblnk20,tform,ttype,tunit
                                                                         
      allocate(rwrk1(nptmpdim))
      allocate(rwrk3(nptmpdim))
@@ -185,6 +188,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidti-2) 
@@ -197,7 +202,7 @@
 !                                                                       
 !               now find level data                                     
                 call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               now step through rate type 7 data                       
                 mltype=7 

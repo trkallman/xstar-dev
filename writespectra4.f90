@@ -49,9 +49,9 @@
 !     passed parameters                                                 
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
       character(30) kmodelname 
@@ -97,6 +97,8 @@
 !                                                                       
       data kblnk/' '/ 
       data kblnk16/'                '/ 
+
+       save kblnk,kblnk16
                                                                         
       ALLOCATE(rsv1(nnml))
       ALLOCATE(rsv2(nnml))

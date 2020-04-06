@@ -64,9 +64,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     energy bins                                                       
@@ -127,6 +127,7 @@
      &        nit,nit2,nit3,nitmx,nitmx2,lprim,ipmat2,ipmat
 !                                                                       
       data kblnk/' '/ 
+      save kblnk
 !                                                                       
 !      allocate(ajisi(2,ndb))
 !      allocate(ajise(2,ndb))
@@ -155,6 +156,7 @@
         nsup(mm)=0 
         enddo 
 !
+
 !
 !     lfpi value: photoionization and recombination, no opacities       
       lfpi=2 
@@ -228,6 +230,7 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
+
 !     calculate ion fractions
       call istruc(pirti,rrrti,xitp,nnz,lpri,lun11) 
 !
@@ -369,6 +372,8 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
+
+!
       nindbe=nindbi
 !
 !     more superlevels
@@ -412,6 +417,8 @@
      &  write (13,981)zeta,t,ipmat2,jk,abs(tt2-tt1),nit,nit2,nit3,      &
      &        ht,cl         
 !
+
+
 !     now map back to element abundances
 !     step thru ions
       ml_ion=derivedpointers%npfirst(ml_ion_data_type)
@@ -480,6 +487,8 @@
 !       end of loop over ions
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
+
+
 !
       if (lpri.gt.0) write (lun11,*)'leaving calc_hmc_element'
 !

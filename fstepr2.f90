@@ -39,9 +39,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     Allocation for passed parameters                                  
@@ -74,6 +74,7 @@
       character(33) extname 
       character(20) klablo,klabup 
       character(9) kinam1 
+      integer nnzz,nnnn
                                                                         
 !     Database manipulation quantities                                  
       integer nkdt 
@@ -91,6 +92,10 @@
                                                                         
       data tunit/' ','A',' ',' ',' ','erg/cm^3/s',                      &
      & 'erg/cm^3/s','/cm',' ',' '/                                      
+!
+       save kblnk,kblnk20,tform,ttype,tunit
+
+
 !                                                                        
       allocate(rwrk1(nptmpdim))
       allocate(ntptr(nptmpdim))
@@ -171,12 +176,14 @@
             do ktt=nkdt+1,9 
               write (kinam1(ktt:ktt),'(a1)')kblnk 
               enddo 
+            nnzz=masterdata%idat1(np1i+1)
+            nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !           now find level data                                         
             jkk=masterdata%idat1(np1i+nidt-1) 
             if (lpri.gt.0) write (lun11,*)'ion',kinam1,jkk 
             call calc_rates_level_lte(jkk,lpri,lun11,temp,xee,xpx,      &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
                                                                         
             ggup=leveltemp%rlev(2,idest1) 
             gglo=leveltemp%rlev(2,idest2) 

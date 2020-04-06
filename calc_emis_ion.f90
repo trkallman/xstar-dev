@@ -67,9 +67,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     energy bins                                                       
@@ -113,9 +113,12 @@
      &        llo,lup,ltyp,jkk_ion,                                     &
      &        lrtyp,lcon,nrdt,nidt,nkdt,kkkl,jkkl,                      &
      &        ml_data,ml_ion,ml_data_type,ml_data_par,mm
+      integer nnzz,nnnn
 !                                                                       
       data kblnk/' '/ 
+      save kblnk
       data ergsev/1.602197e-12/
+      save ergsev
 !     
       lprisv=lpri
 !      if (lpri.ge.1) lpri=2
@@ -134,6 +137,8 @@
       call drd(ltyp,lrtyp,lcon,                                         &
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_ion,                 &
      &            0,lun11)                                        
+      nnzz=masterdata%idat1(np1i+1)
+      nnnn=nnzz-masterdata%idat1(np1i)+1
       jkk_ion=masterdata%idat1(np1i+nidt-1)
       if (lpri.ge.1)                                                    &
      &            write (lun11,903)jkk_ion,ml_ion,                      &
@@ -141,7 +146,7 @@
 903             format (1x,'      ion:',i12,1x,i12,1x,8(1a1))
 !
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !
       if (lpri.gt.1) then 
                   write (lun11,*)'      index level        energy',     &

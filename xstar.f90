@@ -10,9 +10,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     global xstar data
@@ -302,7 +302,7 @@
         endif 
 !                                                                       
       lprisv=lpri 
-      lpri=0 
+      lpri=0
       call ener(epi,ncn2) 
       do mm=1,ncn2 
         zremsz(mm)=0. 
@@ -503,7 +503,7 @@
              delr=0. 
              ectt=1. 
              jk=jkp 
-             lpris=0 
+             lpris=0
              if (jk.gt.1)                                               &
      &         call step(ectt,emult,epi,ncn2,opakc,rccemis,fline,       &
      &           zrems,lpris,delr,dpthc,r,                              &
@@ -527,7 +527,7 @@
 !         calculate temperature, ionization, etc.                       
           lpri2=0
 !          if (jkp.eq.1) lpri2=1
-          lprid=1
+          lprid=0
           call xstarcalc(lpri2,lnerrd,nlimd,                            &
      &            lpri3,lprid,lunlog,tinf,vturbi,critf,                 &
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
@@ -640,7 +640,6 @@
 !          All done looping over the radial zones                        
            enddo 
 !
-
           if (kk.eq.1) numrec=jkp 
 !
 !       another printout to get the last step                           
@@ -747,8 +746,26 @@
       write (lunlog,*)' ' 
 !                                                                       
 !
-      do mm=1,19
-        call pprint(nlprnt(mm),                                      &
+      call pprint(22,jkp,trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,            &
+     &            numrec,npass,nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,    &
+     &            zremsz,epi,ncn2,abel,cfrac,emult,taumax,xeemin,       &
+     &            spectype,specfile,specunit,kmodelname,nloopctl,       &
+     &            nparms,parname,partype,parms,parcomm,atcredate,       &
+     &            lunlog,tinf,xcol,vturbi,critf,radexp,                 &
+     &            delr,rdel,enlum,xee,ababs,                            &
+     &            bremsa,bremsint,tau0,dpthc,tauc,                      &
+     &            ncsvn,nlsvn,                                          &
+     &            ntotit,lnerrd,                                        &
+     &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
+     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            httot2,cltot2,                                        &
+     &              xilevg,bilevg,rnisg,                                &
+     &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
+     &            cabab,elumab,elum,zrems,                              &
+     &            zrtmp,zrtmpcol,zrtmph,zrtmpc)                            
+      if (lpri.ge.0) then
+      do mm=2,19
+        call pprint(nlprnt(mm),                                         &
      &                      jkp,trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,     &
      &            numrec,npass,nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,    &
      &            zremsz,epi,ncn2,abel,cfrac,emult,taumax,xeemin,       &
@@ -767,18 +784,19 @@
      &            cabab,elumab,elum,zrems,                              &
      &            zrtmp,zrtmpcol,zrtmph,zrtmpc)                            
          enddo
+         endif
                 
       close(13)                               
 !                                                                       
 !     Write spectral data file xout_spect1.fits                         
-      if (lwri.ge.0) then 
       write(6,*)'xstar: Prepping to write spectral data ' 
       lpril=0
-      call writespectra(lunlog,lpril,nparms,parname,partype,parms,   &
+      call writespectra(lunlog,lpril,lwri,nparms,parname,partype,parms, &
      &        parcomm,atcredate,t,vturbi,epi,ncn2,dpthc,                &
      &        nlsvn,                                                    &
      &        elum,zrems,zremsz,kmodelname,nloopctl)            
       write (lunlog,*)'after writespectra' 
+      if (lwri.ge.0) then 
       lpril=0
       call writespectra2(lunlog,lpril,nparms,parname,partype,parms,  &
      &        parcomm,atcredate,epi,ncn2,dpthc,                         &

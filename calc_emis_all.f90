@@ -76,9 +76,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     line emissivities                                                 
@@ -116,9 +116,11 @@
       integer ml_element_data_type,ml_element                    
       integer np1ki,nkdti,ml_ion,ml_ion_data_type,ml_element_test
       integer ipmatmax
+      integer nnzz,nnnn
       real(8) sigth,xnx
 !                      
       data sigth/6.65e-25/                                                 
+      save sigth
 !            
       lprisv=lpri 
       if (lpri.ge.1)                                                    &
@@ -220,6 +222,8 @@
      &            write (lun11,903)jkk_ion,ml_ion,                      &
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)
 903             format (1x,'      ion:',i12,1x,i12,1x,8(1a1))
+                nnzz=masterdata%idat1(np1i+1)
+                nnnn=nnzz-masterdata%idat1(np1i)+1
 !                                                                       
 !               get level data                                          
                 nlev=derivedpointers%nlevs(jkk)
@@ -233,7 +237,7 @@
                   enddo
                 if (lpri.ge.1) then 
                   call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,   &
-     &                                      leveltemp,nlev)
+     &                                      nnzz,nnnn,leveltemp,nlev)
                   write (lun11,*)'jkk=',jkk
                   write (lun11,*)'after calc_rates_level_lte nlev=',nlev
                   write (lun11,*)'nlev,ipmat=',nlev,ipmat

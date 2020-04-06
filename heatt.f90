@@ -65,9 +65,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     line emissivities                                                 
@@ -114,7 +114,9 @@
 !                                                                       
       data kblnk/' '/ 
       data ergsev/1.602197e-12/ 
+      save ergsev
 !                                                                       
+      save kblnk
 !                                                                       
       lprisv=lpri 
 !                                                                       
@@ -317,7 +319,7 @@
      &                  0,lun11)                                  
                       nlev=masterdata%idat1(np1i+nidt-2) 
                       nlevmx=max(nlevmx,nlev) 
-                      if ((nlev.gt.0).and.(nlev.le.nd)) then 
+                      if ((nlev.gt.0).and.(nlev.le.ndl)) then 
                         do  lk=1,nrdt 
                           leveltemp%rlev(lk,nlev)                       &
      &                        =masterdata%rdat1(np1r+lk-1) 

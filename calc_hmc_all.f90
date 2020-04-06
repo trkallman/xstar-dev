@@ -97,9 +97,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     line optical depths                                               
@@ -144,6 +144,7 @@
      &     nnz,mlm,np1i,np1r,np1k,lprisv                 
       integer ml_element_data_type,ml_element           
       integer ml_ion_data_type,ml_ion,ml_element_test,ml
+      integer nnzz,nnnn
 !                                                                       
 !            
       lprisv=lpri 
@@ -186,7 +187,6 @@
         xeltp=0. 
         jk=masterdata%idat1(np1i)
         nnz=masterdata%idat1(np1i+nidt-2)
-!        write (lun11,*)'jk=',jk,nnz,abel(jk)
         if (jk.gt.0) xeltp=abel(jk) 
         if (xeltp.gt.1.d-24) then 
 !
@@ -270,6 +270,7 @@
      &                 np2,ncsvn,nlsvn,                                 &
      &                 rnise,bileve,xileve,cl,ht,xii,rrrti,pirti)
 !
+!
 !                                                                       
 !         step thru levels and store populations
 !         test if first ion pointer
@@ -293,6 +294,8 @@
                 call drd(ltyp,lrtyp,lcon,                               &
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                    &
      &            0,lun11)                                        
+                nnzz=masterdata%idat1(np1i+1)
+                nnnn=nnzz-masterdata%idat1(np1i)+1
                 klion=masterdata%idat1(np1i)
                 jkk=masterdata%idat1(nidt+np1i-1)
                 xiin(jkk)=xii(klion)
@@ -326,7 +329,7 @@
                 if (lpri.ge.1) then 
                   write (lun11,*)'level populations:' 
                   call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,   &
-     &                       leveltemp,nlev)
+     &                       nnzz,nnnn,leveltemp,nlev)
                   do mm=1,nlev 
                     write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)&
      &                       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),&
@@ -386,6 +389,5 @@
 !                                                                       
       lprisv=lpri 
 !         
-!                                                                       
       return 
       end                                           

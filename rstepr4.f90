@@ -68,6 +68,8 @@
      &  'fwd dpth','bck dpth'/                                                                                                                              
       data tunit/' ','ev','erg/s','erg/s','erg/s','erg/s',              &
      &   'erg/s','/cm','erg/cm**3/s','erg/cm**3/s',' ',' '/
+!
+       save kblnk,tform,ttype,tunit
 !                                                                       
       status=0
       if (lpri.gt.0)                                                    &

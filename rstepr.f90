@@ -61,6 +61,7 @@
                                                                         
       data tunit/' ','ev','/cm',' ',' '/ 
                                                                         
+       save kblnk,tform,ttype,tunit
 !                                                                       
       if (lpri.gt.0)                                                    &
      & write (lun11,*)'in rstepr ',hdunum,unit,nhdu

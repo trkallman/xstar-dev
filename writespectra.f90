@@ -1,4 +1,4 @@
-      subroutine writespectra(lun11,lpri,nparms,                     &
+      subroutine writespectra(lun11,lpri,lwri,nparms,                   &
      &       parname,partype,parval,parcomm,atcredate,                  &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
      &       nlsvn,                                                     &
@@ -72,7 +72,7 @@
       integer unit,istatus 
       integer nlsvn, ll 
       integer tbcol(6), nrows, rowlen, kk 
-      integer frow, felem, colnum, tfields, status, verbose,mm 
+      integer frow, felem, colnum, tfields, status, verbose,mm,lwri
       real(8) eliml, elimh 
       real(8) vturbi 
 !     the atomic data creation date                                     
@@ -88,6 +88,8 @@
 !
       data kblnk16/'                '/ 
 !                                                                       
+       save kblnk16
+
       ALLOCATE(rtmp(ncn))
       ALLOCATE(zrtmp(5,ncn))
 !                                                                       
@@ -129,7 +131,8 @@
           zrtmp(mm,ll)=zrems(mm,ll)
           enddo
         enddo
-      call binemis(lun11,lpri,xlum,                                     &
+      if (lwri.ge.0)                                                    &
+     & call binemis(lun11,lpri,xlum,                                    &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
      &       nlsvn,                                                     &      
      &       eliml,elimh,elum,zrems,zremsz)

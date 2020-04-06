@@ -1,4 +1,4 @@
-      subroutine step(ectt,emult,epi,ncn2,opakc,rccemis,fline,       &
+      subroutine step(ectt,emult,epi,ncn2,opakc,rccemis,fline,          &
      &  zrems,lpri,delr,dpthc,r,                                        &
      &  xpxcol,xcol,xpx,taumax,numrec0,lun11)                           
 !                                                                       
@@ -65,13 +65,13 @@
             if ( tst.lt.delr ) klmn = kl 
             delr = min(delr,tst) 
             endif 
-         if (lpri.gt.0) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
+         if (lpri.gt.1) write (lun11,*)kl,epi(kl),opakc(kl),zrems(1,kl),&
      &          rccemis(1,kl),rccemis(2,kl),fline(1,kl),dell,tst,       &
      &          dpthc(1,kl),delr                                        
          enddo 
       delrmn=(xpxcol-xcol)/xpx 
       delr=min(delr,delrmn) 
-      if ( lpri.ge.1 ) write (lun11,*)'in step',emult,                  &
+      if ( lpri.ge.1 ) write (lun11,*)'in step',emult,numrec0,r/numrec0,&
      &   delr,epi(klmn),ectt,rmax,xpxcol,xpx,xcol,delrmn                
       lpri=lprisv 
 !                                                                       

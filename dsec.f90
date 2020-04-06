@@ -87,9 +87,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     line emissivities                                                 
@@ -145,11 +145,11 @@
 !                                                                       
       if (lpri.gt.0) write (lun11,*)'in dsec' 
 !                                                                       
-      crite=1.e-03 
-!      crite=1.e-06                                                     
-      crith=1.e-02 
+!      crite=1.e-03 
+      crite=1.e-06                                                     
+!      crith=1.e-02 
 !      crith=5.e-03                                                     
-!      crith=1.e-05                                                     
+      crith=1.e-05                                                     
       critt=2.e-09 
 !                                                                       
       ntotit=0 

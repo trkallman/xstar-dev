@@ -97,6 +97,8 @@
       data kblnk16/'                '/ 
       data kblnk20/'                    '/ 
 !                                                                       
+       save kblnk,kblnk16,kblnk20
+
       if (nlsvn.le.5) return 
                                                                         
       javir=epi(1) 
