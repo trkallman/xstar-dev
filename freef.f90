@@ -1,4 +1,5 @@
-      subroutine freef(lpri,lun11,epi,ncn2,t,xpx,xee,opakc) 
+      subroutine freef(lpri,lun11,epi,ncn2,bremsa,t,xpx,xee,opakc,      &
+     &     htfreef) 
 !                                                                       
 !     Name: freef.f90
 !     Description:
@@ -22,14 +23,15 @@
       use globaldata
       implicit none 
 !                                                                       
-      real(8) opakc(ncn),epi(ncn) 
+      real(8) opakc(ncn),epi(ncn) , bremsa(ncn)
       real(8) t, opaff, ekt, t6, temp 
       real(8) xpx, xee, xnx, enz2, cc 
-      real(8)  gau,  zz, gam
+      real(8)  gau,  zz, gam, htfreef, ergsev, opaffo
       integer numcon,lpri,lun11,ncn2,kk 
 !                                                                       
 !                                                                       
       data cc/2.614e-37/ 
+      data ergsev/1.602197e-12/
 !                                                                       
       if (lpri.gt.0) write (lun11,*)'in freef',t 
 !                                                                       
@@ -39,6 +41,8 @@
       t6 = t/100. 
       enz2=(1.4)*xnx 
       zz=1. 
+      opaff=0.
+      htfreef=0.
       do kk=1,numcon 
          temp = epi(kk)/ekt 
          gam = zz*zz*(0.158)/t6 
@@ -48,9 +52,13 @@
 !     1    gau = 10.**(0.2258*epi(kk)**(0.08)*(4.094-log10(epi(kk)))    
 !     2      +log10(t6)*(0.133*(4.094-log10(epi(kk)))-0.2)-0.538)   !JG 
                                                                         
+         opaffo=opaff
          opaff = cc*xnx*enz2*gau/sqrt(t)/epi(kk)**3.                    &
      &           *(1. - exp(-temp))                                     
-                                                                        
+
+         if (kk.gt.1)                                                   &
+     &    htfreef=htfreef+(bremsa(kk)*opaff+bremsa(kk-1)*opaffo)        &
+     &                  *ergsev*(epi(kk)-epi(kk-1))/2.
          opakc(kk) = opakc(kk) + opaff 
 !                                                                       
 !!! THIS IS A TEST                                                      

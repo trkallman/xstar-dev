@@ -109,7 +109,10 @@
      &     lenact,mlline,ncsvn,lkdat,lkdato,nlnsv(nni),ntmp,nilino      
       integer miso,miso2,mel,m4,msvtmp(30),mkk,m3 
       integer mlold(ntyp)
+      integer ndation(nni)
       integer nnzz,nnnn
+      integer jkk_ion,ml_element_data_type,ml_element,ml_ion_data_type, &
+     &   ml_ion,ml_element_test,ml_data_type,ml_data,ml_data_par
 !                                                                       
       character(50) kblnk20 
       character(48) kdesc(ntyp) 
@@ -507,7 +510,7 @@
 !
         write (6,*)'linst=11',np2 
         mlt=1 
-        lun8=6 
+        lun8=lun11
         ltyp=0 
  5013     continue 
           ml=nptrt(mlt) 
@@ -533,6 +536,8 @@
         deallocate(idat)
         deallocate(rdat)
         deallocate(kdat)
+!
+        stop 'linst=11'
 !
         endif 
 !                                                                       
@@ -619,9 +624,10 @@
 !     print out levels                                                  
       if (linst.eq.22) then 
                                                                         
+        write (lun11,*)'level list'
 !       First look for element data (jk is element index)               
         klel=11 
-        lpril=0 
+        lpril=2
         mlel=derivedpointers%npfirst(klel) 
         jk=0 
 !                                                                       
@@ -630,7 +636,7 @@
 !                                                                       
 !         get element data                                              
           jk=jk+1 
-          mt2=mlel-1 
+          mt2=mlel 
           call drd(ltyp,lrtyp,lcon,                                     &
      &      nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                          &
      &      0,lun11)                                              
@@ -639,18 +645,21 @@
           xeltp=masterdata%rdat1(np1r) 
           if (lpril.ne.0)                                               &
      &        write (lun11,*)'element:',jk,mlel,mllel,nnz,              &
-     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt),xeltp            
+     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt),abel(jk)
 !                                                                       
-!         now step thru ions (jkk is ion index)                         
-          klion=12 
-          mlion=derivedpointers%npfirst(klion) 
-          jkk=0 
-          kl=0 
-          do while ((mlion.ne.0).and.(kl.lt.nnz)) 
+!         test for element abundance
+          if (abel(jk).gt.1.e-34) then
+
+!           now step thru ions (jkk is ion index)                         
+            klion=12 
+            mlion=derivedpointers%npfirst(klion) 
+            jkk=0 
+            kl=0 
+            do while ((mlion.ne.0).and.(kl.lt.nnz)) 
 !                                                                       
               jkk=jkk+1 
 !             retrieve ion name from kdati                              
-              mlm=mlion-1 
+              mlm=mlion 
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                  &
      &            0,lun11)                                        
@@ -709,6 +718,9 @@
               mlion=derivedpointers%npnxt(mlion) 
               enddo 
 !                                                                       
+!           end of test for element abundance
+            endif
+!
 !         Go to next element                                            
           if (mlel.ne.0) mlel=derivedpointers%npnxt(mlel) 
           enddo 
@@ -1060,6 +1072,112 @@
 !
            endif 
 !                                                                       
+!       count data records per ion
+        if (linst.eq.28) then 
+
+!
+!          lpri=2
+!
+          do ml=1,nni 
+            ndation(ml)=0 
+            enddo 
+
+!         step thru elements                         
+          ml_element_data_type=11 
+          ml_element=derivedpointers%npfirst(ml_element_data_type) 
+          do while (ml_element.ne.0) 
+!
+!           get data for this element
+            call drd(ltyp,lrtyp,lcon,                                   &
+     &         nrdt,np1r,nidt,np1i,nkdt,np1k,ml_element,                &
+     &         0,lun11)                                               
+!            call dprinto(ltyp,lrtyp,lcon,                               &
+!     &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)   
+!
+            if (lpri.gt.1)                                              &
+     &        write (lun11,902)jk,ml_element,nnz,                       &
+     &          (masterdata%kdat1(np1k-1+mm),mm=1,min(8,nkdt))
+902           format (1x,'  element:',3(i12,1x),8(1a1))
+!
+!           step thru ions 
+!           test if first ion pointer
+            ml_ion_data_type=12
+            ml_ion=derivedpointers%npfirst(ml_ion_data_type)
+            do while (ml_ion.ne.0) 
+!
+              if (lpri.gt.1)                                            &
+     &           write (lun11,*)'ml_ion=',ml_ion
+!
+              ml_element_test=derivedpointers%npar(ml_ion)
+              if (lpri.gt.1)                                            &
+     &          write (lun11,*)'ml_element_test=',ml_element_test,      &
+     &            ml_element
+!             test if belongs to element
+              if (ml_element_test.eq.ml_element) then
+!
+                call drd(ltyp,lrtyp,lcon,                               &
+     &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_ion,                 &
+     &            0,lun11)                                               
+                jkk_ion=masterdata%idat1(nidt+np1i-1)
+!               step thru data types
+                ml_data_type=0 
+                do while (ml_data_type.lt.ntyp) 
+
+                  ml_data_type=ml_data_type+1 
+                  if (lpri.gt.1)                                        &
+     &             write (lun11,*)'ml_data_type=',ml_data_type
+!
+!                 loop over data
+                  ml_data=derivedpointers%npfi(ml_data_type,jkk_ion) 
+                  if (lpri.gt.1)                                        &
+     &             write (lun11,*)'ml_data=',ml_data_type,ml_ion,       &
+     &               jkk_ion,ml_data  
+                  ml_data_par=0
+                  if (ml_data.ne.0)                                     &
+     &                 ml_data_par=derivedpointers%npar(ml_data)
+                  if (lpri.gt.1)                                        &
+     &                write (lun11,*)'ml_data_par=',ml_data,            &
+     &                    ml_data_par,ml_ion
+                  do while ((ml_data.ne.0).and.(ml_data_par.eq.ml_ion)) 
+!
+!                   step thru records of this type                   
+                    call drd(ltyp,lrtyp,lcon,                           &
+     &                      nrdt,np1r,nidt,np1i,nkdt,np1k,ml_data,      &
+     &                      0,lun11)     
+                    if (.not.((lrtyp.eq.11).or.(lrtyp.eq.12)).or.       &
+     &                   (lrtyp.eq.13))                                 &
+     &                ndation(jkk_ion)=ndation(jkk_ion)+1       
+!
+!                   end of step thru this data type
+                    ml_data=derivedpointers%npnxt(ml_data)
+                    ml_data_par=0
+                    if (ml_data.ne.0)                                   &
+     &                 ml_data_par=derivedpointers%npar(ml_data)
+                    enddo
+!
+!                 end of step thru data types
+                  enddo
+!
+!               end of test if belongs to element
+                endif
+!
+!             end of step thru ions 
+              ml_ion=derivedpointers%npnxt(ml_ion)
+              enddo
+!
+!           end of step thru elements                         
+            ml_element=derivedpointers%npnxt(ml_element)
+            enddo
+!
+!         print out
+          write (lun11,*)'records per ion'
+          do ml=1,nni 
+            write (lun11,*)ml,ndation(ml)
+            enddo 
+
+!
+!         end of test if linst
+          endif
 !                                                                       
 !       set up pointers
         if (linst.eq.7) then 

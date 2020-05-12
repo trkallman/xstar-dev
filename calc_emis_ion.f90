@@ -4,9 +4,9 @@
      &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
-     &       xilevi,bilevi,rnisi,                                       &
+     &       xileve,bileve,rnise,ipmat,                                 &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc,nlbin,ncbin)                         
 !                                                                       
 !                                                                       
 !     Name: calc_emis_ion.f90  
@@ -87,8 +87,7 @@
 !     line optical depths                                               
       real(8) tau0(2,nnnl) 
       real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
-      real(8) xilevi(nd),rnisi(nd),bilevi(nd)
-      real(8) rnisse(nd)
+      real(8) xileve(nd),rnise(nd),bileve(nd)
 !     element abundances                                                
 !     state variables                                                   
       real(8) r,t,xpx,delr 
@@ -98,22 +97,26 @@
       real(8) vturbi,xee 
       integer ncn2,lpri,lun11,lfpi,np2,lcdd
       integer nlsvn,ncsvn 
+      integer ipmat
       character(49) kdesc2 
       real(8) tsq,ans1,ans2,xh1,xh0,cfrac,critf,p,xeltp
       real(8) abund1,abund2,ptmp1,ptmp2,ans3,ans4,ans5,ans6,opakb1 
       integer idest1,idest2,idest3,idest4
 !     continuum flux                                                    
       real(8) tauc(2,nnml) 
+      real(8) elin(nnnl)
+      real(8) errc(nnml)
+      integer nlbin(nrank,ncn),ncbin(nrank,ncn)
 !                                                                       
       character(1) kblnk 
-      real(8) tau1,tau2,e1,e2,pescl,pescv,eth 
-      real(8) htt,cll,ergsev,rcemm
+      real(8) tau1,tau2,e1,e2,pescl,pescv,eth,ener
+      real(8) htt,cll,ergsev,rcemm,cemtmp1,cemtmp2
       integer np1i,np1r,np1k 
       integer nlev,ml,lpriu,lprisv,                                     &
      &        llo,lup,ltyp,jkk_ion,                                     &
      &        lrtyp,lcon,nrdt,nidt,nkdt,kkkl,jkkl,                      &
      &        ml_data,ml_ion,ml_data_type,ml_data_par,mm
-      integer nnzz,nnnn
+      integer nnzz,nnnn,nbinc,nb1
 !                                                                       
       data kblnk/' '/ 
       save kblnk
@@ -154,7 +157,7 @@
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
      &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
-     &       xilevi(mm),rnisi(mm)                                    
+     &       xileve(mm+ipmat),rnise(mm+ipmat)                                    
  9022     format (4x,i4,1x,20a1,4(1pe10.3)) 
           enddo 
         endif 
@@ -183,91 +186,201 @@
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_data,                &
      &            0,lun11)     
 !
+!         test if rate type 7
           if (ml_data_type.eq.7) then
+!
+!           test if continuum pointer ok
             idest1=masterdata%idat1(np1i+nidt-2) 
             idest2=nlev+masterdata%idat1(np1i-1+nidt-3)-1 
             kkkl=derivedpointers%npconi2(ml_data) 
+!            if (lpri.ne.0) write (lun11,*)'testing 7:',kkkl,idest1,     &
+!     &        errc(kkkl)
             if ((kkkl.ne.0).and.(kkkl.le.ndat2)                         &
-     &         .and.(idest1.gt.0)) then                                     
-              llo=idest1
-              lup=idest2
-              eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
-              abund1=xilevi(llo)*xeltp 
-              abund2=xilevi(lup)*xeltp 
-              tau1=tauc(1,kkkl) 
-              tau2=tauc(2,kkkl) 
-              ptmp1=pescv(tau1)*(1.-cfrac)                                    
-              ptmp2=pescv(tau2)*(1.-cfrac)                           &
+     &         .and.(idest1.gt.0)) then 
+!
+              if ((errc(kkkl).gt.epi(1)).and.(errc(kkkl).lt.epi(ncn2))) &
+     &           then                                    
+!
+                llo=idest1+ipmat
+                lup=idest2+ipmat
+!                eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
+                eth=12398.54/errc(kkkl)
+                nb1=nbinc(eth,epi,ncn2) 
+                if (lpri.gt.1) write (lun11,*)'testing rrc in func3',   &
+     &            kkkl,errc(kkkl),nb1,ncbin(1,nb1),ncbin(2,nb1)
+!
+!               test to see if in strong rrc list
+                mm=1
+                if (lpri.ge.2) write (lun11,*)'test to see if in list', &
+     &              mm,kkkl,ncbin(mm,nb1)
+                do while ((ncbin(mm,nb1).ne.0).and.                     &
+     &            (ncbin(mm,nb1).ne.kkkl).and.(mm.lt.nrank))
+                  mm=mm+1
+                  if (lpri.gt.1) write (lun11,*)mm,kkkl,ncbin(mm,nb1)
+                  enddo
+!               nb a fudge for testing
+!               ncbin(mm,nb1)=kkkl        
+                if ((ncbin(mm,nb1).eq.kkkl)                             &
+     &           .or.(ncbin(1,nb1).eq.9999999)) then
+!
+                  abund1=xileve(llo)*xeltp 
+                  abund2=xileve(lup)*xeltp 
+                  tau1=tauc(1,kkkl) 
+                  tau2=tauc(2,kkkl) 
+                  ptmp1=pescv(tau1)*(1.-cfrac)                                    
+                  ptmp2=pescv(tau2)*(1.-cfrac)                          &
      &            +2.*pescv(tau1+tau2)*cfrac 
-              lpriu=lpri
-              call ucalc(                                               &
-     &            ltyp,lrtyp,ml_data,lcon,jkk_ion,vturbi,cfrac,         &
-     &            nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,              &
-     &            ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,      &
-     &            abund1,abund2,ptmp1,ptmp2,xpx,opakab(kkkl),           &
-     &            opakc,opakcont,rccemis,lpriu,kdesc2,                  &
-     &            r,delr,t,trad,tsq,xee,xh1,xh0,                        &
-     &            epi,ncn2,bremsa,bremsint,                             &
-     &            leveltemp,                                            &
-     &            rnisi,rnisse,nlev,lfpi,lun11,                         &
-     &            np2,ncsvn,nlsvn)               
-              cabab(kkkl)=ans3 
-              cabab(kkkl)=cabab(kkkl)*abund1*xpx 
-              cemab(1,kkkl)=ptmp1*ans4/(ptmp1+ptmp2) 
-              cemab(2,kkkl)=ptmp2*ans4/(ptmp1+ptmp2) 
-              cemab(1,kkkl)=cemab(1,kkkl)*abund2*xpx 
-              cemab(2,kkkl)=cemab(2,kkkl)*abund2*xpx 
-              cll=cll+cemab(1,kkkl)+cemab(2,jkkl) 
-              htt=htt+abund1*ans3 
-              if (lpri.ge.1)                                            &
+                  lpriu=lpri
+                  ans1=0.
+                  ans2=0.
+                  ans3=0.
+                  ans4=0.
+                  ans5=0.
+                  ans6=0.
+                  call ucalc(                                           &
+     &              ltyp,lrtyp,ml_data,lcon,jkk_ion,vturbi,cfrac,       &
+     &              nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,            &
+     &              ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,    &
+     &              abund1,abund2,ptmp1,ptmp2,xpx,opakab(kkkl),         &
+     &              opakc,opakcont,rccemis,lpriu,kdesc2,                &
+     &              r,delr,t,trad,tsq,xee,xh1,xh0,                      &
+     &              epi,ncn2,bremsa,bremsint,                           &
+     &              leveltemp,                                          &
+     &              nlev,lfpi,lun11,                                    &
+     &              np2,ncsvn,nlsvn)             
+                  if (lpri.ge.1)                                        &
      &            write (lun11,9002)jkk_ion,lrtyp,ltyp,                 &
      &              idest1,idest2,llo,lup,ml_data,ans1,ans2,            &
      &              ans3,ans4,cemab(1,kkkl)+cemab(2,kkkl),              &
      &              opakab(kkkl),eth,                                   &
-     &              kkkl,htt,cll,ptmp1,ptmp2                           
+     &              kkkl,htt,cll,ptmp1,ptmp2,abund1,abund2                                   
  9002             format (7x,7i6,i12,' h-c ',                           &
-     &              7(1pe10.3),i12,2(1pe10.3),4(1pe10.3))                    
+     &              7(1pe10.3),i12,2(1pe10.3),6(1pe10.3))               
+!
+!                 end of test if rrc in strong list
+                  endif     
+!
+!              end of test if rrc energy in range
+               endif
+!
+!             end of test if continuum pointer ok
               endif
+!
+!           end of test if rate type 7
             endif
 !
+!         test if rate type 9
+          if (ml_data_type.eq.9) then
+!
+!           test if pointer ok
+            idest1=masterdata%idat1(np1i) 
+            idest2=masterdata%idat1(np1i+1) 
+!            write (lun11,*)ml,ltyp,lrtyp,idest1,idest2,jkkl,nlev
+            if ((masterdata%rdat1(np1r).gt.0.01)                        &
+     &        .and.(idest1.gt.0).and.(idest2.gt.0).and.                 &
+     &        (idest1.lt.nlev).and.(idest2.lt.nlev)) then                 
+!
+                  llo=idest1+ipmat
+                  lup=idest2+ipmat
+                  eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
+                  nb1=nbinc(eth,epi,ncn2) 
+!
+                  abund1=xileve(llo)*xeltp*xpx
+                  abund2=xileve(lup)*xeltp*xpx
+                  tau1=0.
+                  tau2=0.
+                  ptmp1=                                                &
+     &             pescl(tau1)*(1.-cfrac)                                    
+                  ptmp2=pescl(tau2)*(1.-cfrac)+2.*pescl(tau1+tau2)*cfrac 
+                  lpriu=lpri
+                  ans1=0.
+                  ans2=0.
+                  ans3=0.
+                  ans4=0.
+                  ans5=0.
+                  ans6=0.
+                  call ucalc(                                           &
+     &              ltyp,lrtyp,ml_data,lcon,jkk_ion,vturbi,cfrac,       &
+     &              nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,            &
+     &              ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,    &
+     &              abund1,abund2,ptmp1,ptmp2,xpx,opakab(kkkl),         &
+     &              opakc,opakcont,rccemis,lpriu,kdesc2,                &
+     &              r,delr,t,trad,tsq,xee,xh1,xh0,                      &
+     &              epi,ncn2,bremsa,bremsint,                           &
+     &              leveltemp,                                          &
+     &              nlev,lfpi,lun11,                                    &
+     &              np2,ncsvn,nlsvn)             
+                  cemtmp1=abund2*ptmp1*ans4 
+                  cemtmp2=abund2*ptmp2*ans4 
+                  if (lpri.ge.1)                                        &
+     &            write (lun11,9002)jkk_ion,lrtyp,ltyp,                 &
+     &              idest1,idest2,llo,lup,ml_data,ans1,ans2,            &
+     &              ans3,ans4,cemtmp1+cemtmp2,opakb1,eth,               &
+     &              jkkl,htt,cll,ptmp1,ptmp2,abund1,abund2                                   
+!
+!                 end of test if continuum pointer ok
+                  endif
+!
+!           end of test if rate type 9
+            endif
+!
+!         test if rate type 4
           if ((ml_data_type.eq.4).or.                                   &
-     &         (ml_data_type.eq.14).or.                                 &
      &         (ml_data_type.eq.9)) then
-            if ((ml_data_type.eq.4).or.(ml_data_type.eq.9)) then
-              idest1=masterdata%idat1(np1i) 
-              idest2=masterdata%idat1(np1i+1) 
-              jkkl=derivedpointers%nplini(ml_data) 
-              tau1=tau0(1,jkkl) 
-              tau2=tau0(2,jkkl) 
-              endif
-            if (ml_data_type.eq.14) then
-              idest1=masterdata%idat1(np1i-1+nidt-3) 
-              idest2=masterdata%idat1(np1i+nidt-3) 
-              jkkl=0
-              tau1=0.
-              tau2=0.
-              endif
-            if ((idest1.gt.0).and.(idest2.gt.0).and.                    &
-     &        (idest1.lt.nlev).and.(idest2.lt.nlev)) then             
-              e1=leveltemp%rlev(1,idest1) 
-              e2=leveltemp%rlev(1,idest2) 
-              if (e1.lt.e2) then 
-                  lup=idest2
-                  llo=idest1
-                else 
-                  lup=idest1
-                  llo=idest2
-                endif 
-              abund1=xilevi(llo)*xpx*xeltp 
-              abund2=xilevi(lup)*xpx*xeltp 
-              ptmp1=pescl(tau1)*(1.-cfrac)                            
-              ptmp2=pescl(tau2)*(1.-cfrac)                           &
+!
+!           check to see if pointer is sensible
+            idest1=masterdata%idat1(np1i) 
+            idest2=masterdata%idat1(np1i+1) 
+            jkkl=derivedpointers%nplini(ml_data) 
+            if ((jkkl.ne.0).and.(jkkl.le.ndat2)                         &
+     &         .and.(idest1.gt.0)) then 
+!
+!             check to see if pointer is in strong line list
+              ener=12398.41/(elin(jkkl)+1.d-36)
+              nb1=nbinc(ener,epi,ncn2)
+              mm=1
+              if (lpri.gt.1) write (lun11,*)mm,jkkl,nlbin(mm,nb1)
+              do while ((nlbin(mm,nb1).ne.0)                            &
+     &          .and.(nlbin(mm,nb1).ne.jkkl).and.(mm.lt.nrank))
+                if (lpri.gt.1) write (lun11,*)mm,jkkl,nlbin(mm,nb1)
+                mm=mm+1
+                enddo
+!             nb a fudge for testing
+!             nlbin(mm,nb1)=jkkl        
+              if (lpri.gt.1) write (lun11,*)mm,jkkl,nlbin(mm,nb1)
+              if ((nlbin(mm,nb1).eq.jkkl)                               &
+     &          .or.(nlbin(1,nb1).eq.9999999)) then
+!
+                tau1=tau0(1,jkkl) 
+                tau2=tau0(2,jkkl) 
+                e1=leveltemp%rlev(1,idest1) 
+                e2=leveltemp%rlev(1,idest2) 
+                if (e1.lt.e2) then 
+                  lup=idest2+ipmat
+                  llo=idest1+ipmat
+                  else 
+                  lup=idest1+ipmat
+                  llo=idest2+ipmat
+                  endif 
+                abund1=xileve(llo)*xpx*xeltp 
+                abund2=xileve(lup)*xpx*xeltp 
+!                if (lpri.ne.0) write (lun11,*)'abund1,abund2:',         &
+!     &            abund1,abund2,llo,lup,xileve(llo),xileve(lup),        &
+!     &           idest1,idest2,ipmat,xpx,xeltp
+                ptmp1=pescl(tau1)*(1.-cfrac)                            
+                ptmp2=pescl(tau2)*(1.-cfrac)                            &
      &            +2.*pescl(tau1+tau2)*cfrac 
-!             ptmp2=pescl(tau2)*(1.-cfrac)+2.*pescl(tau2)*cfrac     
-!              we need to call ucalc again because rcem               
-!              already has the abundance in from func3p               
-              lpriu=lpri
-              call ucalc(                                               &
+!               ptmp2=pescl(tau2)*(1.-cfrac)+2.*pescl(tau2)*cfrac     
+!               we need to call ucalc again because rcem               
+!               already has the abundance in from func3p               
+                lpriu=lpri
+                ans1=0.
+                ans2=0.
+                ans3=0.
+                ans4=0.
+                ans5=0.
+                ans6=0.
+                call ucalc(                                             &
      &             ltyp,lrtyp,ml_data,lcon,jkk_ion,vturbi,cfrac,        &
      &             nrdt,np1r,nidt,np1i,nkdt,np1k,ans1,ans2,             &
      &             ans3,ans4,ans5,ans6,idest1,idest2,idest3,idest4,     &
@@ -276,32 +389,23 @@
      &             r,delr,t,trad,tsq,xee,xh1,xh0,                       &
      &             epi,ncn2,bremsa,bremsint,                            &
      &             leveltemp,                                           &
-     &             rnisi,rnisse,nlev,lfpi,lun11,                        &
+     &             nlev,lfpi,lun11,                                     &
      &             np2,ncsvn,nlsvn)               
-             if (ml_data_type.eq.14) then
-               rcemm=abund2*ans4 
-               rccemis(2,3)=rccemis(2,3)+                               &
-     &                  rcemm/(epi(4)-epi(3)+1.e-24)/ergsev/12.56       
-!               if (lpri.gt.0) write (lun11,*)jkkl,tau0(1,jkkl),       
-                cll=cll+rcemm 
-!                clcont=clcont+rcemm 
-                endif
-              if (ml_data_type.eq.4) then
-  !             note need to change from v2.55 owing to change in order ans3 ans4
-                rcem(1,jkkl)=-abund2*ans3*ptmp1/(ptmp1+ptmp2) 
-                rcem(2,jkkl)=-abund2*ans3*ptmp2/(ptmp1+ptmp2) 
-                oplin(jkkl)=opakb1*abund1 
-                cll=cll+rcem(1,jkkl)+rcem(2,jkkl) 
-                htt=htt+abund1*ans3 
-                endif
-              if ((lpri.ge.1))                                          &
+                if ((lpri.ge.1))                                        &
      &               write (lun11,9002)jkk_ion,lrtyp,                   &
      &                 ltyp,idest1,idest2,                              &
      &                 llo,lup,ml_data,ans1,ans2,ans3,ans4,             &
      &                 rcem(1,jkkl)+rcem(2,jkkl),oplin(jkkl),           &
      &                 masterdata%rdat1(np1r),jkkl,cll,htt              &
-     &                  ,ptmp1,ptmp2                                    
+     &                  ,ptmp1,ptmp2,abund1,abund2                                    
+!
+!               end of test for in strong line list
+                endif
+!
+!             end of test of pointer sensible
               endif
+!
+!           end of test if rate type
             endif
 !
 !         end of loop over data

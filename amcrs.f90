@@ -1,5 +1,5 @@
       subroutine amcrs(n,l,temp,ic,z1,rm,ne,sum,ecm,psi,il,cn,          &
-     &                 lun11,lpri)                                      
+     &                 lpri,lun11)                                      
 !                                                                       
 !     Name: amcrs.f90  
 !     Description:  
@@ -43,7 +43,7 @@
       if(ecm.ne.0.) rho1=min(rho1,5.946e-12/ecm) 
       rhom=3.929e11*rho1*temp/sqrt(dnl)/rm 
       if(rhom.lt.10.) go to 30 
-      call amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn,lun11,lpri) 
+      call amcol(n,l,temp,ic,z1,rm,ne,sum,ecm,cn,lpri,lun11) 
 !      if (lpri.ge.1)                                                    &
 !     &  write (lun11,*)'after amcol:',n,l,temp,ic,z1,rm,ne,sum,ecm,cn
       cn=0 
@@ -62,7 +62,7 @@
 !     go to 40                                                          
 !                                                                       
    30  if(ecm.eq.0.) then 
-      call velimp(n,l,temp,ic,z1,rm,ne,sum,cn) 
+      call velimp(n,l,temp,ic,z1,rm,ne,sum,cn,lpri,lun11) 
       else 
       if (lpri.ge.1)                                                    &
      &write (lun11,*)'call impact 2',en,l,temp,ic,z1,rm,ecm,psi         

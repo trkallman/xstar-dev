@@ -1,3 +1,42 @@
+      module globaldata
+      implicit none 
+!                                                                       
+      include './PARAM' 
+!                                                                       
+!     global xstar data
+!     master data
+      TYPE :: master_data
+        integer, allocatable, dimension(:) :: idat1 ! integer data
+        real(8), allocatable, dimension(:) :: rdat1  ! real data
+        integer, allocatable, dimension(:,:) :: nptrs ! pointer data
+        character(1), allocatable, dimension(:) :: kdat1 ! character data
+      END TYPE master_data
+      TYPE(master_data) :: masterdata
+      TYPE :: derived_pointers
+        integer, allocatable, dimension(:) :: npar   !    pointers to master data
+        integer, allocatable, dimension(:) :: npnxt   !    pointers to master data
+        integer, allocatable, dimension(:) :: npfirst !    pointers to master data
+        integer, allocatable, dimension(:,:) :: npfi    !    pointers to master data first record for ion
+        integer, allocatable, dimension(:,:) :: npfe  !   pointers to master data first record from element
+        integer, allocatable, dimension(:) :: nplin   ! pointers to line data
+        integer, allocatable, dimension(:) :: nplini  ! pointers to line data
+        integer, allocatable, dimension(:) :: npcon
+        integer, allocatable, dimension(:) :: npconi2 
+        integer, allocatable, dimension(:) :: npconi
+        integer, allocatable, dimension(:,:) :: npilev
+        integer, allocatable, dimension(:) :: npilevi
+        integer, allocatable, dimension(:) :: nlevs
+      END TYPE derived_pointers
+      TYPE(derived_pointers) :: derivedpointers
+!     compton heating data                                              
+      real(8) decomp(ncomp,ncomp),ecomp(ncomp),sxcomp(ncomp) 
+      end module globaldata
+      module times
+      integer ntp
+      parameter (ntp=99)
+      real tread,tloop,tfunc,trates1,thcor,trates2,tucalc(ntp),theat
+      integer ncall(ntp)
+      end module times
       subroutine xstar 
 !                                                                       
 !      based on attenuate
@@ -28,6 +67,7 @@
       real(8), dimension(:,:), allocatable ::  tau0
 !     energy bins                                                       
       real(8) epi(ncn) 
+      real(8) epim(ncn) 
 !      continuum lum                                                    
       real(8), dimension(:,:), allocatable ::  zrems, zremso
       real(8), dimension(:), allocatable :: zremsz
@@ -35,6 +75,7 @@
       real(8), dimension(:,:), allocatable ::  dpthc,dpthcont
 !     continuum flux                                                    
       real(8), dimension(:), allocatable ::  bremsa,bremsint 
+      real(8), dimension(:), allocatable ::  bremsam
 !     continuum emissivities                                            
       real(8), dimension(:,:), allocatable ::  rccemis
       real(8), dimension(:), allocatable ::  brcems
@@ -66,7 +107,7 @@
       real(8) p,rdel,r19,xi,xcol,zeta,rdelo,r,t,xpx,delr,xpx0,r0 
 !     heating-cooling variables                                         
       real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,          &
-     &     clcont,hmctot,httot2,cltot2
+     &     clcont,hmctot,httot2,cltot2,htfreef
 !     limits on ion indeces vs element
       integer mml(nl),mmu(nl)
 !
@@ -75,7 +116,7 @@
       character(80) kmodelname,specfile,spectype 
       real(8) enlum,emult,taumax,xeemin,xlum,rmax,xpxcol,trad 
       real(8) cfrac,critf,vturbi,xlum2,xee,radexp 
-      integer lcdd,ncn2 
+      integer lcdd,ncn2,ncn2m
 !     variables associated with thermal equilibrium solution            
       integer ntotit,lnerrd 
 !     switches                                                          
@@ -105,6 +146,7 @@
 !     temporary line pointers                                           
       integer, dimension(:), allocatable :: nlin
       real(8), dimension(:), allocatable :: elin
+      real(8), dimension(:), allocatable :: errc
       real(8) eliml,elimh 
       real(8) ectt 
       real(8) rnew,dennew 
@@ -200,8 +242,8 @@
       allocate(derivedpointers%npilev(nd,nni))
       allocate(derivedpointers%npilevi(nnml))
       allocate(derivedpointers%nlevs(nni))
-      allocate(elum(3,nnnl))
-      allocate(elumo(3,nnnl))
+      allocate(elum(2,nnnl))
+      allocate(elumo(2,nnnl))
       allocate(rcem(2,nnnl))
       allocate(oplin(nnnl))
       allocate(fline(2,nnnl))
@@ -213,6 +255,7 @@
       allocate(dpthc(2,ncn))
       allocate(dpthcont(2,ncn))
       allocate(bremsa(ncn))
+      allocate(bremsam(ncn))
       allocate(bremsint(ncn))
       allocate(rccemis(2,ncn))
       allocate(brcems(ncn))
@@ -228,6 +271,7 @@
       allocate(elumabo(2,nnml))
       allocate(tauc(2,nnml))
       allocate(elin(nnnl))
+      allocate(errc(nnml))
       allocate(nlin(nnnl))
       allocate(zrtmp(999,3999))
       allocate(zrtmpcol(999,1))
@@ -244,7 +288,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-      write (tmpst,*)'xstar version 2.56c' 
+      write (tmpst,*)'xstar version 2.56d' 
       call xwrite(tmpst,10) 
 !                                                                       
 !     default parameter values                                          
@@ -271,6 +315,8 @@
       lfix=0 
       ncn2=min(ncn,999) 
       call ener(epi,ncn2) 
+      ncn2m=999
+      call ener(epim,ncn2m) 
       do mm=1,ncn2 
         zremsz(mm)=0. 
         enddo 
@@ -307,11 +353,12 @@
       do mm=1,ncn2 
         zremsz(mm)=0. 
         enddo 
-!                                                                       
+!     
       call xstarsetup(lnerrd,nlimd,                                     &
      &       lpri,lprid,lunlog,tinf,critf,                              &
      &       t,trad,r,delr,xee,xpx,ababs,abel,cfrac,xlum,p,lcdd,        &
      &       epi,ncn2,bremsa,bremsint,atcredate,                        &
+     &       epim,ncn2m,bremsam,                                        &
      &       zrems,zremso,zremsz,                                       &
      &       tau0,dpthc,dpthcont,tauc,                                  &
      &       np2,ncsvn,nlsvn,                                           &
@@ -320,7 +367,7 @@
      &       httot2,cltot2,                                             &
      &       xilevg,bilevg,rnisg,elum,                                  &
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,nlin,elin)                                    
+     &       cabab,opakab,nlin,elin,errc)                                    
 !
       xee=1.21 
       xi=10.**zeta 
@@ -329,7 +376,7 @@
 !     When changing this list, make sure nparms, parname, partype,      
 !     and parcomm are also properly updated.  Watch out for the         
 !     model name which is currently parcomm(37)                         
-      call pprint(3,1,trad,xlum,lwri,lprisv,r,t,xpx,p,lcdd,          &
+      call pprint(3,1,trad,xlum,lwri,lprisv,r,t,xpx,p,lcdd,             &
      &        numrec,npass,nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,        &
      &        zremsz,epi,ncn2,abel,cfrac,emult,taumax,xeemin,           &
      &        spectype,specfile,specunit,kmodelname,nloopctl,           &
@@ -340,7 +387,7 @@
      &        ncsvn,nlsvn,                                              &
      &        ntotit,lnerrd,                                            &
      &        xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,       &
-     &        cllines,clcont,htcomp,clcomp,clbrems,                     &
+     &        cllines,clcont,htcomp,clcomp,clbrems,htfreef,             &
      &        httot2,cltot2,                                            &
      &        xilevg,bilevg,rnisg,                                      &
      &        rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,    &
@@ -361,7 +408,7 @@
      &        ncsvn,nlsvn,                                              &
      &        ntotit,lnerrd,                                            &
      &        xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,       &
-     &        cllines,clcont,htcomp,clcomp,clbrems,                     &
+     &        cllines,clcont,htcomp,clcomp,clbrems,htfreef,             &
      &        httot2,cltot2,                                            &
      &        xilevg,bilevg,rnisg,                                      &
      &        rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,    &
@@ -419,7 +466,8 @@
      &             lpri,lunlog)                                       
         call ispcg2(zremsz,epi,ncn2,enlum,lpri,lunlog) 
 !                                                                     
-      call init(lunlog,abel,bremsa,bremsint,tau0,dpthc,dpthcont,tauc,   &
+      call init(lunlog,abel,bremsa,bremsam,bremsint,tau0,dpthc,dpthcont,&
+     &   tauc,                                                          &
      &   xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,httot2,cltot2,     &
      &   cllines,clcont,htcomp,clcomp,clbrems,                          &
      &   xilevg,rcem,oplin,rccemis,brcems,opakc,opakcont,               &
@@ -447,7 +495,7 @@
      &      ncsvn,nlsvn,                                                &
      &      ntotit,lnerrd,                                              &
      &      xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,         &
-     &      cllines,clcont,htcomp,clcomp,clbrems,                       &
+     &      cllines,clcont,htcomp,clcomp,clbrems,htfreef,               &
      &       httot2,cltot2,                                             &
      &        xilevg,bilevg,rnisg,                                      &
      &      rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,      &
@@ -533,22 +581,22 @@
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
      &            mml,mmu,                                              &
      &            epi,ncn2,bremsa,bremsint,                             &
+     &            epim,ncn2m,bremsam,                                   &
      &            leveltemp,                                            &
      &            tau0,tauc,                                            &
      &            np2,ncsvn,nlsvn,                                      &
      &            ntotit,                                               &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
      &            elcter,                                               &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &             xilevg,bilevg,rnisg,                                 &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,       &
-     &            cabab,opakab,fline,flinel)                
-!
+     &            cabab,opakab,fline,flinel,elin,errc)                
 !
 !          do tranfer.  assumes comp2 and bremem have been called             
 !          already                                                           
-           call heatt(lpri,lunlog,                                      &
+           call heatt(lpri2,lunlog,                                     &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
      &       leveltemp,                                                 &
@@ -569,7 +617,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -590,7 +638,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -627,7 +675,7 @@
 !         transfer                                                      
           eliml=1. 
           elimh=1.0e6 
-              lpril2=lpri2
+          lpril2=0
               call stpcut(ldir,lpril2,lunlog,                           &
      &           ncsvn,nlsvn,                                           &
      &           epi,ncn2,opakc,opakcont,oplin,opakab,delr,             &
@@ -654,7 +702,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -674,7 +722,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -718,17 +766,18 @@
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
      &            mml,mmu,                                              &
      &            epi,ncn2,bremsa,bremsint,                             &
+     &            epim,ncn2m,bremsam,                                   &
      &            leveltemp,                                            &
      &            tau0,tauc,                                            &
      &            np2,ncsvn,nlsvn,                                      &
      &            ntotit,                                               &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
      &            elcter,                                               &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
-     &             xilevg,bilevg,rnisg,                                 &
+     &            xilevg,bilevg,rnisg,                                  &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,       &
-     &            cabab,opakab,fline,flinel)                
+     &            cabab,opakab,fline,flinel,elin,errc)                
       call heatt(lpri2,lunlog,                                          &
      &       t,r,cfrac,delr,xee,xpx,abel,                               &
      &       epi,ncn2,bremsa,                                           &
@@ -737,6 +786,7 @@
      &       zrems,zremso,elumab,elumabo,elum,elumo,                    &
      &       rcem,rccemis,opakc,opakcont,cemab,flinel,                  &
      &       brcems)
+      lpri2=0
       call stpcut(ldir,lpri2,lunlog,                                    &
      &           ncsvn,nlsvn,                                           &
      &           epi,ncn2,opakc,opakcont,oplin,opakab,delr,             &
@@ -757,7 +807,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -777,7 +827,7 @@
      &            ncsvn,nlsvn,                                          &
      &            ntotit,lnerrd,                                        &
      &            xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,   &
-     &            cllines,clcont,htcomp,clcomp,clbrems,                 &
+     &            cllines,clcont,htcomp,clcomp,clbrems,htfreef,         &
      &            httot2,cltot2,                                        &
      &              xilevg,bilevg,rnisg,                                &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,&
@@ -791,10 +841,11 @@
 !     Write spectral data file xout_spect1.fits                         
       write(6,*)'xstar: Prepping to write spectral data ' 
       lpril=0
-      call writespectra(lunlog,lpril,lwri,nparms,parname,partype,parms, &
+      if (lwri.ge.-1)                                                   &
+     & call writespectra(lunlog,lpril,lwri,nparms,parname,partype,parms,&
      &        parcomm,atcredate,t,vturbi,epi,ncn2,dpthc,                &
      &        nlsvn,                                                    &
-     &        elum,zrems,zremsz,kmodelname,nloopctl)            
+     &        elin,elum,zrems,zremsz,kmodelname,nloopctl)            
       write (lunlog,*)'after writespectra' 
       if (lwri.ge.0) then 
       lpril=0
@@ -874,6 +925,9 @@
       deallocate(elumab)
       deallocate(elumabo)
       deallocate(tauc)
+      deallocate(elin)
+      deallocate(errc)
+      deallocate(nlin)
       deallocate(zrtmp)
       deallocate(zrtmpcol)
       deallocate(zrtmpc)

@@ -612,8 +612,8 @@
 !       set up pointers (again)
         call dbwk2(7,abel,np2,nptrt,karg,lpri,lun11,                    &
      &  nlsvn,ncsvn)                                             
-!       print pointers
-!        call dbwk2(25,abel,np2,nptrt,karg,lpri,lun11,                   &
+!       print records per ion
+!        call dbwk2(28,abel,np2,nptrt,karg,lpri,lun11,                   &
 !     &  nlsvn,ncsvn)                                             
 !
       deallocate(nptrt)

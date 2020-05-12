@@ -1,4 +1,4 @@
-      subroutine levwk(rniss,rnisse,bb,lpri,nlev,t,xee,xpx,             &
+      subroutine levwk(rniss,bb,lpri,nlev,t,xee,xpx,                    &
      &     leveltemp,lun11)    
 !                                                                       
 !     Name: levwk.f90  
@@ -16,8 +16,6 @@
 !           nlev: number of levels for the ion
 !           output:
 !           rniss: lte level population
-!           rnisse: lte level population relative to ground 
-!                  with exponential removed
 !           From Globaldata:
 !           rlev(10,ndl):  real data for levels of this ion
 !           ilev(10,ndl):  integer data for levels of this ion
@@ -36,7 +34,7 @@
         character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-      real(8) rniss(nd),rnisse(nd) 
+      real(8) rniss(nd)
       real(8) ergsev,bk,t,bktm,q2,rs,ethion,emltlv,                      &
      &     eexlv,ethsht,explev2,bb,expo                                 
       integer lpri,lprisv,nlev,lun11,ll 
@@ -64,7 +62,6 @@
      &    emltlv,rs,ethion,xnx                                          
  9902 format (1x,'in levwk',8(1pe11.3)) 
       rniss(nlev)=1. 
-      rnisse(nlev)=1. 
       do ll=1,nlev-1 
         eexlv=leveltemp%rlev(1,ll) 
         emltlv=leveltemp%rlev(2,ll) 
@@ -72,7 +69,6 @@
         ethsht=max(ethsht,0.d0) 
         explev2=expo(-ethsht) 
         rniss(ll)=emltlv/(explev2/rs) 
-        rnisse(ll)=emltlv*rs
         bb=bb+rniss(ll) 
         if (lpri.gt.1)                                                  &
      &   write (lun11,9901)ll,eexlv,emltlv,ethsht,explev2,              &

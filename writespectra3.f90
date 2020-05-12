@@ -55,7 +55,7 @@
       real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real(8) elum(3,nnnl) 
+      real(8) elum(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     the atomic data creation date                                     

@@ -1,7 +1,7 @@
-      subroutine calt70(temp8,den8,eth8,ic,m,np1r,np1i,              &
-     &                  nx,xe8,xs8,rec8,al8,lun11,lpri,ierror)
+      subroutine calt70(temp,den,eth,ic,m,np1r,np1i,                    &
+     &                  nx,xe,xs,rec,al,lun11,lpri)                     
 !                                                                       
-!  This rutine takes the coefficients in data type 70 (dtype70 reals    
+!  This routine takes the coefficients in data type 70 (dtype70 reals   
 !  in itype70 integers) and returns the recombination rate (in s-1cm-3) 
 !  and the correstpondent phot. x-section for the superlevel. m is the  
 !  dimension of dtype70. nx is the number of points in the x-section    
@@ -10,168 +10,157 @@
 !  temp, den, and ic are the temperature, electron density              
 !  and effective charge of the ion respectively.                        
 !  eth is the threshold energy for the superlevel in Ry.                
+!  new revision (2017) quadratic density dependence tk
+!      author: M. Bautista                                              
 !                                                                       
-! revised on 26 March 2019 by M. Bautista
-!  ierror will returns 1 when recombination to the superlevels approaches
-!  0. This indicates that the density may be too high for propper account of
-!  recombination reduction.
-!  Recombination rate coefficients are input in linear scale but interpolated in
-! log scale.
-!  does a cleaner split of rates by density and temperature mesh before
-! interpolation
-!
-!  INTERPOLATE INTEMPERATURE BEFORE DENSITY INTERPOLATION TO AVOID DISCONTINUITIES
-!  Use second order polynomial interpolation in T and linear interpolation in Ne
-!                                                                       
-! ********************************************************************* 
                                                                         
       use globaldata
-      real(8) temp8,den8,rec8,al8,eth8,xe8(100),xs8(100)
-      dimension dtype70(m),itype70(11)
-! alpf: fitting coef. for hydrogenic recombination n=12,l=0             
-      dimension alpf(3) 
-      real temps(200),dens(200),rcoefs(200,200) 
-      data alpf/-7.1094841E-02,-9.0274535E-02,-14.26129/ 
-      ierror=0 
-      in=0
-      it=0
-      if (lpri.gt.1) write (lun11,*)'in calt70, m=',m
-      do ll=1,m
-        dtype70(ll)=sngl(masterdata%rdat1(np1r-1+ll))
-        if (lpri.gt.1) write (lun11,*)ll,dtype70(ll)
-        enddo
-      do ll=1,11
-        itype70(ll)=masterdata%idat1(np1i-1+ll)
-        enddo
-      den=sngl(den8)
-      temp=sngl(temp8)
-      eth=sngl(eth8)
-! split data                                                            
-      nden=itype70(1) 
-      ntem=itype70(2) 
-      dmin=dtype70(1) 
-      dmax=dtype70(nden) 
-      tmin=dtype70(nden+1) 
-      tmax=dtype70(nden+ntem) 
-      nxs=itype70(3) 
-      if (lpri.gt.1) write (lun11,*)'densities',nden,ntem
-      do i=1,nden 
-       dens(i)=dtype70(i) 
-        if (lpri.gt.1) write (lun11,*)i,dens(i)
-      enddo 
-      if (lpri.gt.1) write (lun11,*)'temperatures'
-      do i=1,ntem 
-       temps(i)=dtype70(i+nden) 
-        if (lpri.gt.1) write (lun11,*)i,temps(i)
-      enddo 
-      m=nden+ntem 
-      do it=1,ntem 
-       do id=1,nden 
-        m=m+1 
-!       this is a fudge due to some confusion 
-!          about log vs no log
-        if (dtype70(m).gt.-1.e-31) then
-          rcoefs(it,id)=log10(dtype70(m)+1.e-30)  
-          else
-          rcoefs(it,id)=dtype70(m)
-          endif
-        if (lpri.gt.1) write (lun11,*)it,id,m,rcoefs(it,id)
-       enddo 
-      enddo 
-                                                                        
+       implicit none 
+      integer nptmpdim 
+      parameter (nptmpdim=200000) 
+!                                                                       
+      integer m 
+      real(8) xe(*),xs(*),rne,rte,rme,rmt,                              &
+     &      rec1,rec2,rec3,rec,scale,al,crit,temp,den,eth,dt            
+      real(8) x1,x2,x3,y1,y2,y3,aa,bb,cc,denom,rmt1,rmt3 
+      integer nden,ntem,nxs,in,it,kt1,kt3,i1,imax,nx,                   &
+     &      lun11,lpri,lprim,ic,i,np1r,np1i,in1,in2,in3                 
+!                                                                       
+!     alpf: fitting coef. for hydrogenic recombination n=12,l=0         
+!      dimension alpf(3)                                                
+!      data alpf/-7.1094841E-02,-9.0274535E-02,-14.26129/               
+!                                                                       
+      if (lpri.gt.1)                                                    &
+     &  write (lun11,*)'in calt99:',temp,den,eth,ic,m,               &
+     &          masterdata%rdat1(np1r),masterdata%idat1(np1i-1+1)      
       rne=log10(den) 
       rte=log10(temp) 
-      if (lpri.ge.1) then
-        write (lun11,*)'in calt70:',rne,rte,nden,ntem,nxs,dmin,dmax, &
-     &    tmin,tmax
-        endif
-!     test if nden>1
+      nden=masterdata%idat1(np1i-1+1) 
+      ntem=masterdata%idat1(np1i-1+2) 
+      nxs=masterdata%idat1(np1i-1+3) 
       if (nden.gt.1) then 
-!       test if density > dmax          
-        if (rne.gt.dmax) then 
-          print*,'DENSITY TOO HIGH AT SUPREC' 
-          print*,'z=',ic,' temp=',temp,' Ne=',den 
-!          stop 
-!         end of test if density > dmax          
-          endif 
-!       find intervals for density and temperature                            
-!       in is the index for density interval for interpolation                
-!       test if density < dmin
-        if (rne.le.dmin) then 
-            in=1 
-          else 
-            do i=1,nden-1 
-              if (rne.ge.dens(i).and.rne.le.dens(i+1))                  &
-     &          in=i                                                       
-              enddo 
-!         end of test if density < dmin
-          endif 
-          else
-           in=1
-          endif
-        if (rte.lt.tmin.or.rte.gt.tmax) then 
-          if (lpri.gt.0) then
-            write (lun11,*)'TEMPERATURE OUT OF RANGE' 
-            write (lun11,*)'z=',ic,' temp=',temp,' Tmin=',10.**tmin,    &
-     &     ' Tmax=',10.**tmax                                           
-            endif
-!          stop 
-          rte=min(0.999*tmax,max(1.001*tmin,rte))
-          endif 
-        do i=1,ntem-1 
-          if (rte.ge.temps(i).and.rte.lt.temps(i+1))                    &
-     &       it=i                                                       
-          enddo 
-! Interpolate in Temperature space
-      kt=0
-       x1=temps(it+kt)
-       x2=temps(it+kt+1)
-       y1=rcoefs(it+kt,in)
-       y2=rcoefs(it+kt+1,in)
-       call qcoefs(x1,x2,y1,y2,rte,y)
-       rec1=y
-       if (lpri.ge.1)                                                   &
-     &  write (lun11,*)'interpolate in temperature',                    &
-     &       it,kt,in,x1,x2,y1,y2,y
-       if (in.eq.nden .or. in.le.1) then
-        rec=10.**rec1
-       if (lpri.gt.1)                                                   &
-     &  write (lun11,*)'in=nden or in=1',rec,rec1
-       else
-        y1=rcoefs(it+kt,in+1)
-        y2=rcoefs(it+kt+1,in+1)
-        call qcoefs(x1,x2,y1,y2,rte,y)
-        rec2=y
-       if (lpri.gt.1)                                                   &
-     &  write (lun11,*)'rec2=y',rec2,y1,y2
-! interpolate in density
-        dden=1./(dens(in+1)-dens(in))
-        rm=(rec2-rec1)*dden
-        rr=rec1+rm*(rne-dens(in))
-        rec=10.**rr
-       if (lpri.ge.1)                                                   &
-     &  write (lun11,*)'interpolate in density',dden,rm,rr,rec
-       endif
-! if type70 recombination near zero flag error
-      if (rec.lt.1.e-29) ierror=1
-      if (lpri.ge.1)                                                    &
-     & write (lun11,*)'in calt70:',rec,rr,rm,dden,rec2,y1,y2,x1,x2,  &
-     &      it,kt,in
+!     nb changing the data                                              
+      masterdata%rdat1(np1r+1)=min(masterdata%rdat1(np1r+1),8.d0) 
+      if (rne.gt.masterdata%rdat1(np1r-1+nden)) then 
+!       write (lun11,*)'DENSITY TOO HIGH AT SUPREC'                     
+!       write (lun11,*)'z=',ic,' temp=',temp,' Ne=',den                 
+!       return                                                          
+       rne=min(rne,masterdata%rdat1(np1r-1+nden)) 
+      endif 
+      if (rne.le.masterdata%rdat1(np1r-1+1)) then 
+       in=1 
+      else 
+       in=int(rne/masterdata%rdat1(np1r-1+nden)*nden)-1 
+       if (in.ge.nden) in=in-1 
+    5  in=in+1 
+       if (in.lt.nden .and. rne.ge.masterdata%rdat1(np1r-1+in+1)) goto 5 
+       if (rne.lt.masterdata%rdat1(np1r-1+in)) then 
+        in=in-2 
+        goto 5 
+       endif 
+      endif 
+      else 
+       in=1 
+      endif 
+      if (rte.lt.masterdata%rdat1(np1r-1+nden+1)) then 
+       it=1 
+      else 
+         dt=(masterdata%rdat1(np1r-1+nden+ntem)                         &
+     &         -masterdata%rdat1(np1r-1+nden+1))/float(ntem) 
+       it=int((rte-masterdata%rdat1(np1r-1+nden+1))/dt) 
+    6  it=it+1 
+       if (it.ge.ntem) then 
+        it=ntem-1 
+       else 
+        if (rte.ge.masterdata%rdat1(np1r-1+nden+it+1)) goto 6 
+        if (rte.lt.masterdata%rdat1(np1r-1+nden+it)) then 
+         it=it-2 
+         goto 6 
+        endif 
+       endif 
+      endif 
+      kt1=nden+ntem+(in-1)*ntem+it 
+      rmt=(masterdata%rdat1(np1r-1+kt1+1)-masterdata%rdat1(np1r-1+kt1)) &
+     &    /(masterdata%rdat1(np1r-1+nden+it+1)-                         &
+     &    masterdata%rdat1(np1r-1+nden+it))                                  
+      rec1=masterdata%rdat1(np1r-1+kt1)                                 &
+     &      +rmt*(rte-masterdata%rdat1(np1r-1+nden+it)) 
+      if (nden.gt.1) then 
+         if ((nden.gt.2).and.(in.gt.1).and.(in.lt.nden)) then 
+!             now we implement quadratic                                
+              in1=in-1 
+              in2=in 
+              in3=in+1 
+              y2=rec1 
+              x2=masterdata%rdat1(np1r-1+in2) 
+              kt3=nden+ntem+(in3-1)*ntem+it 
+              rmt3=(masterdata%rdat1(np1r-1+kt3+1)                      &
+     &              -masterdata%rdat1(np1r-1+kt3))                      &
+     &         /(masterdata%rdat1(np1r-1+nden+it+1)                     &
+     &             -masterdata%rdat1(np1r-1+nden+it))         
+              rec3=masterdata%rdat1(np1r-1+kt3)                         &
+     &              +rmt3*(rte-masterdata%rdat1(np1r-1+nden+it)) 
+              y3=rec3 
+              x3=masterdata%rdat1(np1r-1+in3) 
+              kt1=nden+ntem+(in1-1)*ntem+it 
+              rmt1=(masterdata%rdat1(np1r-1+kt1+1)                      &
+     &           -masterdata%rdat1(np1r-1+kt1))                         &
+     &         /(masterdata%rdat1(np1r-1+nden+it+1)                     &
+     &          -masterdata%rdat1(np1r-1+nden+it))         
+              rec1=masterdata%rdat1(np1r-1+kt1)                         &
+     &           +rmt1*(rte-masterdata%rdat1(np1r-1+nden+it)) 
+              y1=rec1 
+              x1=masterdata%rdat1(np1r-1+in1) 
+              denom=((x1*x1-x2*x2)*(x1-x3)-(x1*x1-x3*x3)*(x1-x2)) 
+              aa=((y1-y2)*(x1-x3)-(y1-y3)*(x1-x2))/denom 
+              bb=-((y1-y2)*(x1*x1-x3*x3)-(y1-y3)*(x1*x1-x2*x2))/denom 
+              cc=y1-aa*x1*x1-bb*x1 
+              rec=aa*rne*rne+bb*rne+cc 
+              if (lpri.gt.1) write (lun11,*)'quadratic:',x1,x2,x3,      &
+     &             y1,y2,y3,aa,bb,cc,denom,rec                          
+           else 
+              kt1=kt1+ntem 
+              rmt=(masterdata%rdat1(np1r-1+kt1+1)                       &
+     &              -masterdata%rdat1(np1r-1+kt1))                      &
+     &         /(masterdata%rdat1(np1r-1+nden+it+1)-                    &
+     &         masterdata%rdat1(np1r-1+nden+it))                             
+              rec2=masterdata%rdat1(np1r-1+kt1)                         &
+     &              +rmt*(rte-masterdata%rdat1(np1r-1+nden+it)) 
+              rme=(rec2-rec1)                                           &
+     &         /(masterdata%rdat1(np1r-1+in+1)                          &
+     &             -masterdata%rdat1(np1r-1+in)) 
+              rec=rec1+rme*(rne-masterdata%rdat1(np1r-1+in)) 
+            endif 
+        else 
+          rec=rec1 
+        endif 
+      if (lpri.gt.1) write (lun11,*)nden,ntem,it,in,kt1,                &
+     &     masterdata%rdat1(np1r-1+kt1),rme,rmt,rec2,rec1,rec              
+      rec=10.**rec 
 !                                                                       
-! scale hydrogenic cross section
       i1=ntem*nden+ntem+nden 
       do i=1,nxs 
-       xe8(i)=dtype70(i1+(i-1)*2+1) 
-       xs8(i)=dtype70(i1+(i-1)*2+2) 
-      enddo 
-      call milne(temp8,nxs,xe8,xs8,eth8,al8,lun11,lpri) 
-      scale=rec/sngl(al8)
+       xe(i)=masterdata%rdat1(np1r-1+i1+(i-1)*2+1) 
+       xs(i)=masterdata%rdat1(np1r-1+i1+(i-1)*2+2) 
       if (lpri.gt.1)                                                    &
-     & write (lun11,*)'in calt70:',rec,al8,scale,xs8(1),nxs,eth8           
-      rec8=rec 
-      do i=1,nxs 
-       xs8(i)=xs8(i)*scale 
+     &  write (lun11,*)i,xe(i),xs(i)                                    
       enddo 
+      lprim=0 
+      call milne(temp,nxs,xe,xs,eth,al,lun11,lprim) 
+      scale=rec/(1.e-24+al) 
+      if (lpri.gt.1)                                                    &
+     & write (lun11,*)'in calt99:',rec,al,scale,xs(1),nxs,eth           
+      crit=1.e-6 
+      imax=nxs 
+      do i=1,nxs 
+       xs(i)=xs(i)*scale 
+       xs(i)=min(xs(i),1000000.d0) 
+       if (xs(i).gt.xs(1)*crit) imax=i 
+      if (lpri.gt.1)                                                    &
+     &  write (lun11,*)i,xe(i),xs(i)                                    
+      enddo 
+      nxs=imax 
       nx=nxs 
+!                                                                       
       return 
       END                                           

@@ -5,7 +5,6 @@
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirti,rrrti,                                   &
-     &                   rnisi,                                         &
      &                   ajisi,cjisi,cjisi2,indbi,nindbi,nlev)
 
 !                                                                       
@@ -43,7 +42,6 @@
 !           np2: atomic data parameter, number of records in atomic database
 !           ncsvn: atomic data parameter, number of rrcs in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
-!           rnisi:  lte level populations  relative to ion 
 !           nlev:  number of levels for the ion
 !           also uses variables from globaldata
 !           Output:
@@ -96,8 +94,6 @@
       real(8) tauc(2,nnml) 
 !                                                                       
       character(1) kblnk 
-      real(8) rnisi(nd)
-      real(8) rnisse(nd) 
       real(8) ajisi(2,ndb),cjisi(ndb),cjisi2(ndb) 
       integer indbi(2,ndb) 
       real(8) tau1,tau2,airtmp,e1,e2,pescl,pescv,ptmp
@@ -147,8 +143,7 @@
      &              '  stat.wt.               LTE ' 
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
-     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
-     &        rnisi(mm),rnisse(mm)                                   
+     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm)
  9022     format (2x,i4,1x,20a1,2(1pe10.3),10x,2(1pe10.3))  
           enddo 
         endif
@@ -197,7 +192,7 @@
                 tau1=tau0(1,kkkl) 
                 tau2=tau0(2,kkkl) 
                 ptmp1=pescl(tau1)*(1.-cfrac)                            
-                ptmp2=pescl(tau2)*(1.-cfrac)                         &
+                ptmp2=pescl(tau2)*(1.-cfrac)                           &
      &              +2.*pescl(tau1+tau2)*cfrac 
 !                ptmp2=pescl(tau2)*(1.-cfrac)+2.*pescl(tau2)*cfrac     
                 endif
@@ -208,11 +203,11 @@
                  tau1=tauc(1,kkkl) 
                  tau2=tauc(2,kkkl) 
                  ptmp1=pescv(tau1)*(1.-cfrac) 
-                 ptmp2=pescv(tau2)*(1.-cfrac)                        &
+                 ptmp2=pescv(tau2)*(1.-cfrac)                           &
      &                  +2.*pescv(tau1+tau2)*cfrac                      
                  endif
                endif
-           if (lpri.gt.1) write (lun11,*)'kkkl,tau1,ptmp1:',         &
+           if (lpri.gt.1) write (lun11,*)'kkkl,tau1,ptmp1:',            &
      &               kkkl,tau1,ptmp1,tau2,ptmp2
             ptmp=(ptmp1+ptmp2) 
 !           note that radiative rates and emissivities will     
@@ -226,7 +221,7 @@
      &                r,delr,t,trad,tsq,xee,xh1,xh0,                    &
      &                epi,ncn2,bremsa,bremsint,                         &
      &                leveltemp,                                        &
-     &                rnisi,rnisse,nlev,lfpi,lun11,                     &
+     &                nlev,lfpi,lun11,                                  &
      &                np2,ncsvn,nlsvn)               
 !           this Statement prevents double counting of PI from  
 !           excited levels.  All rate type 1 data should not h

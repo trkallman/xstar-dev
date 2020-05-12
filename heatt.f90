@@ -94,7 +94,7 @@
       character(1) kblnk 
       real(8) zrems(5,ncn)
       real(8) zremso(5,ncn)
-      real(8) elum(3,nnnl),elumo(3,nnnl) 
+      real(8) elum(2,nnnl),elumo(2,nnnl) 
       real(8) elumab(2,nnml),elumabo(2,nnml) 
       real(8) xeltp,cllines,clcont,cmp1,cmp2,cltot,                      &
      &     hmctot,htcomp,clcomp,clbrems,etst,ekt,epiio,                 &
@@ -121,13 +121,13 @@
       lprisv=lpri 
 !                                                                       
       xnx=xpx*xee 
-!      if (lpri.ge.1) lpri=2 
+      r19=r*(1.d-19) 
+      if (lpri.ge.1) lpri=2 
       fpr2=12.56*r19*r19 
       if (lpri.gt.1) write (lun11,*)'in heatt',httot,cltot,delr,r,   &
      &                       fpr2
       if (lpri.gt.1) write (lun11,*)ncsvn,ncn2
       numcon=ncn2 
-      r19=r*(1.d-19) 
 !                                                                       
 
 !     comment these out to implement scattering                         
@@ -193,8 +193,8 @@
           if (lpri.gt.1) write (lun11,9009)kl,epii,optpp,               &
      &     bremsa(kl),tmph,tmpc,flinel(kl),httot,cltot                  &
      &       ,rccemis(1,kl)+rccemis(2,kl),hmctot,tautmp,fac             &
-     &       ,brcems(kl),zrems(2,kl),zremso(2,kl)
- 9009     format (1x,i6,15(1pe12.5)) 
+     &       ,brcems(kl),zrems(1,kl),zrems(2,kl),zremso(2,kl)
+ 9009     format (1x,i6,16(1pe12.5)) 
 !         an afterthought:  continuum only
           optpp=opakcont(kl) 
           optp2=max(1.d-49,optpp) 

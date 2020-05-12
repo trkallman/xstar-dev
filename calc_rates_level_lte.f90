@@ -19,7 +19,6 @@
 !           xpx: H number density (cm^-3)
 !           Output:
 !           rniss:  lte level populations
-!           rnisse:  lte level populations with exponential removed
 !           nlev:  number of levels
 !     Dependencies: levwk, drd
 !     Called by: calc_hmc_all, fstepr2,fstepr3,calc_emis_all,pprint
@@ -58,10 +57,6 @@
      &  write (lun11,*)'in calc_rates_level_lte, inputs:',t,            &
      &          xee,xpx                                                 
 !
-!     calculate IP shift
-      call deltaip(nz,nn,t,xpx,deltaeip,lpri,lun11)       
-!     NB test
-!      deltaeip=0.
 !                                                                       
 !     now find level data                                               
 !     step thru types                                                   
@@ -86,10 +81,6 @@
            do  lk=1,nrdt 
              leveltemp%rlev(lk,nlev)=masterdata%rdat1(np1r+lk-1) 
              enddo 
-!          NB here are the changes to ips due to plasma effects
-           leveltemp%rlev(4,nlev)=leveltemp%rlev(4,nlev)+deltaeip
-           leveltemp%rlev(1,nlev)=min(leveltemp%rlev(1,nlev),           &
-    &            leveltemp%rlev(4,nlev))
            do lk=1,nidt 
              leveltemp%ilev(lk,nlev)=masterdata%idat1(np1i+lk-1) 
              enddo 

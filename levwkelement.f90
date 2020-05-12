@@ -14,9 +14,7 @@
 !           lun11: logical unit number for printing
 !           nlev: number of levels for the ion
 !           output:
-!           rniss: lte level population
-!           rnisse: lte level population relative to ground 
-!                  with exponential removed
+!           rniss
 !           From Globaldata:
 !           rlev(10,ndl):  real data for levels of this ion
 !           ilev(10,ndl):  integer data for levels of this ion
@@ -35,7 +33,7 @@
         character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-      real(8) rnisi(nd),rnisse(nd),rnise(nd), xileve(nd)
+      real(8) rnisi(nd),rnise(nd), xileve(nd)
       real(8) ergsev,bk,t,                                              &
      &     bb
       integer lpri,lprisv,nlev,lun11,ml_element, ipmatsv, jk
@@ -100,7 +98,7 @@
             lprisv=lpri
             call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,     &
      &              nnzz,nnnn,leveltemp,nlev)
-            call levwk(rnisi,rnisse,bb,lpri,nlev,t,xee,xpx,             &
+            call levwk(rnisi,bb,lpri,nlev,t,xee,xpx,                    &
      &              leveltemp,lun11)      
             lpri=lprisv
             if (lpri.gt.1) write (lun11,*)'after calc_rates_level_lte'

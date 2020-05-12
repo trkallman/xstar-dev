@@ -2,6 +2,7 @@
      &       lpri,lprid,lunlog,tinf,critf,                              &
      &       t,tp,r,delr,xee,xpx,ababs,abel,cfrac,xlum,p,lcdd,          &
      &       epi,ncn2,bremsa,bremsint,atcredate,                        &
+     &       epim,ncn2m,bremsam,                                        &
      &       zrems,zremso,zremsz,                                       &
      &       tau0,dpthc,dpthcont,tauc,                                  &
      &       np2,ncsvn,nlsvn,                                           &
@@ -10,7 +11,7 @@
      &       httot2,cltot2,                                             &
      &       xilev,bilev,rnist,elum,                                    &
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,nlin,elin)                                    
+     &       cabab,opakab,nlin,elin,errc)                                    
 !                                                                       
 !     Name: xstarsetup.f90  
 !     Description:  
@@ -111,8 +112,15 @@
 !                                                                       
 !     global xstar data
 
+      TYPE :: level_temp
+        sequence
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
+      END TYPE level_temp
+      TYPE(level_temp) :: leveltemp
 !     line luminosities                                                 
-      real(8) elum(3,nnnl),elumo(3,nnnl) 
+      real(8) elum(2,nnnl),elumo(2,nnnl) 
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
 !     line opacities                                                    
@@ -122,6 +130,7 @@
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
+      real(8) epim(ncn) 
 !      continuum lum                                                    
       real(8) zrems(5,ncn),zremsz(ncn)                 
       real(8) zremso(5,ncn)
@@ -129,6 +138,7 @@
       real(8) dpthc(2,ncn),dpthcont(2,ncn)
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
+      real(8) bremsam(ncn)
 !     continuum emissivities                                            
       real(8) rccemis(2,ncn),brcems(ncn) 
 !     continuum opacities                                               
@@ -148,6 +158,7 @@
       real(8) abel(nl),abcosmic(30),ababs(nl) 
       integer nlin(nnnl) 
       real(8) elin(nnnl) 
+      real(8) errc(nnml)
 !     the atomic data creation date                                     
       character(63) atcredate 
 !                                                                       
@@ -160,7 +171,7 @@
 !     input parameters                                                  
       real(8) xlum,xpxcol 
       real(8) cfrac,critf,xee 
-      integer lcdd,ncn2 
+      integer lcdd,ncn2,ncn2m
 !     variables associated with thermal equilibrium solution            
       integer ntotit,lnerrd 
 !     switches                                                          
@@ -182,6 +193,10 @@
 !     storing info for parameters                                       
       character(20) parname(55) 
       real(8) abeltmp(nl)
+      real(8) eth,xeltp    
+      integer idest1,idest2,jkk,kk,kkkl,klion,klel,mlel,mllel,mlion,    &
+     &  mlleltp,mllz,mlpar,mltype,mt2,nlev,nlevp,nnz,nnnn,nnzz
+      integer nidti,nkdti,np1ki
 !                                                                       
 !     Not used                                                          
       integer javi 
@@ -243,7 +258,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-      write (lunlog,*)'xstar version 2.56c' 
+      write (lunlog,*)'xstar version 2.56d' 
 !                                                                       
 !     Test if atomic database files are available.  Abort if not.       
       call getenv('LHEA_DATA', datafile) 
@@ -315,6 +330,7 @@
 !     need to fool setptrs into using all the data
       do mm=1,nl
         abeltmp(mm)=1.
+!        abeltmp(mm)=abel(mm)
         enddo
       call setptrs(lunlog,lpri,                                         &
      &       np2,ncsvn,nlsvn,                                           &
@@ -334,7 +350,8 @@
 !                                                                       
 !     set up and initialize                                             
       tinf=0.31 
-      call init(lunlog,abel,bremsa,bremsint,tau0,dpthc,dpthcont,tauc,   &
+      call init(lunlog,abel,bremsa,bremsam,bremsint,tau0,dpthc,dpthcont,&
+     &   tauc,                                                          &
      &   xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,httot2,cltot2,     &
      &   cllines,clcont,htcomp,clcomp,clbrems,                          &
      &   xilev,rcem,oplin,rccemis,brcems,opakc,opakcont,                &
@@ -391,6 +408,118 @@
            nlin(jlk)=masterdata%idat1(np1i+nidt-1) 
            endif 
          enddo 
-!                                                                       
+!                       
+!     create a vector of rrc energies
+      t=max(t,0.1d0)
+      xpx=max(xpx,1.d0)
+      if (lpri.ne.0) write (lunlog,*)'rrc energies'
+      klel=11 
+      mlel=derivedpointers%npfirst(klel) 
+      jk=0 
+      kk=0 
+      jkk=0 
+!     step through elements                                             
+      do while (mlel.ne.0) 
+
+!       get element data                                                
+        jk=jk+1 
+        mt2=mlel
+        call drd(ltyp,lrtyp,lcon,                                       &
+     &        nrdt,np1r,nidt,np1i,nkdt,np1k,mt2,                        &
+     &        0,lun11)                                            
+        mllel=masterdata%idat1(np1i+nidt-1) 
+        xeltp=masterdata%rdat1(np1r) 
+        xeltp=abel(mllel) 
+        nnz=masterdata%idat1(np1i) 
+        if (lpri.ge.1)                                                  &
+     &        write (lunlog,*)'element:',jk,mlel,mllel,nnz,             &
+     &           (masterdata%kdat1(np1k-1+mm),mm=1,nkdt)                    
+
+!       ignore if the abundance is small                                
+        if (xeltp.lt.1.e-10) then 
+            jkk=jkk+nnz 
+          else 
+
+!           now step thru ions (jkk is ion index)                       
+            klion=12 
+            mlion=derivedpointers%npfirst(klion) 
+            jkk=0 
+            kl=0 
+            do while ((mlion.ne.0).and.(kl.lt.nnz)) 
+              jkk=jkk+1 
+
+!             retrieve ion name from kdati                              
+              mlm=mlion
+              call drd(ltyp,lrtyp,lcon,                                 &
+     &            nrdt,np1r,nidti,np1i,nkdti,np1ki,mlm,                 &
+     &            0,lun11)                                        
+
+!             if not accessing the same element, skip to the next elemen
+              mlleltp=masterdata%idat1(np1i+nidti-2) 
+              if (mlleltp.eq.mllel) then 
+
+                kl=kl+1 
+                if (lpri.ge.1)                                          &
+     &            write (lun11,*)'  ion:',kl,jkk,mlion,mlleltp,         &
+     &                (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
+
+!               now find level data                                     
+                call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
+     &                       nnzz,nnnn,leveltemp,nlev)
+!
+!               now step through rate type 7 data                       
+                mltype=7 
+                ml=derivedpointers%npfi(mltype,jkk) 
+                mllz=0 
+                if (ml.ne.0) mllz=derivedpointers%npar(ml) 
+                mlpar=0 
+                if (ml.ne.0) mlpar=derivedpointers%npar(ml) 
+                do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
+
+!                 get rrc data                                          
+                  kkkl=derivedpointers%npconi2(ml) 
+
+!                 test for non-zero rrc data                            
+                  if ((kkkl.gt.0).and.(kkkl.le.ndat2)) then
+
+!                   get rrc  data                                       
+                    mlm=ml 
+                    call drd(ltyp,lrtyp,lcon,                           &
+     &                nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                &
+     &                0,lun11)                                    
+                    idest1=masterdata%idat1(np1i+nidt-2) 
+                    nlevp=nlev 
+                    idest2=nlevp+masterdata%idat1(np1i-1+nidt-3)-1 
+!                    write (lun11,*)'rrc data'
+!                    call dprinto(ltyp,lrtyp,lcon,                       &
+!     &                 nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
+
+                    if (ltyp.eq.49) then
+                       eth=masterdata%rdat1(np1r)*13.598
+                       else
+                       eth=max(0.1d0,(leveltemp%rlev(4,idest1)          &
+     &                     -leveltemp%rlev(1,idest1)))
+                       endif
+                    errc(kkkl)=12398.41/eth
+                    if (lpri.ne.0) write (lun11,*)kkkl,ml,idest1,       &
+     &                     errc(kkkl),eth,idest2,                       &
+     &               leveltemp%rlev(1,idest1),leveltemp%rlev(4,idest1)
+!                   done with this rrc                                  
+                    endif 
+!                 end of loop over rrcs                                 
+                  ml=derivedpointers%npnxt(ml) 
+                  if (ml.ne.0) mlpar=derivedpointers%npar(ml) 
+                  enddo 
+!               end of test for element                                 
+                endif 
+!             Go to next ion                                            
+              mlion=derivedpointers%npnxt(mlion) 
+              enddo 
+!         end of test for non-zero element abund                        
+          endif 
+        mlel=derivedpointers%npnxt(mlel) 
+!       Go to next element                                              
+        enddo 
+!
       return 
       END                                           

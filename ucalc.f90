@@ -5,8 +5,8 @@
      &   opakc,opakcont,rccemis,lpriu,kdesc2,                           &
      &   rr,delr,t,trad,tsq,xee,xh1,xh0,                                &
      &   epi,ncn2,bremsa,bremsint,                                      &
-     &       leveltemp,                                                 &
-     &   rniss,rnisse,nlev,lfast,lun11,                                 &
+     &   leveltemp,                                                     &
+     &   nlev,lfast,lun11,                                              &
      &   np2,ncsvn,nlsvn)                
 !                                                                       
 !     Name: ucalc.f90  
@@ -57,8 +57,6 @@
 !       ncn2=length of epi
 !       bremsa=flux (erg cm^-2 s^-1 erg^-1)
 !       bremsint=integrated flux
-!       rniss:  lte level populations
-!       rnisse:  lte level populations with exponential removed
 !       nlev:  number of levels for the ion
 !       lfast=fast switch
 !       lun11=logical unit for printing
@@ -90,7 +88,6 @@
       character(49) kdesc(ntyp),kdesc2 
       character(29) krdesc(ntyp) 
       real(8) epi(ncn) 
-      real(8) rniss(nd),rnisse(nd) 
       real(8) bremsa(ncn),bremsint(ncn) 
       real(8) rccemis(2,ncn),opakc(ncn),opakcont(ncn)
       real(8) aa(11),aaa(11,10),bbb(10),sg(ncn) 
@@ -288,7 +285,7 @@
       data kdesc(96)/' Fe XXiV satellites from safranova              '/ 
       data kdesc(97)/' CI rates from inner shells from palmeri 2016   '/ 
       data kdesc(98)/' chianti2016 collisional rates                  '/ 
-      data kdesc(99)/' old type 70                                    '/ 
+      data kdesc(99)/' new type 70                                    '/ 
 
       save kdesc,ergsev,krdesc,pi,c,luse8,bk,opcrit
                                                                         
@@ -1709,7 +1706,7 @@
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'ett=',ett,etmpp(1),                             &
      &  ett+max(0.d0,13.605692*etmpp(1)),                               &
-     &  rniss(idest1)/rniss(nlevp),rnist,rniss(idest1),rniss(nlevp)
+     &  rnist
       call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
      &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
@@ -2057,17 +2054,10 @@
       rnist=rnissel                                                     &
      &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
      &  /(1.e-37+rnisseu)                                                   
-!      rnist=rniss(idest1)                                               &
-!     &  *exp(-(ett+max(0.,13.605692*etmpp(1)))/(0.861707)/t)            &
-!     &  /(1.e-37+rniss(nlevp))                                                   
-!      rnist=rnisse(idest1)                                              &
-!     &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
-!     &  /rnisse(nlevp)                                                   
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'ett=',ett,etmpp(1),                             &
      &  ett+max(0.d0,13.605692*etmpp(1)),                               &
-     &  rniss(idest1),rniss(nlevp),                                     &
-     &  rniss(idest1)/(1.e-37+rniss(nlevp)),rnist                                
+     &  rnist                                
       call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
      &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
@@ -2967,7 +2957,7 @@
       ans5=ans2*dele*ergsev
       go to 9000 
 !                                                                       
-   70 continue 
+   99 continue 
 !     Coefficients for phot x-section of suplevels                      
 !      lfastl=lfast                                                     
       lfastl=3 
@@ -3036,25 +3026,25 @@
         endif 
       swrat=gglo/ggup 
       if (lpric.gt.1) then 
-         write (lun11,*)'type 70 data:',masterdata%idat1(np1i),         &
+         write (lun11,*)'type 99 data:',masterdata%idat1(np1i),         &
      &       masterdata%idat1(np1i+nidt-1),t,xnx,eth,gglo,ggup,swrat
-         call dprinto(ndesc,nrdesc,lcon,                             &
+         call dprinto(ndesc,nrdesc,lcon,                                &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)  
         endif 
       ettry=ett/13.6 
 !     nb eliminating high density for H
 !      if (jkion.eq.1) den=min(den,1.d+8)
       m=nrdt
-      call calt70(temp,den,ettry,ic,m,np1r,np1i,                     &
+      call calt99(temp,den,ettry,ic,m,np1r,np1i,                        &
      &             ntmp,etmpp,stmpp,rec,al,lun11,lpric,ierr)                 
-      if ((ierr.ne.0).and.(lpric.ne.0)) write (lun11,*)'calt70 error'
+      if ((ierr.ne.0).and.(lpric.ne.0)) write (lun11,*)'calt99 error'
       if (lpric.gt.1) write (lun11,*)'after  calt70:',rec,stmpp(1) 
       crit53=0.01 
       do mm=1,ntmp 
         stmpp(mm)=stmpp(mm)*1.d-18 
         stmpp(mm)=max(stmpp(mm),0.d0) 
         enddo 
-      call phint53hunt(stmpp,etmpp,ntmp,ett,ans1,ans2d,ans3d,ans4s,  &
+      call phint53hunt(stmpp,etmpp,ntmp,ett,ans1,ans2d,ans3d,ans4s,     &
      & lpric,epi,ncn2,bremsa,t,swrat,xnx,crit53,lfastl,lun11)           
       if (ans2d.le.1.d-48) then 
         ans1=0. 
@@ -3073,7 +3063,7 @@
       ans1o=ans1 
 !      ans1=min(ans1,ans2/rs)                                           
       if (lpric.ge.2)                                                   &
-     & write (lun11,*)'type 70 limit:',ans2,rs,swrat,                   &
+     & write (lun11,*)'type 99 limit:',ans2,rs,swrat,                   &
      &   xnx,tm,q2,ans1o,ans1,scale,rec                                 
 !
 !                                                                       
@@ -3338,8 +3328,9 @@
       idest2=masterdata%idat1(np1i+1) 
       if ((idest1.le.0).or.(idest1.gt.nlev)                             &
      &  .or.(idest2.le.0).or.(idest2.gt.nlev))                          &
-     &      go to 9000                                                  
-      lpril=lpri 
+     &      go to 9000     
+      lpril=0                                             
+      if (lpri.ge.2) lpril=lpri 
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 
       if (eeup.lt.eelo) then 
@@ -3374,8 +3365,8 @@
       lskp=1 
       emax=12398.41/elin 
       nbmx=nbinc(emax,epi,ncn2) 
-      if (lpri.gt.1)                                                    &
-     &  write (lun11,*)'in ucalc, ind=76:',                          &
+      if (lpril.ge.1)                                                   &
+     &  write (lun11,*)'in ucalc, ind=76:',                             &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r),gglo,ggup,a,    &
      &  vtherm,ans2,nbmx                                                       
         rcemsum=0. 
@@ -3386,7 +3377,7 @@
           ansar2=epi(ll)*epi(ll)*max(0.d0,(epi(nbmx)-epi(ll))) 
           rcemsum=rcemsum+(ansar2+ansar2o)                              &
      &                   *(epi(ll)-epi(ll-lskp))/2.                     
-          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,        &
+          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,           &
      &                  ll,lskp,nphint,lrcalc)                          
           ll=ll+lskp 
           enddo 
@@ -3401,12 +3392,13 @@
           rctmp2=abund2*ansar2*ptmp2/12.56 
           rccemis(1,ll)=rccemis(1,ll)+rctmp1 
           rccemis(2,ll)=rccemis(2,ll)+rctmp2 
-          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,        &
+          if (lpril.ge.1) write (lun11,*)ll,epi(ll),ansar2,rctmp1,rctmp2
+          call enxt(epi(1),nb1,lpril,epi,ncn2,t,lfastl,lun11,           &
      &                  ll,nskp,nphint,lrcalc)                          
           ll=ll+nskp 
           enddo 
-        if (lpri.gt.1)                                                  &
-     &  write (lun11,*)'in ucalc, ind=76:',                          &
+        if (lpril.ge.1)                                                  &
+     &  write (lun11,*)'in ucalc, ind=76:',                             &
      &  ml,nilin,nelin,elin,flin,masterdata%rdat1(np1r+2),gglo,ggup,a,  &
      &    vtherm,ans2  
         ans4=aij*ergsev*12398.41/abs(elin) 
@@ -3648,7 +3640,7 @@
    85 continue 
       lprisv=lpri 
       lpril=0 
-!      if (lpri.ge.1) lpril=2                                           
+      if (lpri.ge.1) lpril=2                                           
       if (lpril.gt.1) then
          write (lun11,*)'ltyp=85',ml,derivedpointers%npar(ml) 
          write (lun11,*)(masterdata%rdat1(np1r-1+jj),jj=1,nrdt) 
@@ -3721,7 +3713,7 @@
 !     op inner shell photoexcitation                                    
       lprisv=lpri 
       idest1=masterdata%idat1(np1i+nidt-2) 
-!      idest2=idat1(np1i+nidt-3)                                        
+!      idest2=masterdata%idat1(np1i+nidt-3)                            
       idest2=nlevp 
 !      if (lpri.ge.1) lpri=2                                            
       if (indonly.eq.1) return
@@ -3796,8 +3788,6 @@
       rnist=rnissel                                                     &
      &  *exp(-(max(0.d0,13.605692*etmpp(1)))/(0.861707)/t)              &
      &  /(1.e-37+rnisseu)                                                   
-!      rnist=rniss(idest1)*expo(-ett/(0.861707)/t)/(1.e-37+rniss(nlevp))
-!      rnist=rnisse(idest1)/rnisse(nlevp) 
       call phint53(stmpp,etmpp,ntmp,ett,ans1,ans2,ans3,ans4,         &
      &  ans5,ans6,abund1,abund2,ptmp1,ptmp2,xpx,opakab,rnist,           &
      &  opakc,opakcont,rccemis,lprib,epi,ncn2,bremsa,t,swrat,xnx,       &
@@ -4488,7 +4478,7 @@
 !                                                                       
       go to 9000 
 !                                                                       
-   99 continue 
+   70 continue 
 !     old type 70
 !     Coefficients for phot x-section of suplevels                      
 !      lfastl=lfast                                                     
@@ -4566,9 +4556,9 @@
 !     nb eliminating high density for H
       if (jkion.eq.1) den=min(den,1.d+8)
       m=nrdt
-      call calt99(temp,den,ettry,ic,m,np1r,np1i,                      &
+      call calt70(temp,den,ettry,ic,m,np1r,np1i,                      &
      &             ntmp,etmpp,stmpp,rec,al,lun11,lpric)                 
-      if (lpric.ne.0) write (lun11,*)'after  calt99:',rec,stmpp(1) 
+      if (lpric.ne.0) write (lun11,*)'after  calt70:',rec,stmpp(1) 
       crit53=0.01 
       do mm=1,ntmp 
         stmpp(mm)=stmpp(mm)*1.d-18 
@@ -4593,7 +4583,7 @@
       ans1o=ans1 
 !      ans1=min(ans1,ans2/rs)                                           
       if (lpric.ge.2)                                                   &
-     & write (lun11,*)'type 99 limit:',ans2,rs,swrat,                   &
+     & write (lun11,*)'type 70 limit:',ans2,rs,swrat,                   &
      &   xnx,tm,q2,ans1o,ans1,scale,rec                                 
 !                                                                       
 !     nb testing superlevel phot.                                       

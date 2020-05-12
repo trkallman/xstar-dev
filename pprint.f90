@@ -11,7 +11,7 @@
      & ncsvn,nlsvn,                                                     &
      & ntotit,lnerrd,                                                   &
      & xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,              &
-     & cllines,clcont,htcomp,clcomp,clbrems,                            &
+     & cllines,clcont,htcomp,clcomp,clbrems,htfreef,                    &
      &       httot2,cltot2,                                             &
      & xilev,bilev,rnist,                                               &
      & rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,opakab,           &
@@ -225,7 +225,7 @@
       TYPE(level_temp) :: leveltemp
 !
 !     line luminosities                                                 
-      real(8) elum(3,nnnl) 
+      real(8) elum(2,nnnl) 
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
 !     line opacities                                                    
@@ -349,7 +349,7 @@
       real(8) r, ener, etst, aij, gglo, ggup, flin 
       real(8) httot, cltot, htcomp, clcont, cllines,                    &
      &       httot2,cltot2
-      real(8) clcomp, clbrems, uu1, enlum, alguu1 
+      real(8) clcomp, clbrems, uu1, enlum, alguu1, htfreef
       real(8) skse, ecc, ekt, sksec, zetac, enn0 
       real(8) egam, rdel, hmctot,  expo 
       real(8) elmtp, elmtpb,  terr 
@@ -584,7 +584,7 @@
    19 continue 
 !                                                                       
 !     print 500 strongest recombination continua                        
-      lpril=0 
+      lpril=0
       write (lun11,*)'recombination continuum luminosities',            &
      &  '(erg/sec/10**38))'                                             
       write (lun11,*)'index, ion, level, energy (eV), RRC luminosity ' 
@@ -655,7 +655,7 @@
      &                (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)            
 !                                                                       
 !               now find level data                                     
-                jkk=masterdata%idat1(nidt+np1i-1)
+                jkk=masterdata%idat1(nidti+np1i-1)
                 call calc_rates_level_lte(jkk,lpril,lun11,t,xee,xpx,    &
      &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
@@ -1626,8 +1626,8 @@
 !                                                                       
       write (lun11,*)'total heating, cooling:',                         &
      &            httot,cltot                                           
-      write (lun11,*)'partial heating rates: photo,compton',            &
-     &            httot-htcomp,htcomp                                   
+      write (lun11,*)'partial heating rates: photo,compton,free-free',  &
+     &            httot-htcomp,htcomp,htfreef                                   
       write (lun11,*)'partial cooling rates: rec,lines,brems,compton',  &
      &            clcont,cllines,clcomp,clbrems                         
       write (lun11,*)'total heating, cooling, electron point of view:', &

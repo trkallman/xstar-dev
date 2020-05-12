@@ -2,7 +2,7 @@
      &       t,r,delr,xee,xpx,                                          &
      &       epi,ncn2,                                                  &
      &       ncsvn,                                                     &
-     &       brcems,cmp1,cmp2,httot,cltot,httot2,cltot2,hmctot,         &
+     &       brcems,htfreef,cmp1,cmp2,httot,cltot,httot2,cltot2,hmctot, &
      &             htcomp,clcomp,clbrems)                
 !                                                                       
 !     Name: heatf.f90  
@@ -65,7 +65,7 @@
       real(8) brcems(ncn)
       real(8) cmp1,cmp2,cltot,                                          &
      &     hmctot,htcomp,clcomp,clbrems,ekt,                            &
-     &     fac,                                                         &
+     &     fac,htfreef,                                                 &
      &     xnx,httot,httot2,cltot2
       real(8) ergsev
       real(8) tmp2,tmp2o 
@@ -107,9 +107,9 @@
       ekt = t*(0.861707) 
       htcomp = cmp1*xnx*ergsev 
       clcomp = ekt*cmp2*xnx*ergsev 
-      httot=httot+htcomp 
+      httot=httot+htcomp+htfreef
       cltot=cltot+clcomp+clbrems 
-      httot2=httot2+htcomp 
+      httot2=httot2+htcomp+htfreef
       cltot2=cltot2+clcomp+clbrems 
       if (lpri.gt.1) write (lun11,9953)htcomp,clcomp,cmp1,cmp2,         &
      &   clbrems,httot,cltot                                            

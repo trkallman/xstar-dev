@@ -1,11 +1,11 @@
       subroutine calc_hmc_element(ml_element,lpri,lun11,                &
-     &                 critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,&
-     &                 zeta,mml,mmu,                                    &
-     &                 epi,ncn2,bremsa,bremsint,                        &
-     &                 leveltemp,                                       &
-     &                 tau0,tauc,                                       &
-     &                 np2,ncsvn,nlsvn,                                 &
-     &                 rnise,bileve,xileve,cl,ht,xii,rrrti,pirti)
+     &                critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac, &
+     &                zeta,mml,mmu,                                     &
+     &                epi,ncn2,bremsa,bremsint,                         &
+     &                leveltemp,                                        &
+     &                tau0,tauc,                                        &
+     &                np2,ncsvn,nlsvn,                                  &
+     &                rnise,bileve,xileve,cl,ht,cl2,ht2,xii,rrrti,pirti)
 
 !                                                                       
 !     Name: calc_hmc_element.f90  
@@ -98,7 +98,6 @@
       real(8) xileve(nd),rnise(nd),bileve(nd) 
       real(8) x(nd) 
       character(1) kblnk 
-      real(8) rnisi(nd)
 !     allocating these variables adds significant overhead
 !      real(8), allocatable, dimension(:,:) :: ajisi
 !      real(8), allocatable, dimension(:) :: cjisi,cjisi2 
@@ -200,14 +199,6 @@
           nlev=derivedpointers%nlevs(jkk_ion)
           if (lpri.gt.1) write (lun11,*)'nlev=',nlev
           if (lpri.gt.1) write (lun11,*)'ipmat=',ipmat
-          do mm=1,nlev
-!           get level pointer                                     
-!            rnisi(mm)=rnise(mm+ipmat)
-            rnisi(mm)=0.
-            if (lpri.gt.1)                                              &
-     &       write (lun11,*)'before calc_ion_rates',                    &
-     &         mm,rnise(mm+ipmat)
-            enddo
           ipmat=ipmat+nlev-1
 !
           nindbio=nindbi
@@ -218,7 +209,7 @@
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirttmp,rrrttmp,                               &
-     &                   rnisi,nlev)
+     &                   nlev)
           pirti(klion)=pirttmp
           rrrti(klion)=rrrttmp
           if (lpri.gt.1) write (lun11,*)klion,pirttmp,rrrttmp
@@ -266,6 +257,10 @@
       if (lfl.eq.0) mml(jk)=1
       mml(jk)=max(1,mml(jk)-1)
       mmu(jk)=min(nnz,mmu(jk)+1)
+      if (critf.le.1.e-34) then
+        mml(jk)=1
+        mmu(jk)=nnz
+        endif
       if (lpri.ge.1) write (lun11,*)'ion limits:',mml(jk),mmu(jk),mm
 !
       call levwkelement(ml_element,lpri,ipmatsv,t,xee,xpx,leveltemp,    &
@@ -303,13 +298,6 @@
             if (lpri.gt.1) write (lun11,*)'nlev=',nlev
             if (lpri.gt.1) write (lun11,*)'ipmat=',ipmat
             if (lpri.gt.1) write (lun11,*)'ipmat2=',ipmat2
-            do mm=1,nlev
-!             get level pointer                                     
-              rnisi(mm)=rnise(mm+ipmat)
-              if (lpri.gt.1)                                            &
-     &         write (lun11,*)'before calc_hmc_ion',                    &
-     &         mm,rnise(mm+ipmat),xileve(mm+ipmat)
-              enddo
 !
            nindbio=nindbi
            call calc_hmc_ion(ml_ion,lpri,lun11,                         &
@@ -319,11 +307,11 @@
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirttmp,rrrttmp,                               &
-     &                   rnisi,                                         &
      &                   ajisi,cjisi,cjisi2,indbi,nindbi,nlev)
 !
-            if (lpri.gt.0) write (lun11,*)'   pirttmp,rrrtmp:',         &
+            if (lpri.gt.0) write (lun11,9831)                           &
      &           pirttmp,rrrttmp
+9831        format(1x, '   pirttmp,rrrtmp:',2(1pe11.3))
 !
 !           map to element matrix
             do mm=nindbio+1,nindbi
@@ -338,14 +326,14 @@
               enddo
 !
 !           set up superlevel pointers                   
-            if (lpri.ge.1) write (lun11,*)'superlevel pointers',        &
+            if (lpri.ge.1) write (lun11,*)'   superlevel pointers',     &
      &           nlev,nsp,ipmat2
             nsup(1+ipmat2)=nsp 
             if (nlev.gt.2) then
               nsp=nsp+1 
               do mm=2,nlev-1
                 nsup(mm+ipmat2)=nsp 
-                if (lpri.ge.1) write (lun11,*)mm,mm+ipmat2,nsp
+                if (lpri.ge.1) write (lun11,*)'   ',mm,mm+ipmat2,nsp
                 enddo 
               endif 
             nsp=nsp+1 
@@ -363,7 +351,7 @@
             endif
 !                                                                       
           ipmat=ipmat+nlev-1
-          if (lpri.ge.1) write (lun11,*)'ipmat=',ipmat,nsp,nlev
+          if (lpri.ge.1) write (lun11,*)'   ipmat=',ipmat,nsp,nlev
 !
 !         end of test if element belongs to parent of ion
           endif
@@ -387,7 +375,7 @@
       nitmx=40 
       nitmx2=40 
       lprim=0
-!       if (lpri.gt.0) lprim=3                                    
+!       if (lpri.gt.0) lprim=4                                    
 !      if (lpri.gt.0) lprim=1                                    
       if (lprim.ne.0) then
         write (lun11,*)'before msolvelucy'

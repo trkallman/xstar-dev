@@ -1,40 +1,25 @@
-      subroutine velimp(n,l,temp,ic,z1,rm,ne,sum,cn) 
-!
-!     Name: velimp.f90
-!     Description:
-!       impact parameter collision rate calculated following the method of
-!       pengelly & seaton (1964) but using the lowest cross-section at eve
-!       velocity.                                                         
-!       note that cn is the rate for nl -> nl-1 and hence l > 0 *         
-!       cne(l+1)=cn                                                       
-!       cen(l)=cn*(2.*l+1)/(2.*l-1)                                       
-!       author:  M. Bautista                                              
-!     Parameters:
-!           Input:
-!           n = principal quantum number of initial state                     
-!           l = orbital quantum number of initial state                       
-!           temp = temperature in kelvin                                      
-!           ic = ionic charge of target particle                              
-!           z1 = charge of incident particle                                  
-!           rm = mass of incident particle in units of electron mass me       
-!           ne = electron number density                                      
-!           sum = total spontaneous transition rate out of n,l                
-!           Output:
-!           cn = transition rate for nl -> nl-1                               
-!     Dependencies: expint
-!     Called by: amcrs
-!                                                                       
+      subroutine velimp(n,l,temp,ic,z1,rm,ne,sum,cn,lpri,lun11) 
+
       implicit none 
+!                                                                       
+!     impact parameter collision rate calculated following the method of
+!     pengelly & seaton (1964) but using the lowest cross-section at eve
+!     velocity.                                                         
+!     note that cn is the rate for nl -> nl-1 and hence l > 0 *         
+!     cne(l+1)=cn                                                       
+!     cen(l)=cn*(2.*l+1)/(2.*l-1)                                       
+!     author:  M. Bautista                                              
 !                                                                       
       real(8) ne, temp, z1, rm, sum, cn 
       real(8) pi, pa, pd, alfa, b, dnl, bb 
       real(8) va, vd, ava, vb, avb, avd, eb 
       real(8) ea, ed, xa, xb, xd, expo, den 
       real(8) ca, cad, cd 
-      integer n, l, ic 
+      integer n, l, ic , lpri, lun11
 !                                                                       
       cn=0. 
-      if((l.eq.0).or.(sum.eq.0.)) go to 50 
+      if((l.eq.0).or.(sum.eq.0.).or.(l.eq.n)) go to 50 
+!     added n=l condition tk 4/13/2020
       den=l*(n*n-l*l)+(l+1)*(n*n-(l+1)*(l+1)) 
       dnl=6.*z1/ic*z1/ic*n*n*(n*n-l*l-l-1) 
       pi=2.*acos(0.) 
@@ -43,6 +28,9 @@
       alfa=3.297e-12*rm/temp 
       b=1.157*sqrt(dnl) 
       bb=b*b 
+      if (lpri.gt.1) write (lun11,*)'in velimp n,l,temp,ic,z1,rm,ne:',  &
+     &     n,l,temp,ic,z1,rm,ne
+      if (lpri.gt.1) write (lun11,*)den,dnl,pi,pa,pd,alfa,b,bb
 !                                                                       
       va=pd/pa 
       vd=b/pd 
@@ -64,6 +52,8 @@
            if(avd.lt.50.) call expint(avd,ed) 
 !           call expint(avd,ed)                                         
       ed=ed/avd*xd 
+      if (lpri.gt.1) write(lun11,*)va,vb,vd,ava,avb,                    &
+     &          avd,xa,xb,xd,ea,eb,ed
 !                                                                       
       if(va.gt.vd) then 
       if(avb.gt.1.e-3) then 
@@ -88,6 +78,7 @@
 !                                                                       
       cn=cn*l*(n*n-l*l)/den 
 !                                                                       
+      if (lpri.gt.1) write (lun11,*)cn,ca,cad,cd
    50    return 
 !                                                                       
       END                                           

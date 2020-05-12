@@ -6,7 +6,7 @@
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xiin,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter,&
-     &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       cllines,clcont,htcomp,clcomp,clbrems,htfreef,              &
      &       httot2,cltot2,                                             &
      &       xilevg,bilevg,rnisg)
                                                                         
@@ -132,7 +132,7 @@
       real(8) vturbi,critf,t,trad,r,delr,xee,xpx,cfrac,p,zeta,          &
      &     hmctot,elcter,cllines,clcont,htcomp,clcomp,clbrems           
       real(8) xh1,xh0,httot,cltot,httot2,cltot2 
-      real(8) cmp1,cmp2,                                                &
+      real(8) cmp1,cmp2,htfreef,                                        &
      &     enelec,                                                      &
      &     xeltp,                                                       &
      &     xisum,cl,ht,cl2,ht2                                             
@@ -262,13 +262,13 @@
 !
 !         now fill rate matrix for element
           call calc_hmc_element(ml_element,lpri,lun11,                  &
-     &                 critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac,&
-     &                 zeta,mml,mmu,                                    &
-     &                 epi,ncn2,bremsa,bremsint,                        &
-     &                 leveltemp,                                       &
-     &                 tau0,tauc,                                       &
-     &                 np2,ncsvn,nlsvn,                                 &
-     &                 rnise,bileve,xileve,cl,ht,xii,rrrti,pirti)
+     &                critf,vturbi,t,trad,r,delr,xee,xpx,xh1,xh0,cfrac, &
+     &                zeta,mml,mmu,                                     &
+     &                epi,ncn2,bremsa,bremsint,                         &
+     &                leveltemp,                                        &
+     &                tau0,tauc,                                        &
+     &                np2,ncsvn,nlsvn,                                  &
+     &                rnise,bileve,xileve,cl,ht,cl2,ht2,xii,rrrti,pirti)
 !
 !
 !                                                                       
@@ -376,13 +376,13 @@
 !     call comp(lpri,lun11,epi,ncn2,bremsa,cmp1,cmp2)                 
 !     ferland compton                                                   
 !      call comp3(lpri,lun11,epi,ncn2,bremsa,cmp1,cmp2)               
-!      call freef(lpri,lun11,epi,ncn2,t,xpx,xee,opakc)                  
+      call freef(lpri,lun11,epi,ncn2,bremsa,t,xpx,xee,opakc,htfreef)  
       call bremem(lpri,lun11,xee,xpx,t,epi,ncn2,brcems,opakc) 
       call heatf(lpri,lun11,                                            &
      &       t,r,delr,xee,xpx,                                          &
      &       epi,ncn2,                                                  &
      &       ncsvn,                                                     &
-     &       brcems,cmp1,cmp2,httot,cltot,httot2,cltot2,hmctot,         &
+     &       brcems,htfreef,cmp1,cmp2,httot,cltot,httot2,cltot2,hmctot, &
      &             htcomp,clcomp,clbrems)                
 !                                                                       
       if (lpri.gt.1) write (lun11,*)'leaving calc_hmc_all' 

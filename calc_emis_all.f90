@@ -7,7 +7,7 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xilevg,bilevg,rnisg,                                   &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc)                         
                                                                         
 !                                                                       
 !     Name: calc_emis_all.f90  
@@ -102,45 +102,83 @@
       real(8) tauc(2,nnml) 
       real(8) xii(nni)
       real(8) abel(nl)
+      real(8) elin(nnnl)
+      real(8) errc(nnml)
 !     limits on ion indeces vs element
       integer mml(nl),mmu(nl)
 !                                                                       
       real(8) xileve(nd),rnise(nd),bileve(nd)
       integer lpri,lun11,lcdd,ncn2,np2,ncsvn,nlsvn 
       real(8) vturbi,critf,t,trad,r,delr,xee,xpx,cfrac,p
-      real(8) xh1,xh0
+      real(8) xh1,xh0,htfreef
       real(8) xeltp
       integer nlev,klion,jkk,ipmat,ltyp,jkk_ion,                        &
      &     lrtyp,lcon,nrdt,nidt,nkdt,ll,jk,mm,mmtmp,                    &
      &     nnz,mlm,np1i,np1r,np1k,lprisv,ml                 
+      integer nlbin(nrank,ncn),ncbin(nrank,ncn)
+      integer iunit,iunit2,iunit3,iunit4
       integer ml_element_data_type,ml_element                    
       integer np1ki,nkdti,ml_ion,ml_ion_data_type,ml_element_test
       integer ipmatmax
       integer nnzz,nnnn
       real(8) sigth,xnx
+      real(8) emina,emaxa
+      integer nrmax,jkkl,kkkl,lopak,lpril
 !                      
       data sigth/6.65e-25/                                                 
       save sigth
 !            
       lprisv=lpri 
       if (lpri.ge.1)                                                    &
-     &  write (lun11,901)t,xee,xpx,lcdd,p,delr                              
-901   format (1x,'in calc_emis_all, inputs:',3(1pe10.3),i6,2(1pe10.3))
+     &  write (lun11,901)t,xee,xpx,lcdd,p,delr,cfrac                              
+901   format (1x,'in calc_emis_all, inputs:',3(1pe10.3),i6,3(1pe10.3))
        if (lcdd.ne.1)                                                   &
      &   xpx = p/1.38e-12/max(t,1.d-24)                                 
+       xnx=xpx*xee
+
+       do ll=1,ncn2
+          do mm=1,nrank
+            nlbin(mm,ll)=0
+            ncbin(mm,ll)=0
+            enddo
+          enddo
+!
+!      rank the rrcs and lines
+        lpril=lpri
+        lpril=0
+        emaxa=12398.54/epi(1)
+        emina=12398.54/epi(ncn2)
+        lopak=1
+        if (lpri.ne.0) write (lun11,*)'binning continua',emina,emaxa          
+        do kkkl=1,ncsvn
+          call rlbin(kkkl,errc,cemab,opakab,nnml,emina,emaxa,           &
+     &                  epi,ncn2,ncbin,lopak,lun11,lpril)
+          enddo
+        if (lpri.ne.0) write (lun11,*)'binning lines',emina,emaxa,lopak
+        lopak=0
+        do jkkl=1,nlsvn
+          call rlbin(jkkl,elin,rcem,oplin,nnnl,emina,emaxa,             &
+     &                  epi,ncn2,nlbin,lopak,lun11,lpril)
+          enddo
+!       print out the rankings
+        if (lpri.ge.1) then
+          write (lun11,*)'the feature rankings'
+          do ll=1,ncn2
+            nrmax=0
+            do mm=1,nrank
+              if ((nlbin(mm,ll).ne.0).or.(ncbin(mm,ll).ne.0))          &
+     &              nrmax=max(nrmax,mm)
+              enddo
+            if (nrmax.gt.0) then                
+              write (lun11,*)ll,epi(ll)
+              do mm=1,nrmax
+                write (lun11,*)'  ',mm,nlbin(mm,ll),ncbin(mm,ll)
+                enddo                
+              endif
+            enddo
+          endif
 !                                                                       
 !      zero emissivitiesd and opacities                                 
-       do ll=1,nnml 
-         cemab(1,ll)=0.
-         cemab(2,ll)=0.
-         cabab(ll)=0.
-         opakab(ll)=0.
-         enddo
-       do ll=1,nnnl 
-         rcem(1,ll)=0. 
-         rcem(2,ll)=0. 
-         oplin(ll)=0. 
-         enddo
        do ll=1,ncn2 
          rccemis(1,ll)=0. 
          rccemis(2,ll)=0. 
@@ -161,8 +199,6 @@
 !     NB testing
       xh1=0.
       xh0=0.
-!
-      if (lpri.ge.1) write (lun11,*)'unpacking abundances'                                                   
 !
 !     step thru elements                         
       ml_element_data_type=11 
@@ -219,7 +255,7 @@
                 jkk=masterdata%idat1(nidt+np1i-1)
                 klion=masterdata%idat1(np1i)
                 if (lpri.ge.1)                                          &
-     &            write (lun11,903)jkk_ion,ml_ion,                      &
+     &            write (lun11,903)jkk,ml_ion,                          &
      &               (masterdata%kdat1(np1ki+mm-1),mm=1,nkdti)
 903             format (1x,'      ion:',i12,1x,i12,1x,8(1a1))
                 nnzz=masterdata%idat1(np1i+1)
@@ -274,12 +310,12 @@
      &       vturbi,critf,t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,      &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
-     &                   leveltemp,                                     &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xileve,bileve,rnise,ipmat,                             &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc,nlbin,ncbin)                         
 !                                                                       
 !         end of test if abundance
           endif 
@@ -289,10 +325,10 @@
      &          ml_element=derivedpointers%npnxt(ml_element) 
         enddo 
 !
-!      call freef(lpri,lun11,epi,ncn2,t,xpx,xee,opakc)                  
+      call freef(lpri,lun11,epi,ncn2,bremsa,t,xpx,xee,opakc,htfreef)  
       call bremem(lpri,lun11,xee,xpx,t,epi,ncn2,brcems,opakc) 
 
-      if (lpri.gt.1) write (lun11,*)'leaving calc_emis_all' 
+      if (lpri.ge.1) write (lun11,*)'leaving calc_emis_all' 
 !                                                                       
       lprisv=lpri 
 !                                                                       

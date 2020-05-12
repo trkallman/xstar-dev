@@ -5,7 +5,7 @@
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirti,rrrti,                                   &
-     &                   rnisi,nlev)
+     &                   nlev)
 
 !                                                                       
 !     Name: calc_ion_rates.f90  
@@ -42,7 +42,6 @@
 !           np2: atomic data parameter, number of records in atomic database
 !           ncsvn: atomic data parameter, number of rrcs in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
-!           rnisi:  lte level populations  relative to ion 
 !           nlev:  number of levels for the ion
 !           also uses variables from globaldata
 !           Output:
@@ -92,8 +91,6 @@
       real(8) tauc(2,nnml) 
 !                                                                       
       character(1) kblnk 
-      real(8) rnisi(nd)
-      real(8) rnisse(nd) 
       real(8) tau1,tau2,ptmp
       real(8) pirti,rrrti
       integer np1i,np1r,np1k 
@@ -143,8 +140,7 @@
      &              '  stat.wt.                LTE ' 
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
-     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
-     &        rnisi(mm)                                   
+     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm)
  9022     format (2x,i4,1x,20a1,2(1pe10.3),10x,1pe10.3) 
           enddo 
         endif
@@ -172,11 +168,13 @@
           call drd(ltyp,lrtyp,lcon,                                     &
      &          nrdt,np1r,nidt,np1i,nkdt,np1k,ml_data,                  &
      &          0,lun11)     
-          idest1=0 
+          idest1=masterdata%idat1(np1i+nidt-2)
           if (lrtyp.eq.7) idest1=masterdata%idat1(np1i+nidt-2) 
           if ((lrtyp.eq.1).or.(lrtyp.eq.15).or.(lrtyp.eq.8)             &
-     &       .or.(lrtyp.eq.42)                                          &
      &       .or.(lrtyp.eq.6).or.((lrtyp.eq.7).and.(idest1.eq.1))) then
+!         an experiment
+!          if ((lrtyp.eq.1).or.                                          &
+!     &       (lrtyp.eq.5).or.(lrtyp.eq.7)) then
 !           calculate rates                                         
             lpriu=min(1,lpri)
             abund1=0. 
@@ -194,16 +192,26 @@
      &                r,delr,t,trad,tsq,xee,xh1,xh0,                    &
      &                epi,ncn2,bremsa,bremsint,                         &
      &                leveltemp,                                        &
-     &                rnisi,rnisse,nlev,lfpi,lun11,                     &
+     &                nlev,lfpi,lun11,                                  &
      &                np2,ncsvn,nlsvn)               
+!           summing over level rates
+!            if  ((lrtyp.eq.1).or.                                       &
+!     &       (((lrtyp.eq.5).or.(lrtyp.eq.7)).and.(idest1.eq.1))) then
+!              pirti=pirti+ans1
+!              endif
+!            if (idest2.eq.nlev) then
+!              rrrti=rrrti+ans2
+!              endif
+!            first version using total rates
             if ((lrtyp.eq.1).or.(lrtyp.eq.15).or.                       &
-     &          (lrtyp.eq.42).or.                                       &
      &          ((lrtyp.eq.7).and.(idest1.eq.1))) then
               pirti=pirti+ans1
               endif
             if ((lrtyp.eq.8).or.(lrtyp.eq.6)) then
               rrrti=rrrti+ans1
               endif
+            llo=idest1
+            lup=idest2
             if ((lpri.ge.1))                                            &
      &        write (lun11,9004)jkk_ion,lrtyp,ltyp,idest1,              &
      &        idest2,llo,lup,ml_data,ans1,ans2,rrrti,pirti
