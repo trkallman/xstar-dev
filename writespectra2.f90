@@ -222,7 +222,7 @@
       kform(4)='A20' 
       kunits(4)='  ' 
       klabs(5)='wavelength      ' 
-      kform(5)='F10.4' 
+      kform(5)='E11.3' 
       kunits(5)='A' 
       klabs(6)='emit_inward     ' 
       kform(6)='E11.3' 
@@ -386,13 +386,15 @@
      &         write (lun11,*)unit,colnum,frow,felem,nrows,klevu,status
               kk4=5 
               colnum=kk4
+              status=0
               call ftpcle(unit,colnum,frow,felem,nrows,elsv,status) 
               if (status .gt. 0)call printerror(lun11,status) 
               if (lpri.gt.0)                                            &
-     &         write (lun11,*)unit,colnum,frow,felem,nrows,elsv,status
+     &         write (lun11,*) unit,colnum,frow,felem,nrows,elsv,status
               kk4=6 
               colnum=kk4 
               rtmp=sngl(elum(1,ntptr))
+              status=0
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
               if (lpri.gt.0)                                            &
@@ -400,6 +402,7 @@
               kk4=7 
               colnum=kk4 
               rtmp=sngl(elum(2,ntptr)) 
+              status=0
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
               if (lpri.gt.0)                                            &
@@ -407,6 +410,7 @@
               kk4=8 
               colnum=kk4
               rtmp=sngl(tau0(1,ntptr))
+              status=0
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
               if (lpri.gt.0)                                            &
@@ -414,6 +418,7 @@
               kk4=9 
               colnum=kk4
               rtmp=sngl(tau0(2,ntptr))
+              status=0
               call ftpcle(unit,colnum,frow,felem,nrows,rtmp,status) 
               if (status .gt. 0)call printerror(lun11,status) 
               if (lpri.gt.0)                                            &

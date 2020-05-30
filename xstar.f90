@@ -814,7 +814,7 @@
      &            cabab,elumab,elum,zrems,                              &
      &            zrtmp,zrtmpcol,zrtmph,zrtmpc)                            
       if (lpri.ge.0) then
-      do mm=2,19
+      do mm=2,16
         call pprint(nlprnt(mm),                                         &
      &                      jkp,trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,     &
      &            numrec,npass,nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,    &
