@@ -20,6 +20,7 @@
        integer mm,mmm,nbinc
        integer lun11,lpri,nskp,jk
 !
+       if (lpri.gt.1) write (lun11,*)'in bremsmap',ncn2,ncn2m
        do mmm=1,ncn2m
          bremsam(mmm)=0.
          if (epim(mmm).le.1.e-39) stop 'epim error'
@@ -29,7 +30,7 @@
           bremsam(mmm)=bremsa(mm)
           enddo
        do mmm=1,ncn2m
-          jk=ncn2m-mmm
+          jk=ncn2m-mmm+1
           sumtmp=(bremsa(jk)+bremsa(jk+1))*(epi(jk+1)-epi(jk))/2. 
           bremsint(jk)=bremsint(jk+1)+sumtmp*(1.602197e-12) 
          enddo

@@ -73,7 +73,7 @@
       integer unit,istatus 
       integer nlsvn, ll 
       integer tbcol(6), nrows, rowlen, kk 
-      integer frow, felem, colnum, tfields, status, verbose,mm
+      integer frow, felem, colnum, tfields, status, verbose,mm,lwri
       real(8) eliml, elimh 
       real(8) vturbi 
 !     the atomic data creation date                                     
@@ -82,7 +82,7 @@
 ! jg                                                                    
       real(8) t,xlum 
                                                                         
-      integer lpri, ncn2,lwri 
+      integer lpri, ncn2 
 !                                                                       
 !     Not used                                                          
       integer javi 

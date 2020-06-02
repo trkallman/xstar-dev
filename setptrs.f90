@@ -601,19 +601,19 @@
         np2=mm1
 !
       if (lpri.ge.1) write (lun11,*)'done with setptrs'
-      if (lpri.ge.1) stop 'stopping in setptrs'
+!      if (lpri.ge.1) stop 'stopping in setptrs'
 !        
-!       print data
-!        call dbwk2(12,abel,np2,nptrt,karg,lpri,lun11,                   &
-!     &  nlsvn,ncsvn)                                             
-!       print pointers
-!        call dbwk2(25,abel,np2,nptrt,karg,lpri,lun11,                   &
-!     &  nlsvn,ncsvn)                                             
 !       set up pointers (again)
         call dbwk2(7,abel,np2,nptrt,karg,lpri,lun11,                    &
      &  nlsvn,ncsvn)                                             
 !       print records per ion
 !        call dbwk2(28,abel,np2,nptrt,karg,lpri,lun11,                   &
+!     &  nlsvn,ncsvn)                                             
+!       print data
+!        call dbwk2(12,abel,np2,nptrt,karg,lpri,lun11,                   &
+!     &  nlsvn,ncsvn)                                             
+!       print pointers
+!        call dbwk2(25,abel,np2,nptrt,karg,lpri,lun11,                   &
 !     &  nlsvn,ncsvn)                                             
 !
       deallocate(nptrt)

@@ -30,7 +30,8 @@
       integer ncn2,lpri,lun11 
       real(8) dele,dels,s1,e1,e2,s2 
       integer nadd 
-!                                                                       
+!                 
+      if (ntmp.le.0) return                                                      
       dele=1.3 
       nadd=0 
       dels=dele**3 

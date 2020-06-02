@@ -331,21 +331,21 @@
                 cll=cll+rcemm 
 !                clcont=clcont+rcemm 
                 endif
-              if (ml_data_type.eq.4) then
-!             note need to change from v2.55 owing to change in order ans3 ans4
+              if ((ml_data_type.eq.4).and.(jkkl.ne.0)) then
+!               note need to change from v2.55 owing to change in order ans3 ans4
                 rcem(1,jkkl)=-abund2*ans3*ptmp1/(ptmp1+ptmp2) 
                 rcem(2,jkkl)=-abund2*ans3*ptmp2/(ptmp1+ptmp2) 
                 oplin(jkkl)=opakb1*abund1 
                 cll=cll+rcem(1,jkkl)+rcem(2,jkkl) 
                 htt=htt+abund1*ans3 
-                endif
-              if ((lpri.ge.1))                                          &
+                if ((lpri.ge.1))                                          &
      &               write (lun11,9002)jkk_ion,lrtyp,                   &
      &                 ltyp,idest1,idest2,                              &
      &                 llo,lup,ml_data,ans1,ans2,ans3,ans4,             &
      &                 rcem(1,jkkl)+rcem(2,jkkl),oplin(jkkl),           &
      &                 masterdata%rdat1(np1r),jkkl,cll,htt              &
      &                  ,ptmp1,ptmp2,abund1,abund2                                    
+                endif
 !
 !             end of test if levels sensible
               endif
@@ -362,7 +362,8 @@
 !       end of loop over data types
         enddo 
 !
-      if (lpri.gt.0) write (lun11,*)'returning from calc_emis_ion'
+      if (lpri.gt.0)                                                    &
+     &  write (lun11,*)'     returning from calc_emisab_ion'
       lpri=lprisv
 !
       return 

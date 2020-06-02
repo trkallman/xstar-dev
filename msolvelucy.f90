@@ -61,7 +61,7 @@
 !
 !     these are parameters which control convergence
 !     crit is the value of diff required to converge
-      crit=1.d-2                                                    
+      crit=1.d-2                                                   
 !     crit2 is the value of diff2 required to converge
       crit2=1.d-2
 !     nitmx is passed in and is the maximum number of 

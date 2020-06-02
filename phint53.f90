@@ -75,7 +75,9 @@
       data bk/1.38062e-16/ 
       save bk
 !                                                                       
-!                                                                       
+!                                                         
+      if (ntmp.le.0) return
+!              
 !     internal to this routine we use the threshold binned              
 !      eth=ethi                                                         
       nb1=nbinc(ethi,epi,ncn2) 

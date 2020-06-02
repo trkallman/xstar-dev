@@ -699,7 +699,7 @@
                     klevu=ktmp20 
 !                                                                       
 !                   ion label                                           
-                    do lk=1,nkdti 
+                    do lk=1,min(8,nkdti)
                        write (ktmp8(lk:lk),'(a1)')                      &
      &                       masterdata%kdat1(np1ki+lk-1) 
                       enddo 
@@ -742,7 +742,7 @@
      &                  write (lun11,*) ndtmp,iltmp,idest2,ett          
 !                     label for lower level                             
                       ktmp20=kblnk20 
-                      do lk=1,nkdt2 
+                      do lk=1,min(8,nkdt2)
                        write (ktmp8(lk:lk),'(a1)')                      &
      &                       masterdata%kdat1(np1ki+lk-1) 
                         enddo 
@@ -1032,7 +1032,7 @@
                     klevu=ktmp20 
 !                                                                       
 !                   ion label                                           
-                    do lk=1,nkdti 
+                    do lk=1,min(8,nkdti)
                        write (ktmp8(lk:lk),'(a1)')                      &
      &                       masterdata%kdat1(np1ki+lk-1) 
                       enddo 
@@ -2380,7 +2380,7 @@
                     klevu=ktmp20 
 !                                                                       
 !                   ion label                                           
-                    do lk=1,nkdti 
+                    do lk=1,min(8,nkdti)
                       write (ktmp8(lk:lk),'(a1)')                       &
      &                      masterdata%kdat1(np1ki+lk-1) 
                       enddo 

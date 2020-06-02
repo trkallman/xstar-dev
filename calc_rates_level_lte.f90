@@ -55,7 +55,7 @@
 !                                                       
       if (lpri.gt.1)                                                    &
      &  write (lun11,*)'in calc_rates_level_lte, inputs:',t,            &
-     &          xee,xpx                                                 
+     &          xee,xpx                                               
 !
 !                                                                       
 !     now find level data                                               
@@ -65,11 +65,14 @@
       ml=derivedpointers%npfi(mltype,jkk) 
       if (lpri.gt.1) write (lun11,*)'jkk=',                             &
      &      jkk,ml,derivedpointers%npar(ml) 
+      if (ml.eq.0) return
       mllz=derivedpointers%npar(ml) 
 !     step thru records of this type                                    
       mlpar=derivedpointers%npar(ml) 
       do while ((ml.ne.0).and.(mlpar.eq.mllz)) 
          mlm=ml 
+         if (lpri.gt.1) write (lun11,*)'ml,mlpar=',                     &
+     &      jkk,ml,mlpar,mllz 
          call drd(ltyp,lrtyp,lcon,                                      &
      &     nrdt,np1r,nidt,np1i,nkdt,np1k,mlm,                           &
      &     0,lun11)                                               

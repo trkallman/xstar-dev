@@ -20,7 +20,7 @@
       parameter (ntyp=99)
       parameter (ncn=99999)
       parameter (nnnl=1000000)
-      parameter (nnml=500000)
+      parameter (nnml=1000000)
       parameter (nni=465)
       parameter (nl=30)
       parameter (ndl=1000)

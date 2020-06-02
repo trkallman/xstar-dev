@@ -1,4 +1,3 @@
-!                                                                       
       subroutine dprints(ltyp,lrtyp,lcon,                            &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)                            
 !                                                                       

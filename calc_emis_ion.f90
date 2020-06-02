@@ -417,7 +417,8 @@
 !       end of loop over data types
         enddo 
 !
-      if (lpri.gt.0) write (lun11,*)'returning from calc_emis_ion'
+      if (lpri.gt.0)                                                    &
+     &  write (lun11,*)'     returning from calc_emis_ion'
       lpri=lprisv
 !
       return 

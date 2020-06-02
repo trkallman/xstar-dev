@@ -1616,6 +1616,7 @@
       if (indonly.eq.1) return
       if (lpri.gt.1) write (lun11,*)'idest1=',idest1,idest2,nlevp
       if ((idest1.ge.nlevp).or.(idest1.le.0)) go to 9000 
+      if (nrdt.le.0)  go to 9000 
       if (ml.le.0) go to 9000 
       eth=leveltemp%rlev(4,idest1)-leveltemp%rlev(1,idest1) 
       ett=eth 
@@ -1739,6 +1740,10 @@
       if (elin.le.1.d-34) go to 9000 
       aij=masterdata%rdat1(np1r+2) 
       ans1=aij*(ptmp1+ptmp2) 
+!
+!     nb imposing a floor to avoid numerical problems
+      ans1=max(ans1,1.e-20*xpx)
+!
 !      aij=min(aij,1.e+10)                                              
       eeup=leveltemp%rlev(1,idest1) 
       eelo=leveltemp%rlev(1,idest2) 

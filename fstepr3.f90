@@ -254,7 +254,7 @@
                     klevu(kk)=ktmp20 
 !                                                                       
 !                   ion label                                           
-                    do lk=1,nkdti 
+                    do lk=1,min(8,nkdti)
                        write (ktmp8(lk:lk),'(a1)')                      &
      &                       masterdata%kdat1(np1ki+lk-1) 
                       enddo 

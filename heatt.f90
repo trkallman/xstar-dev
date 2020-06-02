@@ -209,6 +209,7 @@
      &   write (lun11,*)'continuum heating, cooling:',                  &
      &       hmctot,hpctot,(hmctot+hpctot)/2.,-(hmctot-hpctot)/2.       
         clcont=cltot 
+        if (lpri.gt.1) write (lun11,*)'transferring lines: ',nlsvn
         do jkk=1,nlsvn 
           jk=jkk 
           ml=derivedpointers%nplin(jk) 
@@ -251,7 +252,7 @@
 !            write (lun11,*)'line sum',jk,nilin,nblin,etst,             
 !     $        rcem(2,jk),optp2,fac,delrl,fpr2,tmph,tmpc2,              
 !     $        elumo(2,jk),elum(2,jk),(elum(2,jk)-elumo(2,jk))/delrl/fpr
- 9019     format (1x,2i6,14(1pe12.4)) 
+ 9019     format (1x,2i10,14(1pe12.4)) 
             endif 
           enddo 
 !                                                                       

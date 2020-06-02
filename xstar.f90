@@ -1,42 +1,3 @@
-      module globaldata
-      implicit none 
-!                                                                       
-      include './PARAM' 
-!                                                                       
-!     global xstar data
-!     master data
-      TYPE :: master_data
-        integer, allocatable, dimension(:) :: idat1 ! integer data
-        real(8), allocatable, dimension(:) :: rdat1  ! real data
-        integer, allocatable, dimension(:,:) :: nptrs ! pointer data
-        character(1), allocatable, dimension(:) :: kdat1 ! character data
-      END TYPE master_data
-      TYPE(master_data) :: masterdata
-      TYPE :: derived_pointers
-        integer, allocatable, dimension(:) :: npar   !    pointers to master data
-        integer, allocatable, dimension(:) :: npnxt   !    pointers to master data
-        integer, allocatable, dimension(:) :: npfirst !    pointers to master data
-        integer, allocatable, dimension(:,:) :: npfi    !    pointers to master data first record for ion
-        integer, allocatable, dimension(:,:) :: npfe  !   pointers to master data first record from element
-        integer, allocatable, dimension(:) :: nplin   ! pointers to line data
-        integer, allocatable, dimension(:) :: nplini  ! pointers to line data
-        integer, allocatable, dimension(:) :: npcon
-        integer, allocatable, dimension(:) :: npconi2 
-        integer, allocatable, dimension(:) :: npconi
-        integer, allocatable, dimension(:,:) :: npilev
-        integer, allocatable, dimension(:) :: npilevi
-        integer, allocatable, dimension(:) :: nlevs
-      END TYPE derived_pointers
-      TYPE(derived_pointers) :: derivedpointers
-!     compton heating data                                              
-      real(8) decomp(ncomp,ncomp),ecomp(ncomp),sxcomp(ncomp) 
-      end module globaldata
-      module times
-      integer ntp
-      parameter (ntp=99)
-      real tread,tloop,tfunc,trates1,thcor,trates2,tucalc(ntp),theat
-      integer ncall(ntp)
-      end module times
       subroutine xstar 
 !                                                                       
 !      based on attenuate
@@ -288,7 +249,7 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
-      write (tmpst,*)'xstar version 2.56d' 
+      write (tmpst,*)'xstar version 2.56e' 
       call xwrite(tmpst,10) 
 !                                                                       
 !     default parameter values                                          
@@ -313,7 +274,7 @@
       zeta=0. 
       xi=10.**zeta 
       lfix=0 
-      ncn2=min(ncn,999) 
+      ncn2=max(ncn,999) 
       call ener(epi,ncn2) 
       ncn2m=999
       call ener(epim,ncn2m) 
@@ -567,7 +528,8 @@
      &      r,xpxcol,xpx,                                               &
      &      epi,ncn2,zremsz,dpthc,opakc,                                &
      &      zrems,bremsa,bremsint)                            
-!                                                                     
+!                 
+                                                    
           if (t.lt.tinf*(1.02)) then 
             t=tinf*(1.01) 
             endif 
@@ -575,7 +537,7 @@
 !         calculate temperature, ionization, etc.                       
           lpri2=0
 !          if (jkp.eq.1) lpri2=1
-          lprid=0
+          lprid=1
           call xstarcalc(lpri2,lnerrd,nlimd,                            &
      &            lpri3,lprid,lunlog,tinf,vturbi,critf,                 &
      &            t,trad,r,delr,xee,xpx,ababs,cfrac,p,lcdd,zeta,        &
@@ -593,6 +555,7 @@
      &             xilevg,bilevg,rnisg,                                 &
      &            rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,       &
      &            cabab,opakab,fline,flinel,elin,errc)                
+!
 !
 !          do tranfer.  assumes comp2 and bremem have been called             
 !          already                                                           
@@ -814,7 +777,7 @@
      &            cabab,elumab,elum,zrems,                              &
      &            zrtmp,zrtmpcol,zrtmph,zrtmpc)                            
       if (lpri.ge.0) then
-      do mm=2,16
+      do mm=2,19
         call pprint(nlprnt(mm),                                         &
      &                      jkp,trad,xlum,lwri,lpri,r,t,xpx,p,lcdd,     &
      &            numrec,npass,nnmax,nlimd,rmax,xpxcol,xi,zeta,lfix,    &

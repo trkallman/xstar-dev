@@ -70,7 +70,9 @@
       save bk
       data delt/1.e-28/ 
       save delt
-!                                                                       
+!
+      if (ntmp.le.0) return                                                                       
+!
 !     initialize.                                                       
        pirt =0. 
        rrrt =0. 

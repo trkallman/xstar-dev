@@ -294,7 +294,8 @@
 !
 !           end of step thru ions
             ml_ion=derivedpointers%npnxt(ml_ion)
-            ml_element_test=derivedpointers%npar(ml_ion)
+            ml_element_test=0
+            if (ml_ion.ne.0)ml_element_test=derivedpointers%npar(ml_ion)
             enddo
 !
           ipmat=0

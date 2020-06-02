@@ -203,7 +203,8 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
-      if (lpri.gt.0) write (lun11,*)'returning from calc_emis_element'
+      if (lpri.gt.0)                                                    &
+    &  write (lun11,*)'     returning from calc_emisab_element'
 !
       return 
       end                                           

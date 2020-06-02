@@ -124,7 +124,7 @@
       character(9) kinam1 
       character(1) kblnk
 !                                                                       
-      logical ex 
+      logical ex,done
 !                                                                       
       data ku/'0'/,kd/'d'/,kt/'t'/ 
       data kblnk4/'    '/,kblnk/' '/ 
@@ -1439,8 +1439,9 @@
  1281                  continue 
                        ml=derivedpointers%npnxt(ml) 
                        write (lun11,*)'   ',ml 
-                       if ((ml.ne.0).and.                               &
-     &                  (mlz.eq.derivedpointers%npar(ml))) go to 1281 
+                       if (ml.ne.0) then
+                         if (mlz.eq.derivedpointers%npar(ml)) go to 1281 
+                         endif
                      endif 
                    enddo 
                  endif 
@@ -1537,8 +1538,8 @@
                        mllz=derivedpointers%npar(mll) 
 !                       if (lpri.gt.0) write (lun11,*)'mll,mllz2)=',     &
 !     &                    mll,mllz
-                       do while ((derivedpointers%npar(mll).eq.mllz)    &
-     &                   .and.(mll.ne.0).and.(nlvtmp1.ne.nlvtmp2))
+                       done=.false.
+                       do while (.not.done)
 !
                          call dread(ltyp,lrtyp,lcon,                    &
      &                     lrdat,rdat,lidat,idat,lkdat,kdat,mll,        &
@@ -1569,6 +1570,7 @@
                            if ((ilv.gt.0).and.(ilv.le.nni))             &
      &                       derivedpointers%nlevs(jkk)                 &
      &                         =max(derivedpointers%nlevs(jkk),nlvtmp2)                  
+                           done=.true.
                            if (lpri.gt.0)                               &
      &                       write (lun11,*)jkkl,ml,                    &
      &                       derivedpointers%npcon(jkkl),               &
@@ -1579,6 +1581,12 @@
 !
 !                        end of loop over levels
                          mll=derivedpointers%npnxt(mll) 
+                        if (mll.eq.0) then
+                             done=.true.
+                           else
+                             if (derivedpointers%npar(mll).ne.mllz)     &
+     &                          done=.true.
+                           endif
                          enddo
 !
 !                      end of test for level exists
@@ -1607,8 +1615,8 @@
              if ((mll.ne.0).and.(mll.le.ndat2)) then
 !
                mllz=derivedpointers%npar(mll) 
-               do while ((derivedpointers%npar(mll).eq.mllz)            &
-     &                   .and.(mll.ne.0))
+               done=.false.
+               do while (.not.done)
 !
                  call dread(ltyp,lrtyp,lcon,                            &
      &                     lrdat,rdat,lidat,idat,lkdat,kdat,mll,        &
@@ -1621,6 +1629,11 @@
 !
 !                end of loop over levels
                  mll=derivedpointers%npnxt(mll) 
+                 if (mll.eq.0) then
+                     done=.true.
+                   else
+                     if (derivedpointers%npar(mll).ne.mllz) done=.true.
+                   endif
                  enddo
 !
 !              end of test for level exists
