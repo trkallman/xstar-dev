@@ -258,7 +258,11 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
+<<<<<<< HEAD
       write (lunlog,*)'xstar version 2.56f' 
+=======
+      write (lunlog,*)'xstar version 2.56e' 
+>>>>>>> 694d40589ce7d3f68c936d6499b2fdf520dfb214
 !                                                                       
 !     Test if atomic database files are available.  Abort if not.       
       call getenv('LHEA_DATA', datafile) 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
       module globaldata
       implicit none 
 !                                                                       
@@ -39,6 +40,8 @@
       real tread,tloop,tfunc,trates1,thcor,trates2,tucalc(ntp),theat
       integer ncall(ntp)
       end module times
+=======
+>>>>>>> 694d40589ce7d3f68c936d6499b2fdf520dfb214
       subroutine xstar 
 !                                                                       
 !      based on attenuate
@@ -290,7 +293,11 @@
       call remtms(t1s) 
 !                                                                       
 !     opening message                                                   
+<<<<<<< HEAD
       write (tmpst,*)'xstar version 2.56f' 
+=======
+      write (tmpst,*)'xstar version 2.56e' 
+>>>>>>> 694d40589ce7d3f68c936d6499b2fdf520dfb214
       call xwrite(tmpst,10) 
 !                                                                       
 !     default parameter values                                          
