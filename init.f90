@@ -1,4 +1,4 @@
-      subroutine init(lunlog,abel,bremsa,bremsint,tau0,dpthc,           &
+      subroutine init(lunlog,abel,bremsa,bremsam,bremsint,tau0,dpthc,   &
      &     dpthcont,tauc,                                               &
      &   xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,httot2,cltot2,     &
      &   cllines,clcont,htcomp,clcomp,clbrems,                          &
@@ -75,7 +75,7 @@
 !                                                                       
 !                                                                       
 !     line luminosities                                                 
-      real(8) elum(3,nnnl),elumo(3,nnnl) 
+      real(8) elum(2,nnnl),elumo(2,nnnl) 
 !     line emissivities                                                 
       real(8) rcem(2,nnnl) 
 !     line opacities                                                    
@@ -90,6 +90,7 @@
       real(8) dpthc(2,ncn),dpthcont(2,ncn) 
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
+      real(8) bremsam(ncn)
 !     continuum emissivities                                            
       real(8) rccemis(2,ncn),brcems(ncn) 
 !     continuum opacities                                               
@@ -221,6 +222,7 @@
          bremsint(i)=0. 
          bremsint(i)=0. 
          bremsa(i)=0. 
+         bremsam(i)=0. 
          dpthc(1,i) = 0. 
          dpthc(2,i)=0. 
          dpthcont(1,i) = 0.
@@ -236,10 +238,10 @@
          rcem(2,i)=0. 
          elum(1,i)=0. 
          elum(2,i)=0. 
-         elum(3,i)=0. 
+         elum(2,i)=0. 
          elumo(1,i)=0. 
          elumo(2,i)=0. 
-         elumo(3,i)=0. 
+         elumo(2,i)=0. 
 !         tau0(2,i)=1.e+20                                              
 !         tau0(1,i) = 1.e+20                                            
          tau0(2,i)=0. 

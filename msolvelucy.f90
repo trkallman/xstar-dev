@@ -61,9 +61,9 @@
 !
 !     these are parameters which control convergence
 !     crit is the value of diff required to converge
-      crit=1.d-4                                                     
+      crit=1.d-2                                                   
 !     crit2 is the value of diff2 required to converge
-      crit2=1.d-4
+      crit2=1.d-2
 !     nitmx is passed in and is the maximum number of 
 !        lu decomposition iterations allowed
 !     nitmx2 is passed in and is the maximum number of 
@@ -72,8 +72,6 @@
       eps=1.e-30
 !     eps2 is used in calculating which populations to include in diff2
       eps2=1.e-30
-!      crit=1.d-4 
-!      crit2=1.d-4 
       diff=1. 
       niter=0 
       nit3=0 

@@ -1,4 +1,4 @@
-      subroutine calc_emis_element(ml_element,lpri,lun11,xeltp,        &
+      subroutine calc_emis_element(ml_element,lpri,lun11,xeltp,         &
      &       vturbi,critf,temperature,trad,radius,delr,xee,xpx,         &
      &       abel,cfrac,pressure,lcdd,                                  &
      &       mml,mmu,                                                   &
@@ -8,7 +8,7 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xileve,bileve,rnise,ipmat,                             &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc,nlbin,ncbin)                         
 
 !                                                                       
 !     Name: calc_emis_element.f90  
@@ -70,9 +70,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     energy bins                                                       
@@ -89,7 +89,6 @@
       real(8) tau0(2,nnnl) 
       real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
       real(8) xileve(nd),rnise(nd),bileve(nd)
-      real(8) xilevi(nd),rnisi(nd),bilevi(nd)
       real(8) xii(nni)
 !     line opacities                                                    
       real(8) oplin(nnnl) 
@@ -110,7 +109,10 @@
 !     element abundances                                                
       real(8) abel(nl) 
 !     limits on ion indeces vs element
+      real(8) elin(nnnl)
+      real(8) errc(nnml)
       integer mml(nl),mmu(nl)
+      integer nlbin(nrank,ncn),ncbin(nrank,ncn)
 !                                                                       
       character(1) kblnk 
       real(8) xeltp
@@ -122,6 +124,8 @@
      &        ml_element_test
 !                                                                       
       data kblnk/' '/ 
+!
+      save kblnk
 !                                                                       
 !                                                                       
       if (lpri.ge.1)                                                    &
@@ -173,25 +177,22 @@
 !           get level data                                          
             if (lpri.gt.1) write (lun11,*)'nlev=',nlev
             if (lpri.gt.1) write (lun11,*)'ipmat=',ipmat
-            do mm=1,nlev
-!             get level pointer                                     
-              bilevi(mm)=bileve(mm+ipmat)
-              rnisi(mm)=rnise(mm+ipmat)
-              xilevi(mm)=xileve(mm+ipmat)
-              if (lpri.gt.1)                                            &
-     &         write (lun11,*)'before calc_emis_ion',                   &
-     &         mm,rnise(mm),xilevi(mm),bilevi(mm)
-              enddo
+            if (lpri.gt.1) then
+              do mm=1,nlev
+                write (lun11,*)'before calc_emis_ion',                  &
+     &          mm,rnise(mm+ipmat),xileve(mm+ipmat),bileve(mm+ipmat)
+                enddo
+              endif
             call calc_emis_ion(ml_ion,lpri,lun11,xeltp,                 &
      &       vturbi,critf,temperature,trad,radius,delr,                 &
      &       xee,xpx,xh0,xh1,cfrac,pressure,lcdd,                       &
      &       epi,ncn2,bremsa,bremsint,                                  &
-     &                   leveltemp,                                     &
+     &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
-     &       xilevi,bilevi,rnisi,                                       &
+     &       xileve,bileve,rnise,ipmat,                                 &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc,nlbin,ncbin)                         
 !
 !           end of test for ion abundancs
             endif
@@ -205,7 +206,8 @@
         ml_ion=derivedpointers%npnxt(ml_ion)
         enddo 
 !
-      if (lpri.gt.0) write (lun11,*)'returning from calc_emis_element'
+      if (lpri.gt.0)                                                    &
+     &  write (lun11,*)'     returning from calc_emis_element'
 !
       return 
       end                                           

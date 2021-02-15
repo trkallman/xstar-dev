@@ -65,9 +65,14 @@
 !                                                                       
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
       data delt/1.e-28/ 
-!                                                                       
+      save delt
+!
+      if (ntmp.le.0) return                                                                       
+!
 !     initialize.                                                       
        pirt =0. 
        rrrt =0. 

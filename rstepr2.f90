@@ -64,6 +64,7 @@
                                                                         
       data tunit/' ','ev','/cm',' ',' '/ 
                                                                         
+       save kblnk,tform,ttype,tunit
 !                                                                       
 !                                                                       
       if (lpri.gt.0)                                                    &

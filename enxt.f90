@@ -36,7 +36,9 @@
       integer nskp,numcon2,nbinc,numcon3,nskp1,numcon,nskp2 
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
        if (lpri.gt.2)                                                   &
      &  write (lun11,*)'in enxt:',eth,nb1,t,lfast,jk,lpri,           &

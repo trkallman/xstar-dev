@@ -34,9 +34,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     Allocation for passed parameters                                  
@@ -65,6 +65,7 @@
       integer np1i,np1r,np1k
       real(8) eth 
       character(10) kdtmp 
+      integer nnzz,nnnn
                                                                         
       data tform/'1J','1I','1E','8A','1I','20A','1E','1E','1I'/ 
       data ttype/'index','ion_index','e_excitation','ion',              &
@@ -152,6 +153,8 @@
               call drd(ltyp,lrtyp,lcon,                                 &
      &            nrdt,np1r,nidt,np1i,nkdti,np1ki,mlm,                  &
      &            0,lun11)                                        
+              nnzz=masterdata%idat1(np1i+1)
+              nnnn=nnzz-masterdata%idat1(np1i)+1
                                                                         
 !             if not accessing the same element, skip to the next elemen
               mlleltp=masterdata%idat1(np1i+nidt-2) 
@@ -164,7 +167,7 @@
 !                                                                       
 !               get level data                                          
                 call calc_rates_level_lte(jkk,lpri,lun11,t,xee,xpx,     &
-     &              leveltemp,nlev)
+     &              nnzz,nnnn,leveltemp,nlev)
 !                                                                       
 !               step thru levels                                        
                 do mm2=1,nlev 

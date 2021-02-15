@@ -34,6 +34,7 @@
       real(8) tp 
 !
       data ergsev/1.602197e-12/ 
+      save ergsev
 !                                                                       
       allocate(zremsi(ncn))
 !                                                                       

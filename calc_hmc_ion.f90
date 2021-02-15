@@ -5,7 +5,6 @@
      &                   tau0,tauc,                                     &
      &                   np2,ncsvn,nlsvn,                               &
      &                   pirti,rrrti,                                   &
-     &                   rnisi,                                         &
      &                   ajisi,cjisi,cjisi2,indbi,nindbi,nlev)
 
 !                                                                       
@@ -43,7 +42,6 @@
 !           np2: atomic data parameter, number of records in atomic database
 !           ncsvn: atomic data parameter, number of rrcs in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
-!           rnisi:  lte level populations  relative to ion 
 !           nlev:  number of levels for the ion
 !           also uses variables from globaldata
 !           Output:
@@ -64,9 +62,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     energy bins                                                       
@@ -96,8 +94,6 @@
       real(8) tauc(2,nnml) 
 !                                                                       
       character(1) kblnk 
-      real(8) rnisi(nd)
-      real(8) rnisse(nd) 
       real(8) ajisi(2,ndb),cjisi(ndb),cjisi2(ndb) 
       integer indbi(2,ndb) 
       real(8) tau1,tau2,airtmp,e1,e2,pescl,pescv,ptmp
@@ -107,8 +103,10 @@
      &        llo,lup,ltyp,jkk_ion,                                     &
      &        lrtyp,lcon,nrdt,nidt,nkdt,kkkl,                           &
      &        ml_data,ml_ion,ml_data_type,ml_data_par
+      integer nnzz,nnnn
 !                                                                       
       data kblnk/' '/ 
+      save kblnk
 !                                                                       
       lprisv=lpri
 !      if (lpri.ge.1) lpri=2
@@ -129,13 +127,15 @@
      &            nrdt,np1r,nidt,np1i,nkdt,np1k,ml_ion,                 &
      &            0,lun11)                                        
       jkk_ion=masterdata%idat1(np1i+nidt-1)
+      nnzz=masterdata%idat1(np1i+1)
+      nnnn=nnzz-masterdata%idat1(np1i)+1
       if (lpri.ge.1)                                                    &
      &            write (lun11,903)jkk_ion,ml_ion,                      &
      &               (masterdata%kdat1(np1k+mm-1),mm=1,nkdt)
 903             format (1x,'      ion:',2(i12,1x),8(1a1))
 !
       call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,           &
-     &      leveltemp,nlev)
+     &      nnzz,nnnn,leveltemp,nlev)
       nlev=derivedpointers%nlevs(jkk_ion)
       if (lpri.ge.1) then 
         write (lun11,*)'      nlev=',nlev
@@ -143,8 +143,7 @@
      &              '  stat.wt.               LTE ' 
         do mm=1,nlev 
           write (lun11,9022)mm,(leveltemp%klev(ml,mm),ml=1,20)          &
-     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm),                &
-     &        rnisi(mm),rnisse(mm)                                   
+     &       ,leveltemp%rlev(1,mm),leveltemp%rlev(2,mm)
  9022     format (2x,i4,1x,20a1,2(1pe10.3),10x,2(1pe10.3))  
           enddo 
         endif
@@ -154,9 +153,9 @@
       ml_data_type=0 
       do while (ml_data_type.lt.ntyp) 
 !
+        ml_data_type=ml_data_type+1 
         if (lpri.gt.1)                                                  &
      &   write (lun11,*)'ml_data_type=',ml_data_type
-        ml_data_type=ml_data_type+1 
 !
 !       loop over data
         ml_data=derivedpointers%npfi(ml_data_type,jkk_ion) 
@@ -188,12 +187,12 @@
             tau1=0.
             tau2=0.
             if (lrtyp.eq.4) then
-              kkkl=derivedpointers%nplini(ml) 
+              kkkl=derivedpointers%nplini(ml_data) 
               if ((kkkl.gt.0).and.(kkkl.le.nnnl)) then
                 tau1=tau0(1,kkkl) 
                 tau2=tau0(2,kkkl) 
                 ptmp1=pescl(tau1)*(1.-cfrac)                            
-                ptmp2=pescl(tau2)*(1.-cfrac)                         &
+                ptmp2=pescl(tau2)*(1.-cfrac)                           &
      &              +2.*pescl(tau1+tau2)*cfrac 
 !                ptmp2=pescl(tau2)*(1.-cfrac)+2.*pescl(tau2)*cfrac     
                 endif
@@ -204,11 +203,11 @@
                  tau1=tauc(1,kkkl) 
                  tau2=tauc(2,kkkl) 
                  ptmp1=pescv(tau1)*(1.-cfrac) 
-                 ptmp2=pescv(tau2)*(1.-cfrac)                        &
+                 ptmp2=pescv(tau2)*(1.-cfrac)                           &
      &                  +2.*pescv(tau1+tau2)*cfrac                      
                  endif
                endif
-           if (lpri.gt.1) write (lun11,*)'kkkl,tau1,ptmp1:',         &
+           if (lpri.gt.1) write (lun11,*)'kkkl,tau1,ptmp1:',            &
      &               kkkl,tau1,ptmp1,tau2,ptmp2
             ptmp=(ptmp1+ptmp2) 
 !           note that radiative rates and emissivities will     
@@ -222,7 +221,7 @@
      &                r,delr,t,trad,tsq,xee,xh1,xh0,                    &
      &                epi,ncn2,bremsa,bremsint,                         &
      &                leveltemp,                                        &
-     &                rnisi,rnisse,nlev,lfpi,lun11,                     &
+     &                nlev,lfpi,lun11,                                  &
      &                np2,ncsvn,nlsvn)               
 !           this Statement prevents double counting of PI from  
 !           excited levels.  All rate type 1 data should not h

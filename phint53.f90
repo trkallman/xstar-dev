@@ -71,9 +71,13 @@
       logical done 
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
-!                                                                       
+!                                                         
+      if (ntmp.le.0) return
+!              
 !     internal to this routine we use the threshold binned              
 !      eth=ethi                                                         
       nb1=nbinc(ethi,epi,ncn2) 
@@ -213,7 +217,9 @@
       exptst=(epiip-eth)/bktm 
       exptmpp=expo(-exptst) 
       bbnurjp=(min(2.d+4,epiip))**3*(1.571e+22)*2. 
-                                                                        
+
+!      NB testing without stimulated recombination               
+!      tempip=rnist*(bbnurjp)                                            &
       tempip=rnist*(bremtmpp+bbnurjp)                                   &
      &  *sgtpp*exptmpp/epiip*(ptmp1+ptmp2)                              
       if (lpri.gt.0) write (lun11,*)tempip,rnist,bremtmpp,bbnurjp,      &
@@ -266,6 +272,8 @@
           exptmpp=expo(-exptst) 
           bbnurjp=(min(2.d+4,epiip))**3*(1.571e+22)*2. 
           tempi=tempip 
+!         NB testing without stimulated recombination
+!          tempip=rnist*(bbnurjp)                                        &
           tempip=rnist*(bremtmpp+bbnurjp)                               &
      &        *sgtpp*exptmpp*12.56/epiip                                
           atmp2=tempip*epiip 
@@ -303,7 +311,8 @@
 !                                                                       
         if (kl.eq.(nb1+2)) then 
           optmp2=rnist*exptmpp*sgtp*abund2*(ptmp1+ptmp2)*xpx 
-          opakab=optmp-optmp2 
+!         NB preventing undesired things due to stimulated recombination
+          opakab=max(0.,optmp-optmp2)
 !          if (lpri.ge.1)                                                &
 !     &       write (lun11,*)'otmp,optmp2',optmp,optmp2,exptmpp,         &
 !     &       sgtp,abund2,ptmp1,ptmp2,xpx,rnist,exptst                   
@@ -311,7 +320,6 @@
 !                                                                       
 !       print                                                           
         if (lpri.ge.1) then 
-!          write (lun11,*)jk,kl,epi(kl),kl,nphint 
           write (lun11,901)jk,kl,epi(kl),sgtp,bremtmp,tempr,sumr        &
      &         ,exptsto,tempi,sumi,tempip,wwir,opakab,optmp,optmp2,     &
      &         rctmp1,rccemis(1,kl)       

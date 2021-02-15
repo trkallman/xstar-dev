@@ -14,14 +14,12 @@
 !           lun11: logical unit number for printing
 !           nlev: number of levels for the ion
 !           output:
-!           rniss: lte level population
-!           rnisse: lte level population relative to ground 
-!                  with exponential removed
+!           rniss
 !           From Globaldata:
-!           rlev(10,nd):  real data for levels of this ion
-!           ilev(10,nd):  integer data for levels of this ion
-!           nlpt(nd):
-!           iltp(nd):
+!           rlev(10,ndl):  real data for levels of this ion
+!           ilev(10,ndl):  integer data for levels of this ion
+!           nlpt(ndl):
+!           iltp(ndl):
 !
 
       use globaldata
@@ -30,12 +28,12 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-      real(8) rnisi(nd),rnisse(nd),rnise(nd), xileve(nd)
+      real(8) rnisi(nd),rnise(nd), xileve(nd)
       real(8) ergsev,bk,t,                                              &
      &     bb
       integer lpri,lprisv,nlev,lun11,ml_element, ipmatsv, jk
@@ -44,10 +42,12 @@
 !                                                                       
       real(8) xpx, xee, rnissum, rmidlog, scale,                        &
      &         rnismax, rnismin
-      integer mm, klion, nnz, mml, mmu
+      integer mm, klion, nnz, mml, mmu,nnzz,nnnn
                                                                         
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
       
       if (lpri.gt.1)                                                    &
      &  write (lun11,901)t,xee,xpx,mml,mmu                              
@@ -85,6 +85,8 @@
           jkk_ion=masterdata%idat1(np1i+nidt-1)
           klion=masterdata%idat1(np1i)
           nlev=derivedpointers%nlevs(jkk_ion)
+          nnzz=masterdata%idat1(np1i+1)
+          nnnn=nnzz-masterdata%idat1(np1i)+1
 !
 !         test for ion in range
           if ((klion.ge.mml).and.(klion.le.mmu)) then
@@ -95,8 +97,8 @@
 903             format (1x,'      ion:',3(i12,1x),8(1a1))
             lprisv=lpri
             call calc_rates_level_lte(jkk_ion,lpri,lun11,t,xee,xpx,     &
-     &              leveltemp,nlev)
-            call levwk(rnisi,rnisse,bb,lpri,nlev,t,xee,xpx,             &
+     &              nnzz,nnnn,leveltemp,nlev)
+            call levwk(rnisi,bb,lpri,nlev,t,xee,xpx,                    &
      &              leveltemp,lun11)      
             lpri=lprisv
             if (lpri.gt.1) write (lun11,*)'after calc_rates_level_lte'
@@ -133,7 +135,8 @@
 !
 !       end of step thru ions
         ml_ion=derivedpointers%npnxt(ml_ion)
-        ml_element_test=derivedpointers%npar(ml_ion)
+        ml_element_test=0
+        if (ml_ion.ne.0)ml_element_test=derivedpointers%npar(ml_ion)
         enddo
 !
 !     fully stripped

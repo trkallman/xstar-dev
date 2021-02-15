@@ -50,9 +50,10 @@
       bremsint(ncn2)=0. 
       bremsint(ncnm)=0. 
       rmax=xpxcol/xpx 
-      if (lpri.gt.0) write (lun11,*)'in trnfrc:',rmax,xpxcol,xpx 
+      if (lpri.gt.0)write (lun11,*)'in trnfrc:',rmax,xpxcol,xpx,ncn,ncn2
       do 1 jkp=1,ncnm 
          jk=ncnm+1-jkp 
+!         write (lun11,*)jk,jkp
 !                                                                       
 !        for outward only                                               
 !                                                                       

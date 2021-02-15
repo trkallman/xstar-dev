@@ -36,6 +36,7 @@
       integer np1r,np1i,np1k 
 !                                                                       
       data kblnk/' '/,kperc/'%'/ 
+      save kblnk,kperc
 !                                                                       
 !      write (lun11,*)ltyp,lrtyp,lcon,nrdt,nidt,nkdt,np1r,np1i,np1k     
 !     $  (rdat(mm),mm=1,nrdt),(idat1(np1i-1+mm),mm=1,nidt),             

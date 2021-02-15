@@ -33,7 +33,7 @@
                                                                         
       real(8) elumab(2,nnml),elumabo(2,nnml) 
       real(8) zrems(5,ncn),zremso(5,ncn) 
-      real(8) elum(3,nnnl),elumo(3,nnnl) 
+      real(8) elum(2,nnnl),elumo(2,nnnl) 
       integer numcon,ncn2,kl,ll,jkk,jk,lpri,lun11,                      &
      &     ncsvn,nlsvn                                                  
 !                                                                       

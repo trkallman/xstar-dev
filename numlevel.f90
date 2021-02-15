@@ -23,11 +23,14 @@
      &        jkk,ltyp,lrtyp,lcon,mlpar,lun11,mlm                       
       integer  nrdt,np1r,nidt,np1i,nkdt,np1k
 !                                                                       
+      nlev=0
+!
 !          now find level data                                          
 !          step thru types                                              
            nlevmx=0 
            mltype=13 
            ml=derivedpointers%npfi(mltype,jkk) 
+           if (ml.eq.0) return
            mllz=derivedpointers%npar(ml) 
 !          step thru records of this type                               
            mlpar=derivedpointers%npar(ml) 

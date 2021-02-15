@@ -58,7 +58,9 @@
 !                                                                       
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
       data bk/1.38062e-16/ 
+      save bk
 !                                                                       
       data eps/1.e-2/ 
 !                                                                       

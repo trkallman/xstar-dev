@@ -1,3 +1,4 @@
+!                                                                       
       subroutine drd(ltyp,lrtyp,lcon,lrdat,np1r,lidat,np1i,lkdat,np1k,  &
      &                 np2,lpri,lun11)                            
 !                                                                       

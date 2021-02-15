@@ -1,4 +1,3 @@
-!                                                                       
       subroutine dprints(ltyp,lrtyp,lcon,                            &
      &  nrdt,np1r,nidt,np1i,nkdt,np1k,lun11)                            
 !                                                                       
@@ -17,6 +16,7 @@
       real(8) rtmp 
 !                                                                       
       data kblnk/' '/,kperc/'%'/ 
+      save kblnk,kperc
 !                                                                       
 !      do ll=1,20000                                                    
 !         write (kdtt(ll:ll),'(a1)')kblnk                               

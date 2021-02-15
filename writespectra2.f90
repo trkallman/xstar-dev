@@ -25,7 +25,7 @@
 !           dpthc(2,ncn): optical depth in continuum bins 
 !           np2: atomic data parameter, number of records in atomic database
 !           nlsvn: atomic data parameter, number of lines in atomic database
-!           elum(3,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
 !           tau0(2,nnnl):  line optical depths
 !           kmodelname:  model name 
 !           nloopcntl:  loop control variable
@@ -55,7 +55,7 @@
       real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real(8) elum(3,nnnl) 
+      real(8) elum(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     the atomic data creation date                                     
@@ -97,6 +97,8 @@
       data kblnk16/'                '/ 
       data kblnk20/'                    '/ 
 !                                                                       
+       save kblnk,kblnk16,kblnk20
+
       if (nlsvn.le.5) return 
                                                                         
       javir=epi(1) 
@@ -220,7 +222,7 @@
       kform(4)='A20' 
       kunits(4)='  ' 
       klabs(5)='wavelength      ' 
-      kform(5)='F10.4' 
+      kform(5)='E11.3' 
       kunits(5)='A' 
       klabs(6)='emit_inward     ' 
       kform(6)='E11.3' 

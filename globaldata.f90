@@ -20,6 +20,8 @@
         integer, allocatable, dimension(:,:) :: npfe  !   pointers to master data first record from element
         integer, allocatable, dimension(:) :: nplin   ! pointers to line data
         integer, allocatable, dimension(:) :: nplini  ! pointers to line data
+        integer, allocatable, dimension(:) :: idst1   ! pointer to lower level
+        integer, allocatable, dimension(:) :: idst2   ! pointer to upper level
         integer, allocatable, dimension(:) :: npcon
         integer, allocatable, dimension(:) :: npconi2 
         integer, allocatable, dimension(:) :: npconi

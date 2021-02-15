@@ -8,11 +8,9 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
-     &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       cllines,clcont,htcomp,clcomp,clbrems,htfreef,              &
      &       httot2,cltot2,                                             &
-     &       xilev,bilev,rnist,                                         &
-     &       rcem,oplin,brcems,opakc,cemab,                             &
-     &       cabab,opakab)                         
+     &       xilev,bilev,rnist)
 !                                                                       
 !     Name: dsec.f90  
 !     Description:  
@@ -87,28 +85,19 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
-!     line emissivities                                                 
-      real(8) rcem(2,nnnl) 
-!     line opacities                                                    
-      real(8) oplin(nnnl) 
 !     line optical depths                                               
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
-!     continuum emissivities                                            
-      real(8) brcems(ncn) 
-!     continuum opacities                                               
-      real(8) opakc(ncn)
 !     level populations                                                 
       real(8) xilev(nnml),bilev(nnml),rnist(nnml)
-      real(8) cemab(2,nnml),cabab(nnml),opakab(nnml) 
       real(8) tauc(2,nnml) 
 !     ion abundances                                                    
       real(8) xii(nni) 
@@ -124,7 +113,7 @@
       real(8) p,r,t,xpx,delr 
 !     heating-cooling variables                                         
       real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,          &
-     &     clcont,hmctot,httot2,cltot2
+     &     clcont,hmctot,httot2,cltot2,htfreef
 !     input parameters                                                  
       real(8) trad,tinf 
       real(8) cfrac,critf,vturbi,xee,zeta
@@ -149,7 +138,6 @@
 !      crite=1.e-06                                                     
       crith=1.e-02 
 !      crith=5.e-03                                                     
-!      crith=1.e-05                                                     
       critt=2.e-09 
 !                                                                       
       ntotit=0 
@@ -217,7 +205,7 @@
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
-     &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       cllines,clcont,htcomp,clcomp,clbrems,htfreef,              &
      &       httot2,cltot2,                                             &
      &       xilev,bilev,rnist)
       if ( lppri.ne.0 ) then 

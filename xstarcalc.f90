@@ -3,17 +3,18 @@
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
      &       epi,ncn2,bremsa,bremsint,                                  &
+     &       epim,ncn2m,bremsam,                                        &
      &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,        &
      &       elcter,                                                    &
-     &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       cllines,clcont,htcomp,clcomp,clbrems,htfreef,              &
      &       httot2,cltot2,                                             &
      &       xilevg,bilevg,rnisg,                                       &
      &       rcem,oplin,rccemis,brcems,opakc,opakcont,cemab,            &
-     &       cabab,opakab,fline,flinel)                           
+     &       cabab,opakab,fline,flinel,elin,errc)                           
                                                                         
 !     Name: xstarcalc.f90  
 !     Description:  
@@ -98,9 +99,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     global xstar data
@@ -113,8 +114,10 @@
       real(8) tau0(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
+      real(8) epim(ncn) 
 !     continuum flux                                                    
       real(8) bremsa(ncn),bremsint(ncn) 
+      real(8) bremsam(ncn)
 !     continuum emissivities                                            
       real(8) rccemis(2,ncn),brcems(ncn) 
 !     continuum opacities                                               
@@ -131,6 +134,8 @@
       real(8) rrrt(nni),pirt(nni) 
 !     element abundances                                                
       real(8) abel(nl) 
+      real(8) elin(nnnl)
+      real(8) errc(nnml)
 !     limits on ion indeces vs element
       integer mml(nl),mmu(nl)
 !                                                                       
@@ -138,10 +143,10 @@
       real(8) p,r,t,xpx,delr 
 !     heating-cooling variables                                         
       real(8) httot,cltot,htcomp,clcomp,clbrems,elcter,cllines,         &
-     &     clcont,hmctot,httot2,cltot2,zeta
+     &     clcont,hmctot,httot2,cltot2,zeta,htfreef
       real(8) trad 
       real(8) cfrac,critf,vturbi,xee,tinf 
-      integer lcdd,ncn2 
+      integer lcdd,ncn2,ncn2m
 !     variables associated with thermal equilibrium solution            
       integer ntotit,lnerrd 
 !     switches                                                          
@@ -150,7 +155,10 @@
       integer nlsvn,ncsvn,lun11,np2,lprisv,lpri2 
 !                                                                       
 !      write (lun11,*)'in xstarcalc',lun11,lpri,lprid
-!                                                                       
+!
+      call bremsmap(bremsa,bremsam,bremsint,epi,epim,ncn2,ncn2m,        &
+     &        lpri2,lun11)       
+!                                                                
       lprisv=lpri 
       lpri=0 
       if (nlimdt.ne.0) then 
@@ -158,31 +166,41 @@
      &       lpri,lprid,lun11,tinf,vturbi,critf,                        &
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
-     &       epi,ncn2,bremsa,bremsint,                                  &
+     &       epim,ncn2m,bremsam,bremsint,                               &
      &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       ntotit,                                                    &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
-     &         cllines,clcont,htcomp,clcomp,clbrems,                    &
+     &         cllines,clcont,htcomp,clcomp,clbrems,htfreef,            &
      &       httot2,cltot2,                                             &
-     &       xilevg,bilevg,rnisg,                                       &
-     &       rcem,oplin,brcems,opakc,cemab,                             &
-     &       cabab,opakab)                         
+     &       xilevg,bilevg,rnisg)
         endif 
 !                                                                       
 !      lpri2=-1
       call calc_hmc_all(lpri2,lun11,vturbi,critf,                       &
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,zeta,              &
      &       mml,mmu,                                                   &
-     &       epi,ncn2,bremsa,bremsint,                                  &
+     &       epim,ncn2m,bremsam,bremsint,                               &
      &       leveltemp,                                                 &
      &       tau0,tauc,                                                 &
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,rrrt,pirt,htt,cll,htt2,cll2,httot,cltot,hmctot,elcter, &
-     &       cllines,clcont,htcomp,clcomp,clbrems,                      &
+     &       cllines,clcont,htcomp,clcomp,clbrems,htfreef,              &
      &       httot2,cltot2,                                             &
      &       xilevg,bilevg,rnisg)  
+!                                                                       
+      call calc_emisab_all(lpri2,lun11,vturbi,critf,                    &
+     &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
+     &       mml,mmu,                                                   &
+     &       epim,ncn2m,bremsam,bremsint,                               &
+     &       leveltemp,                                                 &
+     &       tau0,tauc,                                                 &
+     &       np2,ncsvn,nlsvn,                                           &
+     &       xii,xilevg,bilevg,rnisg,                                   &
+     &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
+     &       cabab,opakab)                         
+!
       call calc_emis_all(lpri2,lun11,vturbi,critf,                      &
      &       t,trad,r,delr,xee,xpx,abel,cfrac,p,lcdd,                   &
      &       mml,mmu,                                                   &
@@ -192,7 +210,7 @@
      &       np2,ncsvn,nlsvn,                                           &
      &       xii,xilevg,bilevg,rnisg,                                   &
      &       rcem,oplin,brcems,rccemis,opakc,opakcont,cemab,            &
-     &       cabab,opakab)                         
+     &       cabab,opakab,elin,errc)                         
 !                                                                       
        lpri=lprisv 
 !                                                                       

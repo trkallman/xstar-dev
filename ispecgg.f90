@@ -29,6 +29,7 @@
       integer lpri, lun11 
 !                                                                       
       data ergsev/1.602197e-12/ 
+      save ergsev
 !                                                                       
       numcon=ncn2 
       sum=0. 

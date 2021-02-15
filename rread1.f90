@@ -67,6 +67,8 @@
       data kblnk80/                                                     &
      &'                                                                 &
      &               '/                                                 
+!
+      save kblnk8,kblnk80
 !                                                                       
             ierr=0 
             call uclgsr8('cfrac',cfrac,ierr) 

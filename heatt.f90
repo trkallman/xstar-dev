@@ -65,9 +65,9 @@
 !                                                                       
       TYPE :: level_temp
         sequence
-        real(8) :: rlev(10,nd) 
-        integer:: ilev(10,nd),nlpt(nd),iltp(nd) 
-        character(1) :: klev(100,nd) 
+        real(8) :: rlev(10,ndl) 
+        integer:: ilev(10,ndl),nlpt(ndl),iltp(ndl) 
+        character(1) :: klev(100,ndl) 
       END TYPE level_temp
       TYPE(level_temp) :: leveltemp
 !     line emissivities                                                 
@@ -94,7 +94,7 @@
       character(1) kblnk 
       real(8) zrems(5,ncn)
       real(8) zremso(5,ncn)
-      real(8) elum(3,nnnl),elumo(3,nnnl) 
+      real(8) elum(2,nnnl),elumo(2,nnnl) 
       real(8) elumab(2,nnml),elumabo(2,nnml) 
       real(8) xeltp,cllines,clcont,cmp1,cmp2,cltot,                      &
      &     hmctot,htcomp,clcomp,clbrems,etst,ekt,epiio,                 &
@@ -114,18 +114,20 @@
 !                                                                       
       data kblnk/' '/ 
       data ergsev/1.602197e-12/ 
+      save ergsev
 !                                                                       
+      save kblnk
 !                                                                       
       lprisv=lpri 
 !                                                                       
       xnx=xpx*xee 
-!      if (lpri.ge.1) lpri=2 
+      r19=r*(1.d-19) 
+      if (lpri.ge.1) lpri=2 
       fpr2=12.56*r19*r19 
       if (lpri.gt.1) write (lun11,*)'in heatt',httot,cltot,delr,r,   &
      &                       fpr2
       if (lpri.gt.1) write (lun11,*)ncsvn,ncn2
       numcon=ncn2 
-      r19=r*(1.d-19) 
 !                                                                       
 
 !     comment these out to implement scattering                         
@@ -191,8 +193,8 @@
           if (lpri.gt.1) write (lun11,9009)kl,epii,optpp,               &
      &     bremsa(kl),tmph,tmpc,flinel(kl),httot,cltot                  &
      &       ,rccemis(1,kl)+rccemis(2,kl),hmctot,tautmp,fac             &
-     &       ,brcems(kl),zrems(2,kl),zremso(2,kl)
- 9009     format (1x,i6,15(1pe12.5)) 
+     &       ,brcems(kl),zrems(1,kl),zrems(2,kl),zremso(2,kl)
+ 9009     format (1x,i6,16(1pe12.5)) 
 !         an afterthought:  continuum only
           optpp=opakcont(kl) 
           optp2=max(1.d-49,optpp) 
@@ -207,6 +209,7 @@
      &   write (lun11,*)'continuum heating, cooling:',                  &
      &       hmctot,hpctot,(hmctot+hpctot)/2.,-(hmctot-hpctot)/2.       
         clcont=cltot 
+        if (lpri.gt.1) write (lun11,*)'transferring lines: ',nlsvn
         do jkk=1,nlsvn 
           jk=jkk 
           ml=derivedpointers%nplin(jk) 
@@ -249,7 +252,7 @@
 !            write (lun11,*)'line sum',jk,nilin,nblin,etst,             
 !     $        rcem(2,jk),optp2,fac,delrl,fpr2,tmph,tmpc2,              
 !     $        elumo(2,jk),elum(2,jk),(elum(2,jk)-elumo(2,jk))/delrl/fpr
- 9019     format (1x,2i6,14(1pe12.4)) 
+ 9019     format (1x,2i10,14(1pe12.4)) 
             endif 
           enddo 
 !                                                                       
@@ -317,7 +320,7 @@
      &                  0,lun11)                                  
                       nlev=masterdata%idat1(np1i+nidt-2) 
                       nlevmx=max(nlevmx,nlev) 
-                      if ((nlev.gt.0).and.(nlev.le.nd)) then 
+                      if ((nlev.gt.0).and.(nlev.le.ndl)) then 
                         do  lk=1,nrdt 
                           leveltemp%rlev(lk,nlev)                       &
      &                        =masterdata%rdat1(np1r+lk-1) 

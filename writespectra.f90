@@ -1,8 +1,8 @@
-      subroutine writespectra(lun11,lpri,nparms,                     &
+      subroutine writespectra(lun11,lpri,lwri,nparms,                   &
      &       parname,partype,parval,parcomm,atcredate,                  &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
      &       nlsvn,                                                     &
-     &       elum,zrems,zremsz,kmodelname,nloopctl)             
+     &       elinb,elum,zrems,zremsz,kmodelname,nloopctl)             
 !                                                                       
 !     Name: writespectra.f90  
 !     Description:  
@@ -26,7 +26,7 @@
 !           ncn2:  number of continuum energy bins
 !           dpthc(2,ncn): optical depth in continuum bins 
 !           nlsvn: atomic data parameter, number of lines in atomic database
-!           elum(3,nnnl):  line luminosities (erg/s/10^38)
+!           elum(2,nnnl):  line luminosities (erg/s/10^38)
 !           zrems(4,ncn):  master spectrum array.  (erg/s/erg/10^38)
 !           zremsz(ncn):  input spectrum  (erg/s/erg/10^38)
 !           kmodelname:  model name 
@@ -58,13 +58,14 @@
       real(8) parval(55) 
       character(30) parcomm(55) 
 !     line luminosities                                                 
-      real(8) elum(3,nnnl) 
+      real(8) elum(2,nnnl) 
 !     energy bins                                                       
       real(8) epi(ncn) 
 !     continuum lum                                                     
       real(8) zrems(5,ncn),zremsz(ncn) 
 !     continuum optical depths                                          
       real(8) dpthc(2,ncn) 
+      real(8) elinb(nnnl)
       REAL(8), DIMENSION(:,:), ALLOCATABLE :: zrtmp
       REAL(4), DIMENSION(:), ALLOCATABLE :: rtmp
       character(16) knam,klabs(6),kunits(6),kform(6),kblnk16 
@@ -72,7 +73,7 @@
       integer unit,istatus 
       integer nlsvn, ll 
       integer tbcol(6), nrows, rowlen, kk 
-      integer frow, felem, colnum, tfields, status, verbose,mm 
+      integer frow, felem, colnum, tfields, status, verbose,mm,lwri
       real(8) eliml, elimh 
       real(8) vturbi 
 !     the atomic data creation date                                     
@@ -88,6 +89,8 @@
 !
       data kblnk16/'                '/ 
 !                                                                       
+       save kblnk16
+
       ALLOCATE(rtmp(ncn))
       ALLOCATE(zrtmp(5,ncn))
 !                                                                       
@@ -129,10 +132,11 @@
           zrtmp(mm,ll)=zrems(mm,ll)
           enddo
         enddo
-      call binemis(lun11,lpri,xlum,                                     &
+      if (lwri.ge.0)                                                    &
+     & call binemis(lun11,lpri,xlum,                                    &
      &       t,vturbi,epi,ncn2,dpthc,                                   &
      &       nlsvn,                                                     &      
-     &       eliml,elimh,elum,zrems,zremsz)
+     &       elinb,eliml,elimh,elum,zrems,zremsz)
 !                                                                       
 !     write the spectral data to the extension                          
       do mm=1,6 
